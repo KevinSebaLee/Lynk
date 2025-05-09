@@ -11,8 +11,7 @@ export default function Container({ children, style }) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxWidth: 1200,
-    paddingHorizontal: 15,
-    paddingVertical: 25,
+    maxWidth: 1000,
+    paddingHorizontal: 25,
   },
 });
