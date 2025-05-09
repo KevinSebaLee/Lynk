@@ -9,12 +9,15 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@types/react-native-snap-carousel": "^3.8.11",
     "expo": "^53.0.9",
+    "expo-linear-gradient": "~14.1.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-linear-gradient": "^2.8.3",
-    "expo-linear-gradient": "~14.1.4"
+    "react-native-reanimated": "^3.17.5",
+    "react-native-reanimated-carousel": "^4.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
