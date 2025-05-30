@@ -17,7 +17,10 @@
     "react-native": "0.79.2",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-reanimated": "^3.17.5",
-    "react-native-reanimated-carousel": "^4.0.2"
+    "react-native-reanimated-carousel": "^4.0.2",
+    "react-dom": "19.0.0",
+    "react-native-web": "^0.20.0",
+    "@expo/metro-runtime": "~5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
