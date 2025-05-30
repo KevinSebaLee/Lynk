@@ -1,87 +1,88 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image, Dimensions, ImageBackground } from 'react-native';
-import Header from './src/components/header.js';
-import Container from './src/components/container.js';
-import { LinearGradient } from 'expo-linear-gradient';
-import Carousel from 'react-native-reanimated-carousel';
-import home  from './src/screens/home.js';
-import eventos  from './src/screens/eventos.js';
+import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Home  from './src/screens/home.js';
+import Eventos  from './src/screens/eventos.js';
+import Create  from './src/screens/create.js';
+import gestion from './src/screens/gestion.js';
+
+const StackHome = createNativeStackNavigator();
+const StackEventos = createNativeStackNavigator();
+const StackCreate = createNativeStackNavigator();
+const StackGestion = createNativeStackNavigator();
 
 
 function StackHomeNavigator() {
   return (
-    <StackHome.Navigator>
-      <StackHome.Screen name="home" component={home} />
+    <StackHome.Navigator screenOptions={{headerShown:false}}>
+      <StackHome.Screen name="Home" component={Home} />
     </StackHome.Navigator>
   );
 }
 
 function StackEventosNavigator() {
   return (
-    <StackEventos.Navigator>
-      <StackEventos.Screen name="eventos" component={eventos} />
+    <StackEventos.Navigator screenOptions={{headerShown:false}}>
+      <StackEventos.Screen name="Eventos" component={Eventos} />
     </StackEventos.Navigator>
   );
 }
-// function StackCNavigator() {
-//   return (
-//     <StackC.Navigator>
-//       <StackC.Screen name="ScreenC1" component={ScreenC1} />
-//       <StackC.Screen name="ScreenC2" component={ScreenC2} />
-//     </StackC.Navigator>
-//   );
-// }
+ function StackCreateNavigator() {
+   return (
+     <StackCreate.Navigator screenOptions={{headerShown:false}}>
+       <StackCreate.Screen name="Crear" component={Create} />
+     </StackCreate.Navigator>
+   );
+ }
 
-// function StackDNavigator() {
-//   return (
-//     <StackD.Navigator>
-//       <StackD.Screen name="ScreenD1" component={ScreenD1} />
-//       <StackD.Screen name="ScreenD2" component={ScreenD2} />
-//     </StackD.Navigator>
-//   );
-// }
-
-
+ function StackGestionNavigator() {
+  return (
+    <StackGestion.Navigator screenOptions={{headerShown:false}}>
+      <StackGestion.Screen name="Gestion" component={gestion} />
+    </StackGestion.Navigator>
+  );
+}
 
 const Tab = createBottomTabNavigator();
 function MyTabs() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="home"     component={StackHomeNavigator} 
+    <Tab.Navigator screenOptions={{headerShown:false}}>
+      <Tab.Screen name="Home"     component={StackHomeNavigator} 
       options={{
         tabBarIcon: ({ color }) => (
           <Ionicons name="home" size={24} color={color} />
          ),
       }}
       />
-      <Tab.Screen name="eventos" component={StackEventosNavigator} 
+      <Tab.Screen name="Eventos" component={StackEventosNavigator} 
       options={{
         tabBarIcon: ({ color }) => (
           <Ionicons name="search" size={24} color={color} />
          ),
       }}
       />
-      {/* <Tab.Screen name="Perfil"   component={StackCNavigator}
+      <Tab.Screen name="Create"   component={StackCreateNavigator}
         options={{
           tabBarIcon: ({ color }) => (
-            <Ionicons name="person" size={24} color={color} />
+            <Ionicons name="add-circle" size={24} color={'#642684'} />
            ),
         }}
       />
-      <Tab.Screen name="Ajustes" component={StackDNavigator} 
-      options={{
-        tabBarIcon: ({ color }) => (
-          <Ionicons name="settings" size={24} color={color} />
-         ),
-      }}
-      /> */}
+      <Tab.Screen name="Gestion"   component={StackGestionNavigator}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="card" size={24} color={color} />
+           ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer >
       <MyTabs />
     </NavigationContainer>
   );

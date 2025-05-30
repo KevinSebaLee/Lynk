@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const width = Dimensions.get('window').width;
 
-export default function eventos() {
+export default function create() {
   
 //   const carouselItems = [
 //     { title: 'Promo 1', text: '50% en tu primera compra' , bgImage: require('./assets/img/lollapalooza.jpg')},
@@ -25,7 +25,7 @@ export default function eventos() {
         <Container>
           <View style={styles.tickets}>
             <View style={styles.textoTicket}>
-              <Text>Eventos Disponibles</Text>
+              <Text>Crear Disponibles</Text>
               <Text style={styles.movimientosText}>Movimientos</Text>
             </View>
 
@@ -37,45 +37,9 @@ export default function eventos() {
               <Image source={require('../../assets/img/icons/comprar.png')} style={styles.iconCart} />
             </View>
 
-            <View style={styles.metodoPagoWrapper}>
-              <View style={styles.metodoPago}>
-                <Image source={require('../../assets/img/icons/mercadoPago.png')} style={styles.iconLarge} />
-                <Image source={require('../../assets/img/icons/qr.png')} style={styles.iconSmall} />
-              </View>
-            </View>
           </View>
         </Container>
 
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
       </LinearGradient>
     </View>
   );

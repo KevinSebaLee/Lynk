@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Image , Dimensions} from 'react-native';
 import Header from '../components/header.js';
 import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,13 +7,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const width = Dimensions.get('window').width;
 
-export default function eventos() {
+export default function gestion() {
   
-//   const carouselItems = [
-//     { title: 'Promo 1', text: '50% en tu primera compra' , bgImage: require('./assets/img/lollapalooza.jpg')},
-//     { title: 'Promo 2', text: '2x1 en recargas los lunes' },
-//     { title: 'Promo 3', text: 'Plan premium gratis 7 días' },
-//   ];
+  // const carouselItems = [
+  //   { title: 'Promo 1', text: '50% en tu primera compra' , bgImage: require('./assets/img/lollapalooza.jpg')},
+  //   { title: 'Promo 2', text: '2x1 en recargas los lunes' },
+  //   { title: 'Promo 3', text: 'Plan premium gratis 7 días' },
+  // ];
   
 
   return (
@@ -25,13 +25,13 @@ export default function eventos() {
         <Container>
           <View style={styles.tickets}>
             <View style={styles.textoTicket}>
-              <Text>Eventos Disponibles</Text>
+              <Text>Tickets Disponibles</Text>
               <Text style={styles.movimientosText}>Movimientos</Text>
             </View>
 
             <View style={styles.ticketTotal}>
               <View style={styles.cantidadTickets}>
-              <Image source={require('../../assets/img/icons/tickets.png')} style={styles.iconTicket} />
+                <Image source={require('../../assets/img/icons/tickets.png')} style={styles.iconTicket} />
                 <Text style={styles.numeroTickets}>50.000</Text>
               </View>
               <Image source={require('../../assets/img/icons/comprar.png')} style={styles.iconCart} />
@@ -46,36 +46,7 @@ export default function eventos() {
           </View>
         </Container>
 
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
-        <Container>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Event Name</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Descrpcion</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Container>
+       
       </LinearGradient>
     </View>
   );
