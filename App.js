@@ -1,3 +1,5 @@
+//NO BORRAR: npm install --global @expo/ngrok@^4.1.0
+
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';

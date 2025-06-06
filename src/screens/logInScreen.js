@@ -1,18 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Button, Image, KeyboardAvoidingView, Pressable, } from 'react-native';
-import HideWithKeyboard from 'react-native-hide-with-keyboard';
+//import HideWithKeyboard from 'react-native-hide-with-keyboard';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import signUpScreen from './signUpScreen';
-import inicioScreen from './incioScreen';
+import inicioScreen from './inicioScreen';
 
 export default function logInScreen() {
   
   const [mail, onChangeText] = React.useState('');
   const [psw, onChangeNumber] = React.useState('');
-  const loginPic = require('../../assets/images/login.png');
-  const bgLogin = require('../../assets/images/bgLogin.png');
+  const loginPic = require('../../assets/img/login.png');
+  const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = {uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png'};
   const navigation = useNavigation();
 
@@ -59,7 +59,7 @@ export default function logInScreen() {
         </TouchableOpacity>
         </KeyboardAvoidingView>
         
-        <HideWithKeyboard style={styles.bottomSection}>
+        <View style={styles.bottomSection}>
           <Text style={{fontSize:15,}}>No tienes cuenta?  <Pressable onPress={() => navigation.navigate(signUpScreen)}><Text style={{color: '#642684', fontSize:15, textDecorationLine: 'underline'}}>Crear cuenta</Text></Pressable>
           </Text>
           <View style={styles.redes}>
@@ -70,7 +70,7 @@ export default function logInScreen() {
               <Image style={{width: 30, height: 30}} source={{uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png'}}/>
             </View>
           </View>
-        </HideWithKeyboard>
+        </View>
       </View>  
     </ImageBackground>
     </View>

@@ -7,7 +7,7 @@ import signUpScreen from './signUpScreen';
 
 export default function inicioScreen() {
   const navigation = useNavigation();
-  const picInicio = require('../../assets/images/picInicio.png');
+  const picInicio = require('../../assets/img/picInicio.png');
 
   return (
     <SafeAreaView style={styles.container}>

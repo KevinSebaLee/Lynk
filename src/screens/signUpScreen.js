@@ -1,18 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Button, Image, KeyboardAvoidingView, Pressable, } from 'react-native';
-import HideWithKeyboard from 'react-native-hide-with-keyboard';
+//import HideWithKeyboard from 'react-native-hide-with-keyboard';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import logInScreen from './logInScreen';
-import inicioScreen from './incioScreen';
+import inicioScreen from './inicioScreen';
 
 export default function signUpScreen() {
   
   const [mail, onChangeText] = React.useState('');
   const [psw, onChangeNumber] = React.useState('');
-  const signPic = require('../../assets/images/signPic.png');
-  const bgLogin = require('../../assets/images/bgLogin.png');
+  const signPic = require('../../assets/img/signPic.png');
+  const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = {uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png'};
 
   const navigation = useNavigation();
@@ -80,11 +80,11 @@ export default function signUpScreen() {
         </TouchableOpacity>
         </KeyboardAvoidingView>
         
-        <HideWithKeyboard style={styles.bottomSection}>
+        <View style={styles.bottomSection}>
           <Text style={{fontSize:15,}}>Ya tienes cuenta?  <Pressable style={{display:'flex', alignItems:'center', justifyContent:'center'}} onPress={() => navigation.navigate(logInScreen)}><Text style={{color: '#642684', fontSize:15, textDecorationLine: 'underline', paddingTop:3}} >Log in</Text></Pressable>
           </Text>
 
-        </HideWithKeyboard>
+        </View>
       </View>  
     </ImageBackground>
     </View>
