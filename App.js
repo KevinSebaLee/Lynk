@@ -1,7 +1,7 @@
 //NO BORRAR: npm install --global @expo/ngrok@^4.1.0
 
 import { Ionicons } from '@expo/vector-icons';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation,getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -65,10 +65,25 @@ function StackEventosNavigator() {
   );
 }
 
+function ocultarTab(route) {
+  const screen = getFocusedRouteNameFromRoute(route) ?? 'inicioScreen';
+
+  if (screen === 'logInScreen' || screen === 'signUpScreen' || screen === 'inicioScreen') {
+    return { display: 'none' };
+  }
+  return { display: 'flex' };
+}
+
 const Tab = createBottomTabNavigator();
 function MyTabs() {
   return (
     <Tab.Navigator screenOptions={{headerShown:false}}>
+      
+      <Tab.Screen name="Inicio"     component={StackInicioNavigator} 
+      options={({route}) => ({
+        tabBarStyle: ocultarTab(route),
+      })}
+      />
       <Tab.Screen name="Home"     component={StackHomeNavigator} 
       options={{
         tabBarIcon: ({ color }) => (

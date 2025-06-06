@@ -6,6 +6,7 @@ import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import signUpScreen from './signUpScreen';
 import inicioScreen from './inicioScreen';
+import home from './home';
 
 export default function logInScreen() {
   
@@ -54,7 +55,7 @@ export default function logInScreen() {
 
           <StatusBar style='dark'/>
         
-        <TouchableOpacity style={styles.btnView}>
+        <TouchableOpacity style={styles.btnView} onPress={() => navigation.navigate(home)}>
           <Text style={{textAlign:'center', color:'#ffffff'}}>Ingresar</Text>
         </TouchableOpacity>
         </KeyboardAvoidingView>

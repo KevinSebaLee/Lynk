@@ -75,7 +75,7 @@ export default function signUpScreen() {
 
         <StatusBar style='dark'/>
         
-        <TouchableOpacity style={styles.btnView}>
+        <TouchableOpacity style={styles.btnView}  onPress={() => navigation.navigate(home)}>
           <Text style={{textAlign:'center', color:'#ffffff'}}>Ingresar</Text>
         </TouchableOpacity>
         </KeyboardAvoidingView>
