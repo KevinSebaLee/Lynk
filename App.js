@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation,getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import{useState} from 'react'
 
 import Inicio  from './src/screens/inicioScreen.js';
 import LogIn  from './src/screens/logInScreen.js';
@@ -14,6 +15,7 @@ import Eventos  from './src/screens/eventos.js';
 import Create  from './src/screens/create.js';
 import gestion from './src/screens/gestion.js';
 
+const Stack = createNativeStackNavigator()
 const StackInicio = createNativeStackNavigator()
 const StackHome = createNativeStackNavigator();
 const StackEventos = createNativeStackNavigator();
@@ -37,7 +39,7 @@ function StackInicioNavigator() {
 function StackHomeNavigator() {
   return (
     <StackHome.Navigator screenOptions={{headerShown:false}}>
-      <StackHome.Screen name="Home" component={Home} />
+      <StackHome.Screen name="home" component={Home} />
     </StackHome.Navigator>
   );
 }
@@ -76,10 +78,12 @@ function ocultarTab(route) {
 
 const Tab = createBottomTabNavigator();
 function MyTabs() {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(true)
+
   return (
-    <Tab.Navigator screenOptions={{headerShown:false}}>
-      
-      <Tab.Screen name="Inicio"     component={StackInicioNavigator} 
+     <Tab.Navigator screenOptions={{headerShown:false}} initialRouteName={isAuthenticated ? 'Home' : 'Inicio'}>
+       <Tab.Screen name="Inicio"     component={StackInicioNavigator} 
       options={({route}) => ({
         tabBarStyle: ocultarTab(route),
       })}
@@ -90,7 +94,7 @@ function MyTabs() {
           <Ionicons name="home" size={24} color={color} />
          ),
       }}
-      />
+      /> 
       <Tab.Screen name="Eventos" component={StackEventosNavigator} 
       options={{
         tabBarIcon: ({ color }) => (
