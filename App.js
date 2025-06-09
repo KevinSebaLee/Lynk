@@ -14,6 +14,7 @@ import Home  from './src/screens/home.js';
 import Eventos  from './src/screens/eventos.js';
 import Create  from './src/screens/create.js';
 import gestion from './src/screens/gestion.js';
+import Agenda from './src/screens/agenda.js';
 
 const Stack = createNativeStackNavigator()
 const StackInicio = createNativeStackNavigator()
@@ -21,6 +22,7 @@ const StackHome = createNativeStackNavigator();
 const StackEventos = createNativeStackNavigator();
 const StackCreate = createNativeStackNavigator();
 const StackGestion = createNativeStackNavigator();
+const StackAgenda = createNativeStackNavigator();
 
 
 
@@ -64,6 +66,14 @@ function StackEventosNavigator() {
     <StackGestion.Navigator screenOptions={{headerShown:false}}>
       <StackGestion.Screen name="Gestion" component={gestion} />
     </StackGestion.Navigator>
+  );
+}
+
+function StackAgendaNavigator() {
+  return (
+    <StackAgenda.Navigator screenOptions={{headerShown:false}}>
+      <StackAgenda.Screen name="Agenda" component={Agenda} />
+    </StackAgenda.Navigator>
   );
 }
 
@@ -113,6 +123,13 @@ function MyTabs() {
         options={{
           tabBarIcon: ({ color }) => (
             <Ionicons name="card" size={24} color={color} />
+           ),
+        }}
+      />
+      <Tab.Screen name="Agenda"   component={StackAgendaNavigator}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="calendar-number-outline" size={24} color={color} />
            ),
         }}
       />
