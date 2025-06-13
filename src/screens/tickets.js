@@ -1,71 +1,35 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image , Dimensions, Pressable, Button} from 'react-native';
+import { StyleSheet, View, Text, Image , Dimensions, Button} from 'react-native';
 import Header from '../components/header.js';
 import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
-//import Carousel from 'react-native-snap-carousel';
-import tickets from './tickets.js';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import premiumGeneral from './premiumGeneral.js';
-import eventos from './eventos.js';
 
+//import Carousel from 'react-native-snap-carousel';
 
 const width = Dimensions.get('window').width;
 
-export default function home() {
+export default function tickets() {
   
   // const carouselItems = [
   //   { title: 'Promo 1', text: '50% en tu primera compra' , bgImage: require('./assets/img/lollapalooza.jpg')},
   //   { title: 'Promo 2', text: '2x1 en recargas los lunes' },
   //   { title: 'Promo 3', text: 'Plan premium gratis 7 días' },
   // ];
+  
   const navigation = useNavigation();
-
-
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#642684', '#ffffff']} style={{ flex: 1 }}>
         <StatusBar style="light" />
         <Header nombre='Kevin' />
 
-        <Pressable onPress={() => navigation.navigate(tickets)}>
-          <View style={styles.tickets}>
-            <View style={styles.textoTicket}>
-              <Text>Tickets Disponibles</Text>
-              <Text style={styles.movimientosText}>Movimientos</Text>
-            </View>
+        <Text>Tus tickets</Text>
+       <Button title="comprar"/>
+       <Button title="transferir"/>
+       <Button title="canjear"/>
+       <Button title="tu ID"/> 
 
-            <View style={styles.ticketTotal}>
-              <View style={styles.cantidadTickets}>
-                <Image source={require('../../assets/img/icons/tickets.png')} style={styles.iconTicket} />
-                <Text style={styles.numeroTickets}>50.000</Text>
-              </View>
-              <Image source={require('../../assets/img/icons/comprar.png')} style={styles.iconCart} />
-            </View>
-
-            <View style={styles.metodoPagoWrapper}>
-              <View style={styles.metodoPago}>
-                <Image source={require('../../assets/img/icons/mercadoPago.png')} style={styles.iconLarge} />
-                <Image source={require('../../assets/img/icons/qr.png')} style={styles.iconSmall} />
-              </View>
-            </View>
-          </View>
-        </Pressable>
-
-        <Pressable  onPress={() => navigation.navigate(premiumGeneral)}>
-          <View style={styles.planPremium}>
-            <LinearGradient colors={['#642684', '#000000']}>
-              <Container style={{marginTop: 20}}>
-                <Text style={styles.tituloPremium}>Plan Premium</Text>
-                <Text style={{color:'#ffffff', marginVertical: 10}}>Elige nuestro plan premium y disfruta de todos los beneficios y servicios que este ofrece</Text>
-              </Container>
-            </LinearGradient>
-          </View>
-        </Pressable>
-        <Pressable onPress={() => navigation.navigate(eventos)} style={{backgroundColor:'gray', marginTop:20}}>
-          <Text>Nombre Evento</Text>
-          <Button title="Ver más"/>
-        </Pressable>
       </LinearGradient>
     </View>
   );

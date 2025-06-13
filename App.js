@@ -15,6 +15,8 @@ import Eventos  from './src/screens/eventos.js';
 import Create  from './src/screens/create.js';
 import gestion from './src/screens/gestion.js';
 import Agenda from './src/screens/agenda.js';
+import Tickets from './src/screens/tickets.js';
+import PremiumGeneral from './src/screens/premiumGeneral.js';
 
 const Stack = createNativeStackNavigator()
 const StackInicio = createNativeStackNavigator()
@@ -33,6 +35,7 @@ function StackInicioNavigator() {
       <StackInicio.Screen name="logInScreen" component={LogIn} options={{
     headerTransparent: true,  headerTitle: ''}}/>
       <StackInicio.Screen name="signUpScreen" component={SignUp} />
+      
 
     </StackInicio.Navigator>
   );
@@ -42,6 +45,10 @@ function StackHomeNavigator() {
   return (
     <StackHome.Navigator screenOptions={{headerShown:false}}>
       <StackHome.Screen name="home" component={Home} />
+      <StackHome.Screen name="tickets" component={Tickets} />
+      <StackHome.Screen name="premiumGeneral" component={PremiumGeneral} />
+      
+
     </StackHome.Navigator>
   );
 }
@@ -53,6 +60,7 @@ function StackEventosNavigator() {
     </StackEventos.Navigator>
   );
 }
+
  function StackCreateNavigator() {
    return (
      <StackCreate.Navigator screenOptions={{headerShown:false}}>
