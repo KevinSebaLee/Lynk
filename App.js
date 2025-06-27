@@ -9,7 +9,6 @@ import{useState} from 'react'
 import Inicio  from './src/screens/inicioScreen.js';
 import LogIn  from './src/screens/logInScreen.js';
 import SignUp  from './src/screens/signUpScreen.js';
-
 import Home  from './src/screens/home.js';
 import Eventos  from './src/screens/eventos.js';
 import Create  from './src/screens/create.js';
@@ -17,6 +16,7 @@ import gestion from './src/screens/gestion.js';
 import Agenda from './src/screens/agenda.js';
 import Tickets from './src/screens/tickets.js';
 import PremiumGeneral from './src/screens/premiumGeneral.js';
+
 
 const Stack = createNativeStackNavigator()
 const StackInicio = createNativeStackNavigator()
