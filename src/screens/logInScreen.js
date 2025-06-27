@@ -1,18 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Image, KeyboardAvoidingView, Pressable, Alert } from 'react-native';
-//import HideWithKeyboard from 'react-native-hide-with-keyboard';
 import { useNavigation } from '@react-navigation/native';
 import signUpScreen from './signUpScreen';
 import inicioScreen from './inicioScreen';
-import home from './home';
+import home from './home.js';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000';
+// Use your permanent ngrok URL for the API base
+const API_URL = "https://stirring-intense-sheep.ngrok-free.app";
 
 export default function logInScreen() {
   const [mail, setMail] = useState('');
-  const [psw, setPsw] = useState('');
+  const [contraseña, setContraseña] = useState('');
   const [loading, setLoading] = useState(false);
   const loginPic = require('../../assets/img/login.png');
   const bgLogin = require('../../assets/img/bgLogin.png');
@@ -20,20 +20,24 @@ export default function logInScreen() {
   const navigation = useNavigation();
 
   const handleLogin = async () => {
-    if (!mail || !psw) {
+    if (!mail || !contraseña) {
       Alert.alert('Por favor ingresa tu email y contraseña.');
       return;
     }
     setLoading(true);
     try {
+      // Adjust field names if your backend expects different ones
       const response = await axios.post(`${API_URL}/auth/login`, {
         email: mail,
-        contraseña: psw,
+        contraseña: contraseña,
       }, {
         timeout: 5000,
       });
 
       setLoading(false);
+
+      console.log(response.data)
+
       navigation.navigate(home, { user: response.data });
     } catch (error) {
       setLoading(false);
@@ -80,8 +84,8 @@ export default function logInScreen() {
 
             <TextInput
               style={styles.input}
-              onChangeText={setPsw}
-              value={psw}
+              onChangeText={setContraseña}
+              value={contraseña}
               placeholder="Ingrese su contraseña"
               secureTextEntry
             />
@@ -98,7 +102,11 @@ export default function logInScreen() {
           </KeyboardAvoidingView>
 
           <View style={styles.bottomSection}>
-            <Text style={{ fontSize: 15, }}>No tienes cuenta?  <Pressable onPress={() => navigation.navigate(signUpScreen)}><Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text></Pressable>
+            <Text style={{ fontSize: 15, }}>
+              No tienes cuenta?{' '}
+              <Pressable onPress={() => navigation.navigate(signUpScreen)}>
+                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
+              </Pressable>
             </Text>
             <View style={styles.redes}>
               <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10, }}>O continua con </Text>

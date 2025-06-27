@@ -26,8 +26,6 @@ const StackCreate = createNativeStackNavigator();
 const StackGestion = createNativeStackNavigator();
 const StackAgenda = createNativeStackNavigator();
 
-
-
 function StackInicioNavigator() {
   return (
     <StackInicio.Navigator screenOptions={{ headerShown: false }}>
