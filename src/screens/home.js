@@ -1,11 +1,18 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View, SafeAreaView, ScrollView, Dimensions, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  SafeAreaView,
+  ScrollView,
+  Dimensions,
+  Pressable,
+} from "react-native";
 import Header from "../components/header.js";
 import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-
+import agenda from '../components/agendaIcon';
 const { width, height } = Dimensions.get("window");
 
 export default function Home() {
@@ -15,7 +22,7 @@ export default function Home() {
     <LinearGradient colors={["#642684", "#ffffff"]} style={styles.gradient}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
@@ -31,6 +38,9 @@ export default function Home() {
 
           <View style={styles.bannerWrapper}>
             <PremiumBanner />
+          </View>
+          <View style={styles.agendaWrapper}>
+            
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -48,5 +58,13 @@ const styles = StyleSheet.create({
   },
   bannerWrapper: {
     width: width - 5,
+  },
+  agendaWrapper: {
+    alignItems: 'center',
+    marginTop: 18,
+  },
+  agendaImage: {
+    width: width * 0.32,   // o el tamaño que prefieras
+    height: width * 0.32,  // cuadrada, cambia si querés otra forma
   },
 });
