@@ -1,7 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 const illustration = require('../../assets/img/banner.png');
+
+const { width } = Dimensions.get('window');
+const BANNER_PADDING = width * 0.05;
+const BANNER_MARGIN = width * 0.028;
+const TITLE_FONT_SIZE = Math.max(13, width * 0.033);
+const PREMIUM_FONT_SIZE = Math.max(24, width * 0.065);
+const SUBTITLE_FONT_SIZE = Math.max(12, width * 0.03);
+const ILLUSTRATION_HEIGHT = Math.max(80, width * 0.25);
+const ILLUSTRATION_MAX_WIDTH = Math.max(90, width * 0.28);
 
 const PremiumBanner = () => (
   <LinearGradient
@@ -30,10 +39,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 10,
-    padding: 24,
-    margin: 18,
-    minHeight: 60,
-    // Sombra para Android/iOS
+    padding: BANNER_PADDING,
+    margin: BANNER_MARGIN,
+    marginLeft: BANNER_MARGIN + 3,
+    minHeight: ILLUSTRATION_HEIGHT + 10,
     shadowColor: "#735BF2",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -46,27 +55,27 @@ const styles = StyleSheet.create({
   },
   title: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: TITLE_FONT_SIZE,
     fontWeight: '500',
     marginBottom: 1,
-    width: 200,
+    maxWidth: width * 0.55,
   },
   premium: {
-    top: 5,
     color: '#fff',
-    fontSize: 26,
+    fontSize: PREMIUM_FONT_SIZE,
     fontWeight: 'bold',
     marginBottom: 6,
+    marginTop: 6,
   },
   subtitle: {
     color: '#E5DAF7',
-    fontSize: 13,
+    fontSize: SUBTITLE_FONT_SIZE,
     marginTop: 8,
   },
   illustration: {
     flex: 1,
-    height: 100,
-    maxWidth: 110,
+    height: ILLUSTRATION_HEIGHT,
+    maxWidth: ILLUSTRATION_MAX_WIDTH,
     marginLeft: 6,
   },
 });

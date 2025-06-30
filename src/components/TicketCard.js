@@ -1,7 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = Math.min(width * 0.92, 420);
 
 const TicketCard = ({ tickets = "50.750", onGetMore, style }) => (
   <LinearGradient
@@ -18,26 +21,32 @@ const TicketCard = ({ tickets = "50.750", onGetMore, style }) => (
     <Text style={styles.subtitle}>Tickets disponibles</Text>
     {/* Número principal con ícono */}
     <View style={styles.ticketsRow}>
-      <FontAwesome5 name="ticket-alt" size={30} color="#fff" style={{marginRight: 8}} />
+      <FontAwesome5 name="ticket-alt" size={28} color="#fff" style={{marginRight: 8}} />
       <Text style={styles.ticketsNumber}>{tickets}</Text>
     </View>
-    {/* Botón */}
-    <TouchableOpacity style={styles.button} onPress={onGetMore}>
-      <MaterialIcons name="add-circle-outline" size={20} color="#7D3C98" style={{marginRight: 5}} />
-      <Text style={styles.buttonText}>Consigue más tickets</Text>
+    {/* Botón con gradiente y estilo nuevo */}
+    <TouchableOpacity style={styles.buttonWrapper} activeOpacity={0.90} onPress={onGetMore}>
+      <LinearGradient
+        colors={['#A990F9', '#735BF2']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.button}
+      >
+        <MaterialIcons name="add-circle-outline" size={20} color="#fff" style={{marginRight: 10}} />
+        <Text style={styles.buttonText}>Consigue más tickets</Text>
+      </LinearGradient>
     </TouchableOpacity>
   </LinearGradient>
 );
 
 const styles = StyleSheet.create({
   card: {
-    width: 370,
-    minHeight: 210,
+    width: CARD_WIDTH,
+    minHeight: 0.47 * CARD_WIDTH,
     alignSelf: 'center',
-    marginVertical: 20,
-    padding: 24,
-    borderRadius: 16,
-    // El gradiente reemplaza el backgroundColor
+    padding: CARD_WIDTH * 0.06,
+    borderRadius: 10,
+    marginBottom: 10,
     shadowColor: "#2d1d3a",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -48,15 +57,14 @@ const styles = StyleSheet.create({
   },
   qrIcon: {
     position: 'absolute',
-    top: 26,
-    right: 25,
+    top: 24,
+    right: 24,
     opacity: 0.94,
     zIndex: 2,
   }, 
   subtitle: {
-    top: 1,
-    left: 15,
-    fontSize: 13,
+    marginLeft: 10,
+    fontSize: CARD_WIDTH * 0.038,
     letterSpacing: 1,
     fontWeight: '500',
     color: '#ffffff',
@@ -66,30 +74,31 @@ const styles = StyleSheet.create({
   ticketsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    left: 15,
+    marginLeft: 10,
     marginVertical: 8,
   },
   ticketsNumber: {
-    fontSize: 38,
+    fontSize: CARD_WIDTH * 0.1,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
   },
+  buttonWrapper: {
+    marginTop: 10,
+  },
   button: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    right: 36,
-    marginTop: 10,
-    paddingVertical: 9,
-    paddingHorizontal: 18,
-    backgroundColor: '#fff',
-    borderRadius: 9,
-    
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: width - 180,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
   buttonText: {
-    color: '#7D3C98',
+    color: '#fff',
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: CARD_WIDTH * 0.04,
+    textAlign: 'center',
   },
 });
 
