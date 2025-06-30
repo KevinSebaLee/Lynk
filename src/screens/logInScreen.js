@@ -6,9 +6,11 @@ import signUpScreen from './signUpScreen';
 import inicioScreen from './inicioScreen';
 import home from './home.js';
 import axios from 'axios';
+import { storeToken } from '../utils/Token.js';
+import { API } from '@env';
 
 // Use your permanent ngrok URL for the API base
-const API_URL = "https://stirring-intense-sheep.ngrok-free.app";
+const API_URL = API;
 
 export default function logInScreen() {
   const [mail, setMail] = useState('');
@@ -36,7 +38,9 @@ export default function logInScreen() {
 
       setLoading(false);
 
-      console.log(response.data)
+      console.log(response.data.token)
+
+      storeToken(response.data.token)
 
       navigation.navigate(home, { user: response.data });
     } catch (error) {

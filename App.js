@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer, useNavigation,getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import{useState} from 'react'
+import { useState } from 'react'
 
 import Inicio  from './src/screens/inicioScreen.js';
 import LogIn  from './src/screens/logInScreen.js';
