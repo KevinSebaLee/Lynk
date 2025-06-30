@@ -1,9 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image , Dimensions, Button} from 'react-native';
+import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, SafeAreaView} from 'react-native';
 import Header from '../components/header.js';
 import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import TicketCard from "../components/TicketCard.js";
+
 
 //import Carousel from 'react-native-snap-carousel';
 
@@ -19,111 +22,107 @@ export default function tickets() {
   
   const navigation = useNavigation();
   return (
+    <>
+    <SafeAreaView>
+    <Pressable style={{marginTop: 100}}>
+            <View style={styles.ticketWrapper}>
+              <TicketCard
+                onGetMore={() => alert("¡Función para conseguir más tickets!")}
+              />
+            </View>
+    </Pressable>
+
+    <View style={styles.listMov}>
+      <Text>Transacciones</Text>
     <View style={styles.container}>
-      <LinearGradient colors={['#642684', '#ffffff']} style={{ flex: 1 }}>
-        <StatusBar style="light" />
-        <Header nombre='Kevin' />
-
-        <Text>Tus tickets</Text>
-       <Button title="comprar"/>
-       <Button title="transferir"/>
-       <Button title="canjear"/>
-       <Button title="tu ID"/> 
-
-      </LinearGradient>
+    <View style={styles.iconContainer}>
+      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
     </View>
+    <View style={styles.textContainer}>
+      <Text style={styles.title}>Ariana grande</Text>
+      <Text style={styles.subtitle}>Concierto en obras</Text>
+    </View>
+    <View style={styles.rightContainer}>
+      <Text style={styles.amount}>-53.95</Text>
+      <Text style={styles.date}>Julio 14, 2022</Text>
+    </View>
+  </View>
+  <View style={styles.container}>
+    <View style={styles.iconContainer}>
+      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
+    </View>
+    <View style={styles.textContainer}>
+      <Text style={styles.title}>Garden Party</Text>
+      <Text style={styles.subtitle}>Jardín Botánico</Text>
+    </View>
+    <View style={styles.rightContainer}>
+      <Text style={styles.amount}>-53.95</Text>
+      <Text style={styles.date}>Julio 14, 2022</Text>
+    </View>
+  </View>
+  <View style={styles.container}>
+    <View style={styles.iconContainer}>
+      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
+    </View>
+    <View style={styles.textContainer}>
+      <Text style={styles.title}>EA Sport</Text>
+      <Text style={styles.subtitle}>Oficinas KRU</Text>
+    </View>
+    <View style={styles.rightContainer}>
+      <Text style={styles.amount}>-53.95</Text>
+      <Text style={styles.date}>Julio 14, 2022</Text>
+    </View>
+  </View>
+    <StatusBar style="auto" />
+  </View>
+  </SafeAreaView>
+  </>
   );
 }
 
 
 const styles = StyleSheet.create({
-  carouselItem: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginHorizontal: 10,
-  },
-  carousel: {
-    marginTop: 20,
-  },
-  carouselBackground: {
-    ...StyleSheet.absoluteFillObject,
-    width: '100%',
-    height: '100%',
-  },
   container: {
-    flex: 0.6,
-  },  
-  tickets: {
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    paddingVertical: 25,
-    paddingHorizontal: 20,
-  },
-  textoTicket: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingRight: 10,
-    paddingLeft: 5,
-    marginBottom: 10,
-  },
-  ticketTotal: {
-    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
   },
-  cantidadTickets: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
+  listMov:{
+    marginTop:20,
   },
-  numeroTickets: {
-    fontSize: 40,
+  iconContainer: {
+    backgroundColor: '#f3f4fd',
+    padding: 25,
+    width:20,
+    height:20,
+    borderRadius: 50,
+  },
+  textContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#888',
+  },
+  rightContainer: {
+    alignItems: 'flex-end',
+  },
+  amount: {
+    fontSize: 16,
+    color: '#ec4d5f',
     fontWeight: '600',
   },
-  iconTicket: {
-    width: 40,
-    height: 40,
-    marginRight: 10,
+  date: {
+    fontSize: 12,
+    color: '#999',
+    fontStyle: 'italic',
   },
-  iconCart: {
-    width: 30,
-    height: 30,
-  },
-  metodoPagoWrapper: {
-    marginHorizontal: 5,
-    marginTop: 15,
-  },
-  metodoPago: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#000000',
-    borderRadius: 5,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-  },
-  iconLarge: {
-    width: 32,
-    height: 32,
-  },
-  iconSmall: {
-    width: 24,
-    height: 24,
-  },
-  movimientosText: {
-    color: '#9F4B97',
-    fontWeight: '500',
-  },
-  planPremium: {
-    borderRadius: 10,
-    marginTop: 20,
-    overflow: 'hidden',
-  },
-  tituloPremium:{
-    fontSize: 23,
-    color: '#ffffff',
-    textDecorationStyle: 'solid'
-  },  
 });
