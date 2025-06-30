@@ -10,7 +10,7 @@ const TITLE_FONT_SIZE = Math.max(13, width * 0.033);
 const PREMIUM_FONT_SIZE = Math.max(24, width * 0.065);
 const SUBTITLE_FONT_SIZE = Math.max(12, width * 0.03);
 const ILLUSTRATION_HEIGHT = Math.max(80, width * 0.25);
-const ILLUSTRATION_MAX_WIDTH = Math.max(90, width * 0.28);
+const ILLUSTRATION_MAX_WIDTH = Math.max(90, width * 0.30);
 
 const PremiumBanner = () => (
   <LinearGradient
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: ILLUSTRATION_HEIGHT,
     maxWidth: ILLUSTRATION_MAX_WIDTH,
-    marginLeft: 6,
+    marginLeft: 20,
   },
 });
 
