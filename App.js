@@ -30,8 +30,7 @@ function StackInicioNavigator() {
   return (
     <StackInicio.Navigator screenOptions={{ headerShown: false }}>
       <StackInicio.Screen name="inicioScreen" component={Inicio} />
-      <StackInicio.Screen name="logInScreen" component={LogIn} options={{
-    headerTransparent: true,  headerTitle: ''}}/>
+      <StackInicio.Screen name="logInScreen" component={LogIn} options={{headerTransparent: true,  headerTitle: ''}}/>
       <StackInicio.Screen name="signUpScreen" component={SignUp} />
       
 

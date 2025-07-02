@@ -13,10 +13,35 @@ import PremiumBanner from "../components/premiumBanner";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import agenda from '../components/agendaIcon';
+import axios from 'axios';
+import { API } from '@env';
+import tickets from "./tickets.js";
+
+const API_URL = API;
+
 const { width, height } = Dimensions.get("window");
 
 export default function Home() {
   const navigation = useNavigation();
+
+  const handleTicketsPress = async () => {
+    try{
+      const response = await axios.get(`${API_URL}/auth/login`)
+
+      navigation.navigate(tickets, response.data)
+    }catch{
+      if (error.response && error.response.data && error.response.data.error) {
+        Alert.alert('Error', error.response.data.error);
+        console.log('Backend error:', error.response.data.error);
+      } else if (error.request) {
+        Alert.alert('Error', 'No response from server. Check your network or API URL.');
+        console.log('No response:', error.request);
+      } else {
+        Alert.alert('Error', `Unexpected error: ${error.message}`);
+        console.log('Unexpected error:', error.message);
+      }
+    }
+  }
 
   return (
     <LinearGradient colors={["#642684", "#ffffff"]} style={styles.gradient}>
@@ -26,9 +51,9 @@ export default function Home() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header nombre="Kevin" />
+          <Header nombre="Kevin"/>
 
-          <Pressable onPress={() => navigation.navigate("tickets")}>
+          <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
                 onGetMore={() => alert("¡Función para conseguir más tickets!")}

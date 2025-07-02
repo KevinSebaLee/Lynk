@@ -27,8 +27,8 @@ export default function logInScreen() {
       return;
     }
     setLoading(true);
+    
     try {
-      // Adjust field names if your backend expects different ones
       const response = await axios.post(`${API_URL}/auth/login`, {
         email: mail,
         contraseña: contraseña,
