@@ -13,7 +13,7 @@ import Header from "../components/header.js";
 import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { API } from '@env';
 import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
@@ -21,10 +21,11 @@ import { useAuth } from "../context/AuthContext";
 const API_URL = API;
 const { width } = Dimensions.get("window");
 
-
 export default function Home() {
   const navigation = useNavigation();
   const { logout } = useAuth();
+  const route = useRoute();
+  const user = route.params?.user; // Access the passed user
 
   const handleTicketsPress = async () => {
     try {
@@ -57,7 +58,7 @@ export default function Home() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header nombre="Kevin" />
+          <Header nombre={user?.nombre || "Usuario"} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard

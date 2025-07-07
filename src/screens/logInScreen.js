@@ -6,11 +6,9 @@ import axios from 'axios';
 import { storeToken } from '../utils/Token.js';
 import { API } from '@env';
 
-// Use your permanent ngrok URL for the API base
-const API_URL = "https://stirring-intense-sheep.ngrok-free.app";
+const API_URL = API || "https://stirring-intense-sheep.ngrok-free.app";
 
-
-export default function logInScreen() {
+export default function LogInScreen() {
   const [mail, setMail] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +16,6 @@ export default function logInScreen() {
   const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
-
 
   const handleLogin = async () => {
     if (!mail || !contraseña) {
@@ -33,7 +30,12 @@ export default function logInScreen() {
       }, { timeout: 5000 });
       setLoading(false);
       await storeToken(response.data.token);
-      navigation.navigate(''home'', { user: response.data });
+
+      // Correct nested navigation
+      navigation.navigate('Home', {
+        screen: 'home',
+        params: { user: response.data }
+      });
 
     } catch (error) {
       setLoading(false);
@@ -78,20 +80,17 @@ export default function logInScreen() {
             <View style={styles.redes}>
               <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>O continua con </Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }} />
+                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-1.png' }} />
                 <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
                 <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
               </View>
             </View>
           </View>
         </View>
-      </View>
-    </ImageBackground>
-
-
-);
+      </ImageBackground>
+    </View>
+  );
 }
-
 
 const styles = StyleSheet.create({
   header: { flex: 1, marginTop: 60, marginLeft: 20, flexDirection: 'row' },
