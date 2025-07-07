@@ -17,7 +17,6 @@ import Agenda from './src/screens/agenda.js';
 import Tickets from './src/screens/tickets.js';
 import PremiumGeneral from './src/screens/premiumGeneral.js';
 
-
 const Stack = createNativeStackNavigator()
 const StackInicio = createNativeStackNavigator()
 const StackHome = createNativeStackNavigator();
