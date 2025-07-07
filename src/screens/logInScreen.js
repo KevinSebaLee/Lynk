@@ -7,8 +7,10 @@ import inicioScreen from './inicioScreen';
 import home from './home.js';
 import axios from 'axios';
 
+
 // Use your permanent ngrok URL for the API base
 const API_URL = "https://stirring-intense-sheep.ngrok-free.app";
+
 
 export default function logInScreen() {
   const [mail, setMail] = useState('');
@@ -18,6 +20,7 @@ export default function logInScreen() {
   const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
+
 
   const handleLogin = async () => {
     if (!mail || !contraseña) {
@@ -34,9 +37,12 @@ export default function logInScreen() {
         timeout: 5000,
       });
 
+
       setLoading(false);
 
+
       console.log(response.data)
+
 
       navigation.navigate(home, { user: response.data });
     } catch (error) {
@@ -54,74 +60,101 @@ export default function logInScreen() {
     }
   };
 
+
   return (
-    <View style={{ flex: 1 }}>
-      <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate(inicioScreen)}>
-            <Image style={styles.arrow} source={arrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerText}> Bienvenido de vuelta</Text>
-        </View>
+ 
+    <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+    style={{ flex: 20 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    keyboardVerticalOffset={50}
+  >
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate(inicioScreen)}>
+          <Image style={styles.arrow} source={arrow} />
+        </TouchableOpacity>
+        <Text style={styles.headerText}> Bienvenido de vuelta</Text>
+      </View>
 
-        <View style={styles.picView}>
-          <Image
-            style={styles.logPic}
-            source={loginPic}
-          />
-        </View>
 
-        <View style={{ flex: 4 }}>
-          <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <TextInput
-              style={styles.input}
-              onChangeText={setMail}
-              value={mail}
-              placeholder="Ingrese su email"
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
+      <View style={{flex:8, marginBottom:60}}>
+      <View style={styles.picView}>
+        <Image style={styles.logPic} source={loginPic} />
+      </View>
+   
+      <View style={{ flex: 6, alignItems: 'center' }}>
+        <TextInput
+          style={styles.input}
+          onChangeText={setMail}
+          value={mail}
+          placeholder="Ingrese su email"
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
 
-            <TextInput
-              style={styles.input}
-              onChangeText={setContraseña}
-              value={contraseña}
-              placeholder="Ingrese su contraseña"
-              secureTextEntry
-            />
 
-            <StatusBar style='dark' />
+        <TextInput
+          style={styles.input}
+          onChangeText={setContraseña}
+          value={contraseña}
+          placeholder="Ingrese su contraseña"
+          secureTextEntry
+        />
 
-            <TouchableOpacity
-              style={[styles.btnView, { opacity: loading ? 0.6 : 1 }]}
-              onPress={handleLogin}
-              disabled={loading}
-            >
-              <Text style={{ textAlign: 'center', color: '#ffffff' }}>{loading ? 'Ingresando...' : 'Ingresar'}</Text>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
 
-          <View style={styles.bottomSection}>
-            <Text style={{ fontSize: 15, }}>
-              No tienes cuenta?{' '}
-              <Pressable onPress={() => navigation.navigate(signUpScreen)}>
-                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
-              </Pressable>
+        <StatusBar style="dark" />
+
+
+        <TouchableOpacity
+          style={[styles.btnView, { opacity: loading ? 0.6 : 1 }]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={{ textAlign: 'center', color: '#ffffff' }}>
+            {loading ? 'Ingresando...' : 'Ingresar'}
+          </Text>
+        </TouchableOpacity>
+       
+      </View>
+      </View>
+      </KeyboardAvoidingView>
+
+
+      <View style={styles.bottomSection}>
+        <Text style={{ fontSize: 15 }}>
+          No tienes cuenta?{' '}
+          <Pressable onPress={() => navigation.navigate(signUpScreen)}>
+            <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>
+              Crear cuenta
             </Text>
-            <View style={styles.redes}>
-              <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10, }}>O continua con </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }} />
-                <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
-                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
-              </View>
-            </View>
+          </Pressable>
+        </Text>
+        <View style={styles.redes}>
+          <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>
+            O continua con
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+            <Image
+              style={{ width: 30, height: 30 }}
+              source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }}
+            />
+            <Image
+              style={{ width: 48, height: 48 }}
+              source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }}
+            />
+            <Image
+              style={{ width: 30, height: 30 }}
+              source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }}
+            />
           </View>
         </View>
-      </ImageBackground>
-    </View>
-  );
+      </View>
+    </ImageBackground>
+
+
+);
 }
+
 
 const styles = StyleSheet.create({
   header: {
@@ -131,11 +164,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
 
+
   redes: {
     width: 300,
     height: 150,
     marginTop: 15,
   },
+
 
   arrow: {
     resizeMode: 'contain',
@@ -146,6 +181,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
 
+
   logPic: {
     resizeMode: 'contain',
     flex: 7,
@@ -153,18 +189,21 @@ const styles = StyleSheet.create({
     marginRight: 10
   },
 
+
   picView: {
-    flex: 3,
+    flex: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     marginTop: 40,
   },
 
+
   headerText: {
     fontSize: 22,
     marginTop: 5,
   },
+
 
   btnView: {
     display: 'flex',
@@ -172,16 +211,12 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     width: 300,
     borderRadius: 5,
-    marginBottom: 45,
+    marginBottom: 35,
     backgroundColor: '#642684',
     height: 45,
   },
 
-  container: {
-    flex: 2,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-  },
+
   input: {
     height: 45,
     width: 300,
@@ -193,8 +228,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   bottomSection: {
-    flex: 1,
+    flex: 4,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 40,
   },
 });
