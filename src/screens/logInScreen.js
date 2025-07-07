@@ -4,6 +4,7 @@ import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInpu
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { storeToken } from '../utils/Token.js';
+import { useAuth } from '../context/AuthContext';
 import { API } from '@env';
 
 const API_URL = API || "https://stirring-intense-sheep.ngrok-free.app";
@@ -16,6 +17,7 @@ export default function LogInScreen() {
   const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     if (!mail || !contraseña) {
@@ -28,14 +30,14 @@ export default function LogInScreen() {
         email: mail,
         contraseña: contraseña,
       }, { timeout: 5000 });
+      
       setLoading(false);
-      await storeToken(response.data.token);
-
-      // Correct nested navigation
-      navigation.navigate('Home', {
-        screen: 'home',
-        params: { user: response.data }
-      });
+      
+      // Use the AuthContext login function to update authentication state
+      await login(response.data.token);
+      
+      // The tab navigator will automatically switch to authenticated view
+      // No need to manually navigate
 
     } catch (error) {
       setLoading(false);
