@@ -6,9 +6,11 @@ import axios from 'axios';
 import { storeToken } from '../utils/Token.js';
 import { API } from '@env';
 
-const API_URL = API;
+// Use your permanent ngrok URL for the API base
+const API_URL = "https://stirring-intense-sheep.ngrok-free.app";
 
-export default function LogInScreen() {
+
+export default function logInScreen() {
   const [mail, setMail] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +18,7 @@ export default function LogInScreen() {
   const bgLogin = require('../../assets/img/bgLogin.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
+
 
   const handleLogin = async () => {
     if (!mail || !contraseña) {
@@ -31,6 +34,7 @@ export default function LogInScreen() {
       setLoading(false);
       await storeToken(response.data.token);
       navigation.navigate(''home'', { user: response.data });
+
     } catch (error) {
       setLoading(false);
       if (error.response && error.response.data && error.response.data.error) {
@@ -81,10 +85,13 @@ export default function LogInScreen() {
             </View>
           </View>
         </View>
-      </ImageBackground>
-    </View>
-  );
+      </View>
+    </ImageBackground>
+
+
+);
 }
+
 
 const styles = StyleSheet.create({
   header: { flex: 1, marginTop: 60, marginLeft: 20, flexDirection: 'row' },

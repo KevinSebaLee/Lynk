@@ -17,7 +17,7 @@ export default function AgendaIcon({ style }) {
 
 const styles = StyleSheet.create({
   img: {
-    width: width * 0.32,
-    height: width * 0.32,
+    width: width,
+    height: width * 0.80,
   },
 });

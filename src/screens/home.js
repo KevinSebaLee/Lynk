@@ -21,6 +21,7 @@ import { useAuth } from "../context/AuthContext";
 const API_URL = API;
 const { width } = Dimensions.get("window");
 
+
 export default function Home() {
   const navigation = useNavigation();
   const { logout } = useAuth();
