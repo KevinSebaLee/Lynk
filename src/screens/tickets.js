@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import GradientBarChart from '../components/GradientBarChart.js';
 import React, { useState, useEffect } from "react"; 
 import ApiService from "../services/api";
 import { useApi } from "../hooks/useApi";
+import { LoadingSpinner } from "../components/common";
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
@@ -40,11 +41,7 @@ export default function Tickets() {
   }, []);
 
   if (loading) {
-    return (
-      <View style={{flex:1, justifyContent:"center", alignItems:"center"}}>
-        <ActivityIndicator size="large" color="#642684" />
-      </View>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

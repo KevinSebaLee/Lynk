@@ -19,6 +19,7 @@ import { useAuth } from '../context/AuthContext';
 import ApiService from '../services/api';
 import { APP_CONSTANTS } from '../constants/config';
 import { useApi } from '../hooks/useApi';
+import { Button } from '../components/common';
 
 export default function SignUpScreen() {
   const [mail, setMail] = useState('');
@@ -125,15 +126,12 @@ export default function SignUpScreen() {
               secureTextEntry
             />
             <StatusBar style='dark' />
-            <TouchableOpacity
-              style={[styles.btnView, { opacity: loading ? 0.6 : 1 }]}
+            <Button
+              title="Crear cuenta"
               onPress={handleRegister}
-              disabled={loading}
-            >
-              <Text style={{ textAlign: 'center', color: '#ffffff' }}>
-                {loading ? 'Creando...' : 'Crear cuenta'}
-              </Text>
-            </TouchableOpacity>
+              loading={loading}
+              style={styles.btnView}
+            />
             <View style={styles.bottomSection}>
               <Text style={{ fontSize: 15 }}>
                 ¿Ya tienes cuenta?{' '}

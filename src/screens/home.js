@@ -8,12 +8,10 @@ import {
   Dimensions,
   Pressable,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import Header from "../components/header.js";
 import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
-import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import AgendaIcon from "../components/agendaIcon";
@@ -21,6 +19,7 @@ import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
 import ApiService from "../services/api";
 import { useApi } from "../hooks/useApi";
+import { LoadingSpinner, GradientBackground } from "../components/common";
 
 const { width } = Dimensions.get("window");
 
@@ -66,15 +65,11 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#642684" />
-      </View>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
-    <LinearGradient colors={["#642684", "#ffffff", "#ffffff"]} style={styles.gradient}>
+    <GradientBackground style={styles.gradient}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
         <ScrollView
@@ -122,7 +117,7 @@ export default function Home() {
           <RecentEvents onSeeMore={() => {/* navigate or handle more events */}} />
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </GradientBackground>
   );
 }
 

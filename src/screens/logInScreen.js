@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import ApiService from '../services/api';
 import { useApi } from '../hooks/useApi';
+import { Button } from '../components/common';
 
 export default function LogInScreen() {
   const [mail, setMail] = useState('');
@@ -55,9 +56,12 @@ export default function LogInScreen() {
             <TextInput style={styles.input} onChangeText={setMail} value={mail} placeholder="Ingrese su email" autoCapitalize="none" keyboardType="email-address" />
             <TextInput style={styles.input} onChangeText={setContraseña} value={contraseña} placeholder="Ingrese su contraseña" secureTextEntry />
             <StatusBar style='dark' />
-            <TouchableOpacity style={[styles.btnView, { opacity: loading ? 0.6 : 1 }]} onPress={handleLogin} disabled={loading}>
-              <Text style={{ textAlign: 'center', color: '#ffffff' }}>{loading ? 'Ingresando...' : 'Ingresar'}</Text>
-            </TouchableOpacity>
+            <Button
+              title="Ingresar"
+              onPress={handleLogin}
+              loading={loading}
+              style={styles.btnView}
+            />
           </KeyboardAvoidingView>
           <View style={styles.bottomSection}>
             <Text style={{ fontSize: 15 }}>
