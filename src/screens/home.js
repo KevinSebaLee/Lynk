@@ -17,6 +17,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { API } from '@env';
 import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
+import { isLoggedIn, getToken } from "../utils/Token";
 
 const API_URL = API;
 const { width } = Dimensions.get("window");
@@ -29,7 +30,23 @@ export default function Home() {
 
   const handleTicketsPress = async () => {
     try {
-      const response = await axios.get(`${API_URL}/auth/login`);
+      // Check if user is logged in
+      const userIsLoggedIn = await isLoggedIn();
+      if (!userIsLoggedIn) {
+        Alert.alert("Error", "You must be logged in to access tickets.");
+        return;
+      }
+
+      // Get user token for authenticated requests
+      const token = await getToken();
+      
+      // Make proper API call to get tickets
+      const response = await axios.get(`${API_URL}/tickets`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
       navigation.navigate("tickets", response.data);
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
@@ -47,7 +64,7 @@ export default function Home() {
 
   const handleLogout = async () => {
     await logout();
-    navigation.navigate("Inicio");
+    // The tab navigator will automatically switch to Inicio when authentication state changes
   };
 
   return (
@@ -89,6 +106,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   bannerWrapper: {
     width: width - 5,

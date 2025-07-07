@@ -38,6 +38,12 @@ export default function SignUpScreen() {
       Alert.alert('Por favor completa todos los campos.');
       return;
     }
+    
+    if (contraseña !== confirmarContraseña) {
+      Alert.alert('Las contraseñas no coinciden.');
+      return;
+    }
+    
     setLoading(true);
     try {
       const response = await axios.post(`${API_URL}/register`, {
