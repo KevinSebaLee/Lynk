@@ -12,7 +12,7 @@ import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import agenda from '../components/agendaIcon';
+import AgendaIcon from "../components/agendaIcon";
 const { width, height } = Dimensions.get("window");
 
 export default function Home() {
@@ -40,7 +40,7 @@ export default function Home() {
             <PremiumBanner />
           </View>
           <View style={styles.agendaWrapper}>
-            
+              <AgendaIcon />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
     width: width - 5,
   },
   agendaWrapper: {
-    alignItems: 'center',
     marginTop: 18,
   },
   agendaImage: {
