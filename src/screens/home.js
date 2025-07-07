@@ -20,6 +20,8 @@ import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
 import { isLoggedIn, getToken } from "../utils/Token";
 import AgendaIcon from "../components/agendaIcon";
+import EventCard from '../components/EventCard.js';
+import RecentEvents from '../components/RecentEvents';
 
 const API_URL = API;
 const { width } = Dimensions.get("window");
@@ -149,9 +151,14 @@ export default function Home() {
               <ScrollView horizontal>
                 {eventosRecientes.map((evento, idx) => (
                   <View key={evento.id || idx} style={{ marginRight: 12 }}>
-                    <View style={styles.eventCard}>
-                      <Header nombre={evento.nombre} />
-                    </View>
+                    <EventCard
+                      imageUri={evento.imagen}
+                      eventName={ evento.nombre}
+                      eventFullDate={ evento.fecha}
+                      venue={ evento.ubicacion}
+                      priceRange={ "$12.000 - $15.000"}
+                  
+                    />
                   </View>
                 ))}
               </ScrollView>
@@ -162,6 +169,8 @@ export default function Home() {
               </View>
             </Pressable>
           </View>
+          <EventCard/>
+          <RecentEvents onSeeMore={() => {/* navigate or handle more events */}} />
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
