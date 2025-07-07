@@ -15,11 +15,10 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { API } from '@env';
-
-const API_URL = API || "https://stirring-intense-sheep.ngrok-free.app";
+import ApiService from '../services/api';
+import { APP_CONSTANTS } from '../constants/config';
+import { useApi } from '../hooks/useApi';
 
 export default function SignUpScreen() {
   const [mail, setMail] = useState('');
@@ -27,11 +26,13 @@ export default function SignUpScreen() {
   const [apellido, setApellido] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [confirmarContraseña, setConfirmarContraseña] = useState('');
-  const [loading, setLoading] = useState(false);
   const signUpPic = require('../../assets/img/signPic.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();
+  
+  // Use the API hook for registration
+  const { loading, execute: registerUser } = useApi(ApiService.register);
 
   const handleRegister = async () => {
     if (!mail || !contraseña || !nombre) {
@@ -44,31 +45,24 @@ export default function SignUpScreen() {
       return;
     }
     
-    setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/register`, {
+      const userData = {
         nombre: nombre,
         apellido: apellido,
         email: mail,
         contraseña: contraseña,
-        id_pais: 10,
-        id_genero: 1,
-        id_premium: 1,
-      }, { timeout: 5000 });
-      setLoading(false);
-
-      if (response.data.token) {
-        await login(response.data.token);
+        id_pais: APP_CONSTANTS.DEFAULT_COUNTRY_ID,
+        id_genero: APP_CONSTANTS.DEFAULT_GENDER_ID,
+        id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
+      };
+      
+      const response = await registerUser(userData);
+      
+      if (response.token) {
+        await login(response.token);
       }
     } catch (error) {
-      setLoading(false);
-      if (error.response && error.response.data && error.response.data.error) {
-        Alert.alert('Error', error.response.data.error);
-      } else if (error.request) {
-        Alert.alert('Error', 'No response from server. Check your network or API URL.');
-      } else {
-        Alert.alert('Error', `Unexpected error: ${error.message}`);
-      }
+      // Error is already handled by the ApiService
     }
   };
 

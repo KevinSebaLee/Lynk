@@ -15,15 +15,13 @@ import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
-import { API } from '@env';
-import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
-import { isLoggedIn, getToken } from "../utils/Token";
 import AgendaIcon from "../components/agendaIcon";
 import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
+import ApiService from "../services/api";
+import { useApi } from "../hooks/useApi";
 
-const API_URL = API;
 const { width } = Dimensions.get("window");
 
 export default function Home() {
@@ -33,49 +31,22 @@ export default function Home() {
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  // Function to fetch user data from backend
-  const fetchUserData = async () => {
-    try {
-      const userIsLoggedIn = await isLoggedIn();
-      if (!userIsLoggedIn) {
-        Alert.alert("Error", "You must be logged in to access this feature.");
-        return;
-      }
-
-      const token = await getToken();
-
-      const response = await axios.get(`${API_URL}/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      return response.data;
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        Alert.alert("Error", error.response.data.error);
-        console.log("Backend error:", error.response.data.error);
-      } else if (error.request) {
-        Alert.alert("Error", "No response from server. Check your network or API URL.");
-        console.log("No response:", error.request);
-      } else {
-        Alert.alert("Error", `Unexpected error: ${error.message}`);
-        console.log("Unexpected error:", error.message);
-      }
-    }
-  };
+  
+  // Use the API hook for loading home data
+  const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
+  const { execute: loadTickets } = useApi(ApiService.getTickets);
 
   useEffect(() => {
     const loadUserData = async () => {
-      setLoading(true);
-      const data = await fetchUserData();
-      if (data) {
-        setUserData(data.user);
-        setEventosRecientes(data.eventosRecientes);
+      try {
+        const data = await loadHomeData();
+        if (data) {
+          setUserData(data.user);
+          setEventosRecientes(data.eventosRecientes);
+        }
+      } catch (error) {
+        // Error is already handled by the ApiService
       }
-      setLoading(false);
     };
     loadUserData();
   }, []);
@@ -83,32 +54,10 @@ export default function Home() {
   // Handler for tickets press
   const handleTicketsPress = async () => {
     try {
-      const userIsLoggedIn = await isLoggedIn();
-      if (!userIsLoggedIn) {
-        Alert.alert("Error", "You must be logged in to access tickets.");
-        return;
-      }
-
-      const token = await getToken();
-
-      const response = await axios.get(`${API_URL}/tickets`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      navigation.navigate("tickets", response.data);
+      const data = await loadTickets();
+      navigation.navigate("tickets", data);
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        Alert.alert("Error", error.response.data.error);
-        console.log("Backend error:", error.response.data.error);
-      } else if (error.request) {
-        Alert.alert("Error", "No response from server. Check your network or API URL.");
-        console.log("No response:", error.request);
-      } else {
-        Alert.alert("Error", `Unexpected error: ${error.message}`);
-        console.log("Unexpected error:", error.message);
-      }
+      // Error is already handled by the ApiService
     }
   };
 
