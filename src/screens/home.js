@@ -19,6 +19,7 @@ import { API } from '@env';
 import axios from 'axios';
 import { useAuth } from "../context/AuthContext";
 import { isLoggedIn, getToken } from "../utils/Token";
+import AgendaIcon from "../components/agendaIcon";
 
 const API_URL = API;
 const { width } = Dimensions.get("window");
@@ -122,7 +123,7 @@ export default function Home() {
   }
 
   return (
-    <LinearGradient colors={["#642684", "#ffffff"]} style={styles.gradient}>
+    <LinearGradient colors={["#642684", "#ffffff", "#ffffff"]} style={styles.gradient}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
         <ScrollView
@@ -142,16 +143,14 @@ export default function Home() {
             <PremiumBanner plan={userData?.plan_titulo} />
           </View>
           <View style={styles.agendaWrapper}>
-            {/* Example: Display recent events */}
+            <AgendaIcon />
+
             {eventosRecientes.length > 0 && (
               <ScrollView horizontal>
                 {eventosRecientes.map((evento, idx) => (
                   <View key={evento.id || idx} style={{ marginRight: 12 }}>
-                    {/* Render your event card here */}
-                    {/* Example: */}
                     <View style={styles.eventCard}>
                       <Header nombre={evento.nombre} />
-                      {/* Add image, etc. */}
                     </View>
                   </View>
                 ))}

@@ -6,7 +6,7 @@ import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
-const TicketCard = ({ tickets = "50.750", onGetMore, style }) => (
+const TicketCard = ({ tickets, onGetMore, style }) => (
   <LinearGradient
     colors={['#735BF2', '#642684']}
     start={{ x: 0, y: 0 }}
