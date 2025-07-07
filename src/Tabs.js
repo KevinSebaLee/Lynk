@@ -10,12 +10,10 @@ import StackEventosNavigator from './screens/eventos';
 import StackCreateNavigator from './screens/create';
 import StackGestionNavigator from './screens/gestion';
 import StackAgendaNavigator from './screens/agenda';
-import StackLogInNavigator from './screens/logInScreen.js';
-import StackSignUpNavigator from './screens/signUpScreen.js';
 
 function ocultarTab(route) {
-  const screen = getFocusedRouteNameFromRoute(route) ?? StackInicioNavigator;
-  if (screen === StackLogInNavigator || screen === StackSignUpNavigator || screen === StackInicioNavigator) {
+  const screen = getFocusedRouteNameFromRoute(route) ?? 'inicioScreen';
+  if (screen === 'logInScreen' || screen === 'signUpScreen' || screen === 'inicioScreen') {
     return { display: 'none' };
   }
   return { display: 'flex' };
