@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 //NO BORRAR: npm install --global @expo/ngrok@^4.1.0
 
 import { Ionicons } from '@expo/vector-icons';
@@ -148,17 +149,18 @@ function MyTabs() {
     </Tab.Navigator>
   );
 }
+=======
+import { NavigationContainer } from '@react-navigation/native';
+import { AuthProvider } from './src/context/AuthContext';
+import MyTabs from './src/Tabs.js';
+>>>>>>> origin/Back-End-Connection
 
 export default function App() {
   return (
-    <NavigationContainer >
-      <MyTabs />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <MyTabs />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
-
-
-
-
-
-
