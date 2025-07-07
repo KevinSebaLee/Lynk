@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Image, KeyboardAvoidingView, Pressable, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import { API } from '@env';
 
 const API_URL = API || "https://stirring-intense-sheep.ngrok-free.app";
@@ -15,6 +16,7 @@ export default function SignUpScreen() {
   const signUpPic = require('../../assets/img/signPic.png'); // Adjust path or image if needed
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
+  const { login } = useAuth();
 
   const handleRegister = async () => {
     if (!mail || !contraseña || !nombre) {
@@ -30,10 +32,12 @@ export default function SignUpScreen() {
       }, { timeout: 5000 });
       setLoading(false);
 
-      navigation.navigate('Home', {
-        screen: 'home',
-        params: { user: response.data }
-      });
+      // Use login from auth context if the response includes a token
+      if (response.data.token) {
+        await login(response.data.token);
+      }
+      
+      // Navigation will happen automatically due to authentication state change
 
     } catch (error) {
       setLoading(false);
