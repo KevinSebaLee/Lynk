@@ -4,6 +4,14 @@ import { View, Text, ImageBackground, StyleSheet, ScrollView } from 'react-nativ
 const EventCard = ({ imageUri, eventName, eventFullDate, venue, priceRange, eventTime }) => {
   const dateParts = typeof eventFullDate === 'string' ? eventFullDate.split(' ') : ['--', '--'];
 
+  const dateObj = new Date(eventFullDate);
+  const day = dateObj.getDate();
+  const dayString = day.toString() // Ensures two digits, e.g., "06"
+  let monthShort = dateObj.toLocaleString('en-AR', { month: 'short' }); // "Apr"
+  monthShort = monthShort.charAt(0).toUpperCase() + monthShort.slice(1);
+
+  const shortDate = dateObj.toLocaleDateString('es-AR'); // e.g., "06/04/2025"
+
   return (
     <>
       <View style={styles.headerRow}>
@@ -18,14 +26,14 @@ const EventCard = ({ imageUri, eventName, eventFullDate, venue, priceRange, even
           >
             {/* Date Box */}
             <View style={styles.dateBox}>
-              <Text style={styles.dateDay}>{dateParts[0]}</Text>
-              <Text style={styles.dateMonth}>{dateParts[1]}</Text>
+              <Text style={styles.dateDay}>{dayString}</Text>
+              <Text style={styles.dateMonth}>{monthShort}</Text>
             </View>
             {/* Details Overlay */}
             <View style={styles.detailsOverlay}>
               <Text style={styles.eventName}>{eventName}</Text>
               <Text style={styles.eventInfo}>
-                {eventTime} {eventFullDate}
+                {eventTime} {shortDate}
               </Text>
               <Text style={styles.eventInfo}>{venue}</Text>
               <Text style={styles.price}>{priceRange}</Text>
