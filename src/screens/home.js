@@ -64,7 +64,7 @@ export default function Home() {
 
   const handleLogout = async () => {
     await logout();
-    navigation.navigate("Inicio");
+    // The tab navigator will automatically switch to Inicio when authentication state changes
   };
 
   return (
@@ -106,6 +106,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   bannerWrapper: {
     width: width - 5,
