@@ -38,7 +38,7 @@ export default function logInScreen() {
 
       console.log(response.data)
 
-      navigation.navigate(home, { user: response.data });
+      navigation.navigate('home', { user: response.data });
     } catch (error) {
       setLoading(false);
       if (error.response && error.response.data && error.response.data.error) {
@@ -58,7 +58,7 @@ export default function logInScreen() {
     <View style={{ flex: 1 }}>
       <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate(inicioScreen)}>
+          <TouchableOpacity onPress={() => navigation.navigate('inicioScreen')}>
             <Image style={styles.arrow} source={arrow} />
           </TouchableOpacity>
           <Text style={styles.headerText}> Bienvenido de vuelta</Text>
@@ -104,7 +104,7 @@ export default function logInScreen() {
           <View style={styles.bottomSection}>
             <Text style={{ fontSize: 15, }}>
               No tienes cuenta?{' '}
-              <Pressable onPress={() => navigation.navigate(signUpScreen)}>
+              <Pressable onPress={() => navigation.navigate('signUpScreen')}>
                 <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
               </Pressable>
             </Text>

@@ -1,11 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Button, Image, KeyboardAvoidingView, Pressable, } from 'react-native';
-//import HideWithKeyboard from 'react-native-hide-with-keyboard';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import logInScreen from './logInScreen';
-import inicioScreen from './inicioScreen';
+import { useNavigation } from '@react-navigation/native';
 
 export default function signUpScreen() {
   
@@ -23,7 +19,7 @@ export default function signUpScreen() {
     <ImageBackground source={bgLogin} resizeMode="cover" style={{flex: 1, justifyContent: 'center'}}>
     <View style={styles.header}> 
 
-    <TouchableOpacity onPress={() => navigation.navigate(inicioScreen)}>
+    <TouchableOpacity onPress={() => navigation.navigate('inicioScreen')}>
       <Image style={styles.arrow} source={arrow} />
     </TouchableOpacity>      
     <Text style={styles.headerText}> Bienvenido a Lynk</Text>
@@ -75,13 +71,13 @@ export default function signUpScreen() {
 
         <StatusBar style='dark'/>
         
-        <TouchableOpacity style={styles.btnView}  onPress={() => navigation.navigate(home)}>
+        <TouchableOpacity style={styles.btnView}  onPress={() => navigation.navigate('home')}>
           <Text style={{textAlign:'center', color:'#ffffff'}}>Ingresar</Text>
         </TouchableOpacity>
         </KeyboardAvoidingView>
         
         <View style={styles.bottomSection}>
-          <Text style={{fontSize:15,}}>Ya tienes cuenta?  <Pressable style={{display:'flex', alignItems:'center', justifyContent:'center'}} onPress={() => navigation.navigate(logInScreen)}><Text style={{color: '#642684', fontSize:15, textDecorationLine: 'underline', paddingTop:3}} >Log in</Text></Pressable>
+          <Text style={{fontSize:15,}}>Ya tienes cuenta?  <Pressable style={{display:'flex', alignItems:'center', justifyContent:'center'}} onPress={() => navigation.navigate('logInScreen')}><Text style={{color: '#642684', fontSize:15, textDecorationLine: 'underline', paddingTop:3}} >Log in</Text></Pressable>
           </Text>
 
         </View>

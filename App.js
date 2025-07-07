@@ -95,50 +95,56 @@ function ocultarTab(route) {
 const Tab = createBottomTabNavigator();
 function MyTabs() {
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   return (
      <Tab.Navigator screenOptions={{headerShown:false}} initialRouteName={isAuthenticated ? 'Home' : 'Inicio'}>
-       <Tab.Screen name="Inicio"     component={StackInicioNavigator} 
-      options={({route}) => ({
-        tabBarStyle: ocultarTab(route),
-      })}
-      />
-      <Tab.Screen name="Home"     component={StackHomeNavigator} 
-      options={{
-        tabBarIcon: ({ color }) => (
-          <Ionicons name="home" size={24} color={color} />
-         ),
-      }}
-      /> 
-      <Tab.Screen name="Eventos" component={StackEventosNavigator} 
-      options={{
-        tabBarIcon: ({ color }) => (
-          <Ionicons name="search" size={24} color={color} />
-         ),
-      }}
-      />
-      <Tab.Screen name="Create"   component={StackCreateNavigator}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="add-circle" size={24} color={'#642684'} />
-           ),
-        }}
-      />
-      <Tab.Screen name="Gestion"   component={StackGestionNavigator}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="card" size={24} color={color} />
-           ),
-        }}
-      />
-      <Tab.Screen name="Agenda"   component={StackAgendaNavigator}
-        options={{
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="calendar-number-outline" size={24} color={color} />
-           ),
-        }}
-      />
+       {!isAuthenticated && (
+        <Tab.Screen name="Inicio"     component={StackInicioNavigator} 
+          options={({route}) => ({
+            tabBarStyle: ocultarTab(route),
+          })}
+        />
+       )}
+       {isAuthenticated && (
+        <>
+          <Tab.Screen name="Home"     component={StackHomeNavigator} 
+          options={{
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="home" size={24} color={color} />
+             ),
+          }}
+          /> 
+          <Tab.Screen name="Eventos" component={StackEventosNavigator} 
+          options={{
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="search" size={24} color={color} />
+             ),
+          }}
+          />
+          <Tab.Screen name="Create"   component={StackCreateNavigator}
+            options={{
+              tabBarIcon: ({ color }) => (
+                <Ionicons name="add-circle" size={24} color={'#642684'} />
+               ),
+            }}
+          />
+          <Tab.Screen name="Gestion"   component={StackGestionNavigator}
+            options={{
+              tabBarIcon: ({ color }) => (
+                <Ionicons name="card" size={24} color={color} />
+               ),
+            }}
+          />
+          <Tab.Screen name="Agenda"   component={StackAgendaNavigator}
+            options={{
+              tabBarIcon: ({ color }) => (
+                <Ionicons name="calendar-number-outline" size={24} color={color} />
+               ),
+            }}
+          />
+        </>
+       )}
     </Tab.Navigator>
   );
 }
