@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView} from 'react-native';
 import Header from '../components/header.js';
-import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -102,9 +101,6 @@ export default function tickets() {
   </>
   );
 }
-
-
-
 
 const styles = StyleSheet.create({
   container: {
