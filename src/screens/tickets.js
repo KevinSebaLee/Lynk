@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
@@ -7,75 +7,41 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import TicketCard from "../components/TicketCard.js";
 import GradientBarChart from '../components/GradientBarChart.js';
 import React, { useState, useEffect } from "react"; 
-import axios from 'axios';
-import { isLoggedIn, getToken } from "../utils/Token";
-import { API } from '@env';
+import ApiService from "../services/api";
+import { useApi } from "../hooks/useApi";
+import { LoadingSpinner } from "../components/common";
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
-
-const API_URL = API;
 
 export default function Tickets() { 
   const [ticketsData, setTicketsData] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [movimientos, setMovimientos] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const navigation = useNavigation();
-
-  const fetchTickets = async () => {
-    try{  
-      const userIsLoggedIn = await isLoggedIn();
-      if (!userIsLoggedIn) {
-        Alert.alert("Error", "You must be logged in to access this feature.");
-        return;
-      }
-
-      const token = await getToken();
-
-      const response = await axios.get(`${API_URL}/tickets`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      return response.data;
-    } catch(error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        Alert.alert("Error", error.response.data.error);
-        console.log("Backend error:", error.response.data.error);
-      } else if (error.request) {
-        Alert.alert("Error", "No response from server. Check your network or API URL.");
-        console.log("No response:", error.request);
-      } else {
-        Alert.alert("Error", `Unexpected error: ${error.message}`);
-        console.log("Unexpected error:", error.message);
-      }
-    }
-  }
+  
+  // Use the API hook for loading tickets data
+  const { loading, execute: loadTickets } = useApi(ApiService.getTickets);
 
   useEffect(() => {
     const loadTicketsData = async () => {
-      setLoading(true);
-      const data = await fetchTickets();
-      if (data) {
-        setTicketsData(data.tickets || null);
-        setTransactions(data.transactions || []);
-        setMovimientos(data.movimientos || []);
+      try {
+        const data = await loadTickets();
+        if (data) {
+          setTicketsData(data.tickets || null);
+          setTransactions(data.transactions || []);
+          setMovimientos(data.movimientos || []);
+        }
+      } catch (error) {
+        // Error is already handled by the ApiService
       }
-      setLoading(false);
     };
-
     loadTicketsData();
   }, []);
 
   if (loading) {
-    return (
-      <View style={{flex:1, justifyContent:"center", alignItems:"center"}}>
-        <ActivityIndicator size="large" color="#642684" />
-      </View>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
