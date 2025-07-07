@@ -9,17 +9,37 @@ import TicketCard from "../components/TicketCard.js";
 import GradientBarChart from '../components/GradientBarChart.js';
 import home from './home.js';
 
-
-
-
 //import Carousel from 'react-native-snap-carousel';
-
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
-
-
-
+const transactions = [
+  {
+    icon: "home",
+    title: "Ariana grande",
+    subtitle: "Concierto en obras",
+    amount: -53.95,
+    date: "Julio 14, 2022",
+    color: "#7b4ef7",
+  },
+  {
+    icon: "home",
+    title: "Garden Party",
+    subtitle: "Jardín Botánico",
+    amount: 250.95,
+    date: "Julio 12, 2022",
+    color: "#7b4ef7",
+    amountColor: "#5BDA8C"
+  },
+  {
+    icon: "home",
+    title: "EA Sport",
+    subtitle: "Oficinas KRU",
+    amount: -53.95,
+    date: "Julio 9, 2022",
+    color: "#7b4ef7",
+  },
+];
 
 export default function tickets() {
  
@@ -48,50 +68,31 @@ export default function tickets() {
             </View>
     </Pressable>
 
-
     <View style={styles.listMov}>
       <Text style={styles.trans}>Transacciones</Text>
-    <View style={styles.container}>
-    <View style={styles.iconContainer}>
-      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
+      {transactions.map((tx, idx) => (
+          <View style={styles.container} key={idx}>
+            <View style={styles.iconContainer}>
+              <MaterialCommunityIcons name={tx.icon} size={24} color={tx.color} />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.title}>{tx.title}</Text>
+              <Text style={styles.subtitle}>{tx.subtitle}</Text>
+            </View>
+            <View style={styles.rightContainer}>
+              <Text
+                style={[
+                  styles.amount,
+                  tx.amountColor && { color: tx.amountColor }
+                ]}
+              >
+                {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+              </Text>
+              <Text style={styles.date}>{tx.date}</Text>
+            </View>
+          </View>
+        ))}
     </View>
-    <View style={styles.textContainer}>
-      <Text style={styles.title}>Ariana grande</Text>
-      <Text style={styles.subtitle}>Concierto en obras</Text>
-    </View>
-    <View style={styles.rightContainer}>
-      <Text style={styles.amount}>-53.95</Text>
-      <Text style={styles.date}>Julio 14, 2022</Text>
-    </View>
-  </View>
-  <View style={styles.container}>
-    <View style={styles.iconContainer}>
-      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
-    </View>
-    <View style={styles.textContainer}>
-      <Text style={styles.title}>Garden Party</Text>
-      <Text style={styles.subtitle}>Jardín Botánico</Text>
-    </View>
-    <View style={styles.rightContainer}>
-      <Text style={[styles.amount, {color:'#5BDA8C'}]}>+250.95</Text>
-      <Text style={styles.date}>Julio 12, 2022</Text>
-    </View>
-  </View>
-  <View style={styles.container}>
-    <View style={styles.iconContainer}>
-      <MaterialCommunityIcons name="home" size={24} color="#7b4ef7" />
-    </View>
-    <View style={styles.textContainer}>
-      <Text style={styles.title}>EA Sport</Text>
-      <Text style={styles.subtitle}>Oficinas KRU</Text>
-    </View>
-    <View style={styles.rightContainer}>
-      <Text style={styles.amount}>-53.95</Text>
-      <Text style={styles.date}>Julio 9, 2022</Text>
-    </View>
-  </View>
-  </View>
-
 
   <Text style={styles.trans}>Movimientos</Text>
   <GradientBarChart />
