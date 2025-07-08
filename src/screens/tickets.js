@@ -1,47 +1,66 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image , Dimensions, Button, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Dimensions, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import TicketCard from "../components/TicketCard.js";
 import GradientBarChart from '../components/GradientBarChart.js';
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useCallback } from "react";
 import ApiService from "../services/api";
-import { useApi } from "../hooks/useApi";
 import { LoadingSpinner } from "../components/common";
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
 
-export default function Tickets() { 
-  const [ticketsData, setTicketsData] = useState(null);
-  const [transactions, setTransactions] = useState([]);
-  const [movimientos, setMovimientos] = useState([]);
+export default function Tickets() {
+  const [ticketsData, setTicketsData] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
-  
-  // Use the API hook for loading tickets data
-  const { loading, execute: loadTickets } = useApi(ApiService.getTickets);
 
-  useEffect(() => {
-    const loadTicketsData = async () => {
-      try {
-        const data = await loadTickets();
-        if (data) {
-          setTicketsData(data.tickets || null);
-          setTransactions(data.transactions || []);
-          setMovimientos(data.movimientos || []);
-        }
-      } catch (error) {
-        // Error is already handled by the ApiService
-      }
-    };
-    loadTicketsData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      console.log("Focus effect triggered");
+      setLoading(true);
+      setError(null);
+      ApiService.getTickets()
+        .then(data => {
+          console.log("API response:", data);
+          if (isActive && data) {
+            setTicketsData(data || null);
+          } else {
+            console.log("Data is falsy or focus lost");
+          }
+        })
+        .catch(err => {
+          if (isActive) setError("No se pudieron cargar los tickets.");
+          console.error("Error loading tickets:", err);
+        })
+        .finally(() => {
+          if (isActive) setLoading(false);
+        });
+      return () => { isActive = false; };
+    }, [])
+  );
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
+          <Text style={{ color: 'red', fontSize: 18, marginBottom: 12 }}>{error}</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 10, backgroundColor: '#eee', borderRadius: 5 }}>
+            <Text>Volver</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (
@@ -53,7 +72,7 @@ export default function Tickets() {
           </TouchableOpacity>
           <Text style={styles.headerText}> Tus tickets</Text>
         </View>
-        <Pressable style={{marginTop: 10}}>
+        <Pressable style={{ marginTop: 10 }}>
           <View style={styles.ticketWrapper}>
             <TicketCard
               tickets={ticketsData?.tickets || 0}
@@ -64,23 +83,23 @@ export default function Tickets() {
 
         <View style={styles.listMov}>
           <Text style={styles.trans}>Transacciones</Text>
-          {(transactions.length > 0 ? transactions : []).map((tx, idx) => (
+          {(ticketsData.length > 0 ? ticketsData : []).map((tx, idx) => (
             <View style={styles.container} key={tx.id || idx}>
               <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name={tx.icon || "cash"} size={24} color={tx.color || "#7b4ef7"} />
+                <MaterialCommunityIcons name={tx.tipo_movimiento_icon || "cash"} size={24} color={tx.color || "#7b4ef7"} />
               </View>
               <View style={styles.textContainer}>
-                <Text style={styles.title}>{tx.title}</Text>
-                <Text style={styles.subtitle}>{tx.subtitle}</Text>
+                <Text style={styles.title}>{tx.evento_nombre}</Text>
+                <Text style={styles.subtitle}>{tx.moneda_nombre}</Text>
               </View>
               <View style={styles.rightContainer}>
                 <Text
                   style={[
                     styles.amount,
-                    tx.amountColor && { color: tx.amountColor }
+                    { color: tx.monto > 0 ? '#27ae60' : '#ec4d5f' }
                   ]}
                 >
-                  {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                  {tx.monto > 0 ? `+${tx.monto}` : `-${tx.monto}`}
                 </Text>
                 <Text style={styles.date}>{tx.date}</Text>
               </View>
@@ -89,9 +108,7 @@ export default function Tickets() {
         </View>
 
         <Text style={styles.trans}>Movimientos</Text>
-        {/* If you want to show movimientos as a bar chart, pass movimientos to GradientBarChart. 
-          Otherwise, you can map and render movimientos here. */}
-        <GradientBarChart data={movimientos} />
+        <GradientBarChart />
         <StatusBar style="light" />
       </ScrollView>
     </SafeAreaView>
@@ -124,8 +141,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#151C2A',
   },
-  listMov:{
-    marginTop:20,
+  listMov: {
+    marginTop: 20,
   },
   trans: {
     fontSize: 21,
@@ -137,8 +154,8 @@ const styles = StyleSheet.create({
   iconContainer: {
     backgroundColor: '#fff',
     padding: 25,
-    width:20,
-    height:20,
+    width: 20,
+    height: 20,
     borderRadius: 50,
     shadowColor: '#CFECF8',
     shadowOffset: { width: 2, height: 7 },
