@@ -18,12 +18,9 @@ const Transferencia = ({ navigation }) => {
   useEffect(() => {
     let isActive = true;
     setLoading(true);
-    console.log("Llamando a getUsers")
-    // Traer los usuarios del backend como se hace con los tickets
-    ApiService.getUsers() // Debe estar implementado en tu ApiService, igual que getTickets
+    ApiService.getUsers()
       .then(data => {
         if (!isActive) return;
-        // Agrupar por inicial del nombre
         const grouped = {};
         data.forEach(u => {
           const letter = (u.nombre || '').charAt(0).toUpperCase();
@@ -37,27 +34,6 @@ const Transferencia = ({ navigation }) => {
     return () => { isActive = false; };
   }, []);
 
-  const renderContact = (user) => (
-    <TouchableOpacity
-      key={user.id}
-      style={styles.contactRow}
-      onPress={() => setSelected(user.id)}
-    >
-      <View style={styles.avatarPlaceholder}>
-        <Ionicons name="person" size={25} color="#888" />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.contactName}>{user.nombre} {user.apellido}</Text>
-        <Text style={styles.contactAlias}>AC: {user.id}-{user.id_pais}-{user.id_genero}</Text>
-      </View>
-      <Ionicons
-        name={selected === user.id ? "checkmark-circle" : "ellipse-outline"}
-        size={22}
-        color={selected === user.id ? "#735BF2" : "#B0B0B0"}
-      />
-    </TouchableOpacity>
-  );
-
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingView}>
@@ -69,7 +45,6 @@ const Transferencia = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f8f8fa" }}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
           <Ionicons name="arrow-back" size={26} color="#735BF2" />
@@ -83,10 +58,21 @@ const Transferencia = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         {Object.keys(users).sort().map((letter) => (
-          <View key={letter} style={styles.sectionBox}>
+        <View key={letter} style={styles.sectionBox}>
             <Text style={styles.sectionLetter}>{letter}</Text>
-            {users[letter].map(u => renderContact(u))}
-          </View>
+            {users[letter].map(u => (
+            <TouchableOpacity
+                key={u.id}
+                style={styles.contactRow}
+                onPress={() => {
+                setSelected(u.id);
+                navigation.navigate("Transferir", { usuario: u });
+                }}
+            >
+                {/* ... */}
+            </TouchableOpacity>
+            ))}
+        </View>
         ))}
       </ScrollView>
     </SafeAreaView>
