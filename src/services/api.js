@@ -38,10 +38,6 @@ const ensureAuthenticated = async () => {
  * API Service Class
  */
 export class ApiService {
-  
-  /**
-   * User authentication
-   */
   static async login(email, password) {
     try {
       const response = await apiClient.post(ENDPOINTS.LOGIN, {
@@ -55,9 +51,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * User registration
-   */
   static async register(userData) {
     try {
       const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
@@ -68,9 +61,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get home data (user info and recent events)
-   */
   static async getHomeData() {
     try {
       await ensureAuthenticated();
@@ -86,20 +76,36 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get tickets data
-   */
   static async getTickets() {
     try {
+      console.log("Ensuring authentication...");
       await ensureAuthenticated();
+  
+      console.log("Calling API...");
       const response = await apiClient.get(ENDPOINTS.TICKETS);
+  
       return response.data;
+  
     } catch (error) {
+      console.log("Error in getTickets:", error);
       if (error.message.includes('logged in')) {
         handleApiError(new Error(error.message));
       } else {
         handleApiError(error, 'Failed to load tickets data');
       }
+      throw error;
+    }
+  }
+
+  static async getMovimientos(){
+    try{
+      await ensureAuthenticated();
+      const response = await apiClient.get('/movimientos');
+      console.log("Movimientos data received:", response.data);
+
+      return response.data;
+    }catch(error){
+      handleApiError(error, 'Failed to load movements data');
       throw error;
     }
   }
