@@ -109,6 +109,22 @@ export class ApiService {
       throw error;
     }
   }
+
+  static async getUsers() {
+    try {
+      await ensureAuthenticated();
+      const response = await apiClient.get(ENDPOINTS.TRANSFERIR); 
+      console.log("Entrando a getUsers")
+      return response.data;
+    } catch (error) {
+      if (error.message.includes('logged in')) {
+        handleApiError(new Error(error.message));
+      } else {
+        handleApiError(error, 'Failed to load users data');
+      }
+      throw error;
+    }
+  }
 }
 
 export default ApiService;
