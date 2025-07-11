@@ -84,7 +84,6 @@ export class ApiService {
       console.log("Calling API...");
       const response = await apiClient.get(ENDPOINTS.TICKETS);
   
-      console.log("API response received:", response.data); // <--- This should log
       return response.data;
   
     } catch (error) {
@@ -94,6 +93,19 @@ export class ApiService {
       } else {
         handleApiError(error, 'Failed to load tickets data');
       }
+      throw error;
+    }
+  }
+
+  static async getMovimientos(){
+    try{
+      await ensureAuthenticated();
+      const response = await apiClient.get('/movimientos');
+      console.log("Movimientos data received:", response.data);
+
+      return response.data;
+    }catch(error){
+      handleApiError(error, 'Failed to load movements data');
       throw error;
     }
   }

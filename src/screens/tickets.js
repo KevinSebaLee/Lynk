@@ -15,6 +15,7 @@ const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
 
 export default function Tickets() {
   const [ticketsData, setTicketsData] = useState([]);
+  const [movimientosData, setMovimientosData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,11 +27,30 @@ export default function Tickets() {
       console.log("Focus effect triggered");
       setLoading(true);
       setError(null);
+
+      ApiService.getMovimientos()
+        .then(data => {
+          console.log("Movimientos data received:", data);
+          if (isActive && data) {
+            setMovimientosData(data);
+          } else {
+            console.log("Data is falsy or focus lost");
+          }
+        })
+        .catch(err => {
+          if (isActive) setError("No se pudieron cargar los movimientos.");
+          console.error("Error loading movimientos:", err);
+        })
+        .finally(() => {
+          if (isActive) setLoading(false);
+        }
+      );
+
       ApiService.getTickets()
         .then(data => {
           console.log("API response:", data);
           if (isActive && data) {
-            setTicketsData(data || null);
+            setTicketsData(data[0] || null);
           } else {
             console.log("Data is falsy or focus lost");
           }
@@ -83,13 +103,13 @@ export default function Tickets() {
 
         <View style={styles.listMov}>
           <Text style={styles.trans}>Transacciones</Text>
-          {(ticketsData.length > 0 ? ticketsData : []).map((tx, idx) => (
+          {(movimientosData.length > 0 ? movimientosData : []).map((tx, idx) => (
             <View style={styles.container} key={tx.id || idx}>
               <View style={styles.iconContainer}>
                 <MaterialCommunityIcons name={tx.tipo_movimiento_icon || "cash"} size={24} color={tx.color || "#7b4ef7"} />
               </View>
               <View style={styles.textContainer}>
-                <Text style={styles.title}>{tx.evento_nombre}</Text>
+                <Text style={styles.title}>{tx.titulo}</Text>
                 <Text style={styles.subtitle}>{tx.moneda_nombre}</Text>
               </View>
               <View style={styles.rightContainer}>
@@ -99,7 +119,7 @@ export default function Tickets() {
                     { color: tx.monto > 0 ? '#27ae60' : '#ec4d5f' }
                   ]}
                 >
-                  {tx.monto > 0 ? `+${tx.monto}` : `-${tx.monto}`}
+                  {tx.monto > 0 ? `+${tx.monto}` : `${tx.monto}`}
                 </Text>
                 <Text style={styles.date}>{tx.date}</Text>
               </View>
