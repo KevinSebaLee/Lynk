@@ -30,7 +30,7 @@ const { width } = Dimensions.get("window");
 
 export default function Home() {
   const navigation = useNavigation();
-  const { logout } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
 
 
   // State for user and events
@@ -54,8 +54,12 @@ export default function Home() {
         // Error is already handled by the ApiService
       }
     };
-    loadUserData();
-  }, []);
+    
+    // Only load data if authenticated
+    if (isAuthenticated) {
+      loadUserData();
+    }
+  }, [isAuthenticated]);
 
 
   // Handler for tickets press
