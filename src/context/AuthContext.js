@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (token) => {
+    console.log(token)
+
     await storeToken(token);
     setIsAuthenticated(true);
   };
