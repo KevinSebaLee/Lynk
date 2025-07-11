@@ -100,7 +100,7 @@ export class ApiService {
   static async getMovimientos(){
     try{
       await ensureAuthenticated();
-      const response = await apiClient.get('/movimientos');
+      const response = await apiClient.get(ENDPOINTS.MOVIMIENTOS);
       console.log("Movimientos data received:", response.data);
 
       return response.data;

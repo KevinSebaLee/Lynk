@@ -8,6 +8,9 @@ import {
   Dimensions,
   Pressable,
   Alert,
+  Text,
+  Button,
+  TouchableOpacity
 } from "react-native";
 import Header from "../components/header.js";
 import TicketCard from "../components/TicketCard.js";
@@ -21,19 +24,23 @@ import ApiService from "../services/api";
 import { useApi } from "../hooks/useApi";
 import { LoadingSpinner, GradientBackground } from "../components/common";
 
+
 const { width } = Dimensions.get("window");
+
 
 export default function Home() {
   const navigation = useNavigation();
   const { logout } = useAuth();
 
+
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
-  
+ 
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
   const { execute: loadTickets } = useApi(ApiService.getTickets);
+
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -50,6 +57,7 @@ export default function Home() {
     loadUserData();
   }, []);
 
+
   // Handler for tickets press
   const handleTicketsPress = async () => {
     try {
@@ -60,13 +68,16 @@ export default function Home() {
     }
   };
 
+
   const handleLogout = async () => {
     await logout();
   };
 
+
   if (loading) {
     return <LoadingSpinner />;
   }
+
 
   return (
     <GradientBackground style={styles.gradient}>
@@ -90,7 +101,12 @@ export default function Home() {
           </View>
           <View style={styles.agendaWrapper}>
             <AgendaIcon />
-
+            <View style={{paddingRight:250}}>
+            <View style={styles.headerRow}>
+                 <Text style={styles.header}>Mis eventos</Text>
+            </View>
+            </View>
+           
             {eventosRecientes.length > 0 && (
               <ScrollView horizontal>
                 {eventosRecientes.map((evento, idx) => (
@@ -101,30 +117,47 @@ export default function Home() {
                       eventFullDate={ evento.fecha}
                       venue={ evento.ubicacion}
                       priceRange={ "$12.000 - $15.000"}
-                  
+                 
                     />
                   </View>
                 ))}
               </ScrollView>
             )}
-            <Pressable onPress={handleLogout}>
-              <View style={{ padding: 10, backgroundColor: "#eee", borderRadius: 5, marginTop: 20 }}>
-                <Header nombre="Cerrar Sesión" />
-              </View>
-            </Pressable>
+          <View style={{marginTop: 20,}}>
+          <Button title="Cerrar Sesión" color={'#9a0606'}/>
           </View>
-          <EventCard/>
-          <RecentEvents onSeeMore={() => {/* navigate or handle more events */}} />
+          </View>
+          <View style={styles.headerRow}>
+                <Text style={styles.header}>Eventos mas recientes</Text>
+                <TouchableOpacity>
+                  <Text style={{color: '#642684'}}>Ver más</Text>
+                </TouchableOpacity>
+          </View>
+          {eventosRecientes.length > 0 && (
+              <ScrollView horizontal>
+                {eventosRecientes.map((evento, idx) => (
+                  <View key={evento.id || idx} style={{ marginRight: 12 }}>
+                    <RecentEvents
+                      imageUri={evento.imagen}
+                      eventName={ evento.nombre}
+                      venue={ evento.ubicacion}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            )}
         </ScrollView>
       </SafeAreaView>
     </GradientBackground>
   );
 }
 
+
 const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     width: width,
+    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
   },
   safeArea: {
     flex: 1,
@@ -147,11 +180,30 @@ const styles = StyleSheet.create({
   ticketWrapper: {
     marginVertical: 10,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    margin: 9,
+    marginTop: 25,
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+  },
   eventCard: {
     backgroundColor: "#fafafa",
     padding: 10,
     borderRadius: 8,
     minWidth: 120,
     alignItems: "center"
-  }
+  },
+  logOut: {
+    marginTop: 20,
+    backgroundColor: "#f00",
+    borderRadius: 8,
+    alignItems: "center",
+    width: width * 0.9,
+  },
 });

@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, ImageBackground, StyleSheet, ScrollView } from 'react-native';
 
+
 const EventCard = ({ imageUri, eventName, eventFullDate, venue, priceRange, eventTime }) => {
   const dateParts = typeof eventFullDate === 'string' ? eventFullDate.split(' ') : ['--', '--'];
+
 
   const dateObj = new Date(eventFullDate);
   const day = dateObj.getDate();
@@ -10,13 +12,13 @@ const EventCard = ({ imageUri, eventName, eventFullDate, venue, priceRange, even
   let monthShort = dateObj.toLocaleString('en-AR', { month: 'short' }); // "Apr"
   monthShort = monthShort.charAt(0).toUpperCase() + monthShort.slice(1);
 
+
   const shortDate = dateObj.toLocaleDateString('es-AR'); // e.g., "06/04/2025"
+
 
   return (
     <>
-      <View style={styles.headerRow}>
-        <Text style={styles.header}>Mis eventos</Text>
-      </View>
+     
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.card}>
           <ImageBackground
@@ -45,22 +47,21 @@ const EventCard = ({ imageUri, eventName, eventFullDate, venue, priceRange, even
   );
 };
 
+
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 10,
     overflow: 'hidden',
-    width: 300,
+    width: 290,
     height: 340,
     backgroundColor: '#222',
     elevation: 3,
-    margin: 10,
+    marginHorizontal: 0,
+    marginLeft: 10,
+
+
   },
-  header: {
-    marginHorizontal: 8,
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#222',
-  },
+ 
   image: {
     width: '100%',
     height: '100%',
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     top: 18,
     right: 14,
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 5,
     alignItems: 'center',
@@ -123,5 +124,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
+
 
 export default EventCard;

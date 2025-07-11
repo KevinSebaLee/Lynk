@@ -4,7 +4,7 @@ import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import TicketCard from "../components/TicketCard.js";
+import MovCard from "../components/MovCard.js";
 import GradientBarChart from '../components/GradientBarChart.js';
 import React, { useState, useCallback } from "react";
 import ApiService from "../services/api";
@@ -39,6 +39,7 @@ export default function Tickets() {
         })
         .catch(err => {
           if (isActive) setError("No se pudieron cargar los movimientos.");
+          console.log(err)
           console.error("Error loading movimientos:", err);
         })
         .finally(() => {
@@ -94,7 +95,7 @@ export default function Tickets() {
         </View>
         <Pressable style={{ marginTop: 10 }}>
           <View style={styles.ticketWrapper}>
-            <TicketCard
+            <MovCard
               tickets={ticketsData?.tickets || 0}
               onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
             />
