@@ -30,7 +30,7 @@ const { width } = Dimensions.get("window");
 
 export default function Home() {
   const navigation = useNavigation();
-  const { logout } = useAuth();
+  const { logout, userDataCache, clearUserDataCache } = useAuth();
 
 
   // State for user and events
@@ -45,6 +45,18 @@ export default function Home() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        // Check if we have cached user data from registration
+        if (userDataCache) {
+          setUserData(userDataCache);
+          if (userDataCache.eventosRecientes) {
+            setEventosRecientes(userDataCache.eventosRecientes);
+          }
+          // Clear the cache after using it
+          clearUserDataCache();
+          return;
+        }
+        
+        // Otherwise, load data from API as usual
         const data = await loadHomeData();
         if (data) {
           setUserData(data.user);
@@ -55,7 +67,7 @@ export default function Home() {
       }
     };
     loadUserData();
-  }, []);
+  }, [userDataCache, clearUserDataCache]);
 
 
   // Handler for tickets press
@@ -74,7 +86,7 @@ export default function Home() {
   };
 
 
-  if (loading) {
+  if (loading && !userData) {
     return <LoadingSpinner />;
   }
 

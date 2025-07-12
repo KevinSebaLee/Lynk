@@ -60,7 +60,17 @@ export default function SignUpScreen() {
       const response = await registerUser(userData);
       
       if (response.token) {
-        await login(response.token);
+        // Pass user data from registration response to login
+        const userDataForCache = response.user || {
+          user_nombre: nombre,
+          user_apellido: apellido,
+          user_email: mail,
+          tickets: response.tickets || 0,
+          plan_titulo: response.plan_titulo || 'Básico',
+          eventosRecientes: response.eventosRecientes || []
+        };
+        
+        await login(response.token, userDataForCache);
       }
     } catch (error) {
       // Error is already handled by the ApiService
