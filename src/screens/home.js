@@ -9,7 +9,6 @@ import {
   Pressable,
   Alert,
   Text,
-  Button,
   TouchableOpacity
 } from "react-native";
 import Header from "../components/header.js";
@@ -22,7 +21,7 @@ import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
 import ApiService from "../services/api";
 import { useApi } from "../hooks/useApi";
-import { LoadingSpinner } from "../components/common";
+import { LoadingSpinner, Button } from "../components/common";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
@@ -34,7 +33,7 @@ export default function Home() {
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
- 
+
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
   const { execute: loadTickets } = useApi(ApiService.getTickets);
@@ -52,7 +51,7 @@ export default function Home() {
           clearUserDataCache();
           return;
         }
-        
+
         // Otherwise, load data from API as usual
         const data = await loadHomeData();
         if (data) {
@@ -60,7 +59,7 @@ export default function Home() {
           setEventosRecientes(data.eventosRecientes);
         }
       } catch (error) {
-        // Error is already  handled by the ApiService
+        // Error is already handled by the ApiService
       }
     };
     loadUserData();
@@ -92,7 +91,7 @@ export default function Home() {
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
-      
+
       {/* Scrollable content */}
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
@@ -103,6 +102,7 @@ export default function Home() {
           <Header nombre={userData?.user_nombre || "Usuario"} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
+              {/* Use TicketCard with tickets icon */}
               <TicketCard
                 tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
@@ -114,7 +114,7 @@ export default function Home() {
           </View>
           <View style={styles.agendaWrapper}>
             <AgendaIcon />
-            <View style={{paddingRight:250}}>
+            <View style={{ paddingRight: 250 }}>
               <View style={styles.headerRow}>
                 <Text style={styles.header}>Mis eventos</Text>
               </View>
@@ -134,14 +134,14 @@ export default function Home() {
                 ))}
               </ScrollView>
             )}
-            <View style={{marginTop: 20,}}>
-              <Button title="Cerrar Sesión" color={'#9a0606'} onPress={handleLogout}/>
+            <View style={{ marginTop: 20 }}>
+              <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
             </View>
           </View>
           <View style={styles.headerRow}>
             <Text style={styles.header}>Eventos mas recientes</Text>
             <TouchableOpacity>
-              <Text style={{color: '#642684'}}>Ver más</Text>
+              <Text style={{ color: '#642684' }}>Ver más</Text>
             </TouchableOpacity>
           </View>
           {eventosRecientes.length > 0 && (
@@ -201,16 +201,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
   },
-  eventCard: {
-    backgroundColor: "#fafafa",
-    padding: 10,
-    borderRadius: 8,
-    minWidth: 120,
-    alignItems: "center"
-  },
   logOut: {
     marginTop: 20,
-    backgroundColor: "#f00",
+    backgroundColor: "#9a0606",
     borderRadius: 8,
     alignItems: "center",
     width: width * 0.9,
