@@ -3,7 +3,6 @@ import { API_CONFIG, ENDPOINTS } from '../constants/config';
 import { getToken } from '../utils/Token';
 import { handleApiError } from '../utils/errorHandler';
 
-// Create axios instance with default configuration
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
@@ -122,13 +121,43 @@ export class ApiService {
     }
   }
 
-  static async getEventoById(id){
+  static async getEventoById(id) {
+    try {
+      const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load event details');
+      throw error;
+    }
+  }
+
+  static async agendarEventos(id) {
+    try {
+      const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to schedule event');
+      throw error;
+    }
+  }
+
+  static async getEventosAgendados(){
     try{
-      const response = await apiClient.get(`${ENDPOINTS.EVENTO_BY_ID}/${id}`)
+      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`)
       return response.data
-    }catch(error){
-      handleApiError(error, 'Failed to load event details')
-      throw error
+    }catch(err){
+      handleApiError(err, 'Failed to load scheduled events')
+      throw err
+    }
+  }
+
+  static async deleteEventoAgendado(id){
+    try{
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id })
+      return response.data
+    }catch(err){
+      handleApiError(err, 'Failed to delete scheduled event')
+      throw err
     }
   }
 }
