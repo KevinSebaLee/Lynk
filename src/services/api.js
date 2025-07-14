@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_CONFIG, ENDPOINTS } from '../constants/config';
-import { getToken, isLoggedIn } from '../utils/Token';
+import { getToken } from '../utils/Token';
 import { handleApiError } from '../utils/errorHandler';
 
 // Create axios instance with default configuration
@@ -10,7 +10,12 @@ const apiClient = axios.create({
   headers: API_CONFIG.HEADERS,
 });
 
-// Request interceptor to add auth token
+let globalAuthErrorHandler = null;
+
+export const setAuthErrorHandler = (handler) => {
+  globalAuthErrorHandler = handler;
+};
+
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await getToken();
@@ -24,15 +29,19 @@ apiClient.interceptors.request.use(
   }
 );
 
-/**
- * Check if user is authenticated before making request
- */
-const ensureAuthenticated = async () => {
-  const userIsLoggedIn = await isLoggedIn();
-  if (!userIsLoggedIn) {
-    throw new Error('You must be logged in to access this feature.');
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      console.log("Authentication error:", error.response.status);
+      
+      if (globalAuthErrorHandler) {
+        globalAuthErrorHandler();
+      }
+    }
+    return Promise.reject(error);
   }
-};
+);
 
 /**
  * API Service Class
@@ -52,60 +61,53 @@ export class ApiService {
   }
 
   static async register(userData) {
-    try {
-      const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Registration failed');
-      throw error;
-    }
+  try {
+    const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Registration failed');
+    throw error;
   }
+}
 
   static async getHomeData() {
     try {
-      await ensureAuthenticated();
       const response = await apiClient.get(ENDPOINTS.HOME);
       return response.data;
     } catch (error) {
-      if (error.message.includes('logged in')) {
-        handleApiError(new Error(error.message));
-      } else {
-        handleApiError(error, 'Failed to load home data');
-      }
+      handleApiError(error, 'Failed to load home data');
       throw error;
     }
   }
 
   static async getTickets() {
     try {
-      console.log("Ensuring authentication...");
-      await ensureAuthenticated();
-  
       console.log("Calling API...");
       const response = await apiClient.get(ENDPOINTS.TICKETS);
-  
       return response.data;
-  
     } catch (error) {
       console.log("Error in getTickets:", error);
-      if (error.message.includes('logged in')) {
-        handleApiError(new Error(error.message));
-      } else {
-        handleApiError(error, 'Failed to load tickets data');
-      }
+      handleApiError(error, 'Failed to load tickets data');
       throw error;
     }
   }
 
   static async getMovimientos(){
     try{
-      await ensureAuthenticated();
       const response = await apiClient.get(ENDPOINTS.MOVIMIENTOS);
-      console.log("Movimientos data received:", response.data);
-
       return response.data;
     }catch(error){
       handleApiError(error, 'Failed to load movements data');
+      throw error;
+    }
+  }
+
+  static async getUsers() {
+    try {
+      const response = await apiClient.get(ENDPOINTS.TRANSFERIR); 
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load users data');
       throw error;
     }
   }

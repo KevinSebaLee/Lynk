@@ -1,15 +1,16 @@
 import { Alert } from 'react-native';
 
-/**
- * Centralized error handler for API requests
- * @param {Error} error - The error object from axios
- * @param {string} defaultMessage - Default message to show if no specific error found
- */
 export const handleApiError = (error, defaultMessage = 'An unexpected error occurred') => {
   let errorMessage = defaultMessage;
   
+  const isAuthError = error.response && (error.response.status === 401 || error.response.status === 403);
+  
+  if (isAuthError) {
+    console.log("Auth error - token likely expired");
+    return "Authentication error";
+  }
+  
   if (error.response && error.response.data && error.response.data.error) {
-    // Backend error with specific message
     errorMessage = error.response.data.error;
     console.log("Backend error:", error.response.data.error);
   } else if (error.request) {
@@ -26,11 +27,12 @@ export const handleApiError = (error, defaultMessage = 'An unexpected error occu
   return errorMessage;
 };
 
-/**
- * Log error without showing alert (for silent error handling)
- * @param {Error} error - The error object
- * @param {string} context - Context where the error occurred
- */
 export const logError = (error, context = 'Unknown') => {
+  // Skip auth errors in logs (they're expected and handled)
+  if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    console.log(`[${context}] Auth error - handled by redirection`);
+    return;
+  }
+  
   console.error(`[${context}] Error:`, error);
 };

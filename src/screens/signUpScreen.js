@@ -32,10 +32,6 @@ export default function SignUpScreen() {
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();
-  const bgLogin = require('../../assets/img/bgLogin.png');
-
-  
-  // Use the API hook for registration
   const { loading, execute: registerUser } = useApi(ApiService.register);
 
   const handleRegister = async () => {
@@ -43,12 +39,12 @@ export default function SignUpScreen() {
       Alert.alert('Por favor completa todos los campos.');
       return;
     }
-    
+
     if (contraseña !== confirmarContraseña) {
       Alert.alert('Las contraseñas no coinciden.');
       return;
     }
-    
+
     try {
       const userData = {
         nombre: nombre,
@@ -59,14 +55,25 @@ export default function SignUpScreen() {
         id_genero: APP_CONSTANTS.DEFAULT_GENDER_ID,
         id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
       };
-      
+
       const response = await registerUser(userData);
-      
-      if (response.token) {        
-        await login(response.token);
+
+      if (response.token) {
+        const userDataForCache = {
+          user_nombre: nombre,
+          user_apellido: apellido,
+          user_email: mail,
+          tickets: 0,
+          plan_titulo: response.user?.plan_titulo || 'Básico',
+          eventosRecientes: []
+        };
+
+        await login(response.token, userDataForCache);
+      } else {
+        console.error("Registration response missing token:", response);
+        Alert.alert("Error", "No se pudo completar el registro. Por favor intente de nuevo.");
       }
     } catch (error) {
-      // Error is already handled by the ApiService
     }
   };
 
@@ -89,11 +96,11 @@ export default function SignUpScreen() {
             </TouchableOpacity>
             <Text style={styles.headerText}> Crear una cuenta</Text>
           </View>
-          
+
           <View style={styles.picView}>
             <Image style={styles.logPic} source={signUpPic} />
           </View>
-          
+
           <View style={styles.formSection}>
             <TextInput
               style={styles.input}

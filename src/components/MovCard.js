@@ -1,14 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MaterialIcons, FontAwesome5, Ionicons, Entypo } from '@expo/vector-icons';
-
+import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
-
-const MovCard = ({ tickets, onGetMore, style }) => (
+const MovCard = ({ tickets, onGetMore, onTransfer, style }) => (
   <LinearGradient
     colors={['#735BF2', '#642684']}
     start={{ x: 0, y: 0 }}
@@ -27,19 +25,21 @@ const MovCard = ({ tickets, onGetMore, style }) => (
       <Text style={styles.ticketsNumber}>{tickets}</Text>
     </View>
     <View style={styles.actionsRow}>
-      <ActionButton icon={<MaterialIcons name="shopping-cart" size={28} color="#fff" />} label="Comprar" />
-      <ActionButton icon={<Ionicons name="cash" size={28} color="#fff" />} label="Transferir" />
+      <ActionButton icon={<MaterialIcons name="shopping-cart" size={28} color="#fff" />} label="Comprar" onPress={onGetMore} />
+      <ActionButton icon={<Ionicons name="cash" size={28} color="#fff" />} label="Transferir" onPress={onTransfer} />
       <ActionButton icon={<MaterialIcons name="cached" size={28} color="#fff" />} label="Canjear" />
       <ActionButton icon={<Ionicons name="person-circle-outline" size={28} color="#fff" />} label="Tu ID" />
     </View>
   </LinearGradient>
 );
-const ActionButton = ({ icon, label }) => (
-  <View style={styles.actionContainer}>
+
+const ActionButton = ({ icon, label, onPress }) => (
+  <TouchableOpacity style={styles.actionContainer} onPress={onPress} disabled={!onPress}>
     <View style={styles.actionCircle}>{icon}</View>
     <Text style={styles.actionLabel}>{label}</Text>
-  </View>
+  </TouchableOpacity>
 );
+
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
@@ -105,6 +105,5 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
 });
-
 
 export default MovCard;

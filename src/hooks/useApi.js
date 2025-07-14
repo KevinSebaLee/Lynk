@@ -1,12 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { logError } from '../utils/errorHandler';
 
-/**
- * Custom hook for handling API calls with loading states
- * @param {Function} apiFunction - The API function to call
- * @param {boolean} executeOnMount - Whether to execute the API call on component mount
- * @returns {Object} - { data, loading, error, execute, reset }
- */
 export const useApi = (apiFunction, executeOnMount = false) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(executeOnMount);
@@ -20,8 +14,16 @@ export const useApi = (apiFunction, executeOnMount = false) => {
       setData(result);
       return result;
     } catch (err) {
+      const isAuthError = err.response && (err.response.status === 401 || err.response.status === 403);
+      
       setError(err);
-      logError(err, 'useApi');
+      
+      if (!isAuthError) {
+        logError(err, 'useApi');
+      } else {
+        console.log('Auth error handled by interceptor - user being logged out');
+      }
+      
       throw err;
     } finally {
       setLoading(false);
@@ -43,12 +45,6 @@ export const useApi = (apiFunction, executeOnMount = false) => {
   };
 };
 
-/**
- * Hook for API calls that execute immediately
- * @param {Function} apiFunction - The API function to call
- * @param {Array} dependencies - Dependencies for the effect
- * @returns {Object} - { data, loading, error, refetch }
- */
 export const useApiCall = (apiFunction, dependencies = []) => {
   const { data, loading, error, execute } = useApi(apiFunction);
 
