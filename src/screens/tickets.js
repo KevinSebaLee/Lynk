@@ -93,13 +93,13 @@ export default function Tickets() {
         </View>
         <Pressable style={{ marginTop: 10 }}>
           <View style={styles.ticketWrapper}>
-            <MovCard
-              tickets={ticketsData?.tickets || 0}
-              onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
-            />
+          <MovCard
+            tickets={ticketsData?.tickets || 0}
+            onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
+            onTransfer={() => navigation.navigate('Transferir')}
+          />
           </View>
         </Pressable>
-
         <View style={styles.listMov}>
           <Text style={styles.trans}>Transacciones</Text>
           {(movimientosData.length > 0 ? movimientosData : []).map((tx, idx) => (
@@ -209,5 +209,20 @@ const styles = StyleSheet.create({
   },
   ticketWrapper: {
     marginVertical: 10,
+  },
+  transferBtnWrapper: {
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  transferBtn: {
+    backgroundColor: '#7b4ef7',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  transferBtnText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

@@ -15,7 +15,8 @@ export const ENDPOINTS = {
   REGISTER: '/register',
   HOME: '/',
   TICKETS: '/tickets',
-  MOVIMIENTOS: 'tickets/transacciones',
+  MOVIMIENTOS: '/tickets/transacciones',
+  TRANSFERIR: "/tickets/transferir",
 };
 
 // App Constants
