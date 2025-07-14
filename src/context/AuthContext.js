@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     setAuthErrorHandler(logout);
-    
+
     (async () => {
       setIsAuthenticated(await isLoggedIn());
     })();
@@ -25,10 +25,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (token, userData = null) => {
     await storeToken(token);
-    setIsAuthenticated(true);
+
     if (userData) {
       setUserDataCache(userData);
     }
+
+    setIsAuthenticated(true);
   };
 
   const checkAuth = async () => {
@@ -40,13 +42,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      login, 
-      logout, 
-      checkAuth, 
-      userDataCache, 
-      clearUserDataCache 
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      login,
+      logout,
+      checkAuth,
+      userDataCache,
+      clearUserDataCache
     }}>
       {children}
     </AuthContext.Provider>

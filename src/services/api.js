@@ -61,14 +61,14 @@ export class ApiService {
   }
 
   static async register(userData) {
-    try {
-      const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Registration failed');
-      throw error;
-    }
+  try {
+    const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
+    return response.data;
+  } catch (error) {
+    handleApiError(error, 'Registration failed');
+    throw error;
   }
+}
 
   static async getHomeData() {
     try {
@@ -95,7 +95,6 @@ export class ApiService {
   static async getMovimientos(){
     try{
       const response = await apiClient.get(ENDPOINTS.MOVIMIENTOS);
-      console.log("Movimientos data received:", response.data);
       return response.data;
     }catch(error){
       handleApiError(error, 'Failed to load movements data');
@@ -106,7 +105,6 @@ export class ApiService {
   static async getUsers() {
     try {
       const response = await apiClient.get(ENDPOINTS.TRANSFERIR); 
-      console.log("Entrando a getUsers")
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load users data');
