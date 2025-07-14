@@ -5,7 +5,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { useAuth } from './context/AuthContext';
 import StackInicioNavigator from './navigation/StackInicioNavigator.js';
 import StackHomeNavigator from './navigation/StackHomeNavigator.js';
-import StackEventosNavigator from './screens/eventos';
+import StackEventosNavigator from './navigation/StackEventosNavigator';
 import StackCreateNavigator from './screens/create';
 import StackGestionNavigator from './screens/gestion';
 import StackAgendaNavigator from './screens/agenda';
