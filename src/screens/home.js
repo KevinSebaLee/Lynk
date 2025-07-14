@@ -22,16 +22,14 @@ import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
 import ApiService from "../services/api";
 import { useApi } from "../hooks/useApi";
-import { LoadingSpinner, GradientBackground } from "../components/common";
-
+import { LoadingSpinner } from "../components/common";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
-
 
 export default function Home() {
   const navigation = useNavigation();
   const { logout, userDataCache, clearUserDataCache } = useAuth();
-
 
   // State for user and events
   const [userData, setUserData] = useState(null);
@@ -40,7 +38,6 @@ export default function Home() {
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
   const { execute: loadTickets } = useApi(ApiService.getTickets);
-
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -63,12 +60,11 @@ export default function Home() {
           setEventosRecientes(data.eventosRecientes);
         }
       } catch (error) {
-        // Error is already handled by the ApiService
+        // Error is already  handled by the ApiService
       }
     };
     loadUserData();
   }, [userDataCache, clearUserDataCache]);
-
 
   // Handler for tickets press
   const handleTicketsPress = async () => {
@@ -80,19 +76,24 @@ export default function Home() {
     }
   };
 
-
   const handleLogout = async () => {
     await logout();
   };
-
 
   if (loading && !userData) {
     return <LoadingSpinner />;
   }
 
-
   return (
-    <GradientBackground style={styles.gradient}>
+    <View style={styles.container}>
+      {/* Fixed gradient background */}
+      <LinearGradient
+        colors={['#642684', '#ffffff', '#ffffff']}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      
+      {/* Scrollable content */}
       <SafeAreaView style={styles.safeArea}>
         <StatusBar style="light" />
         <ScrollView
@@ -114,62 +115,58 @@ export default function Home() {
           <View style={styles.agendaWrapper}>
             <AgendaIcon />
             <View style={{paddingRight:250}}>
-            <View style={styles.headerRow}>
-                 <Text style={styles.header}>Mis eventos</Text>
+              <View style={styles.headerRow}>
+                <Text style={styles.header}>Mis eventos</Text>
+              </View>
             </View>
-            </View>
-           
             {eventosRecientes.length > 0 && (
               <ScrollView horizontal>
                 {eventosRecientes.map((evento, idx) => (
                   <View key={evento.id || idx} style={{ marginRight: 12 }}>
                     <EventCard
                       imageUri={evento.imagen}
-                      eventName={ evento.nombre}
-                      eventFullDate={ evento.fecha}
-                      venue={ evento.ubicacion}
-                      priceRange={ "$12.000 - $15.000"}
-                 
+                      eventName={evento.nombre}
+                      eventFullDate={evento.fecha}
+                      venue={evento.ubicacion}
+                      priceRange={"$12.000 - $15.000"}
                     />
                   </View>
                 ))}
               </ScrollView>
             )}
-          <View style={{marginTop: 20,}}>
-          <Button title="Cerrar Sesión" color={'#9a0606'}/>
-          </View>
+            <View style={{marginTop: 20,}}>
+              <Button title="Cerrar Sesión" color={'#9a0606'} onPress={handleLogout}/>
+            </View>
           </View>
           <View style={styles.headerRow}>
-                <Text style={styles.header}>Eventos mas recientes</Text>
-                <TouchableOpacity>
-                  <Text style={{color: '#642684'}}>Ver más</Text>
-                </TouchableOpacity>
+            <Text style={styles.header}>Eventos mas recientes</Text>
+            <TouchableOpacity>
+              <Text style={{color: '#642684'}}>Ver más</Text>
+            </TouchableOpacity>
           </View>
           {eventosRecientes.length > 0 && (
-              <ScrollView horizontal>
-                {eventosRecientes.map((evento, idx) => (
-                  <View key={evento.id || idx} style={{ marginRight: 12 }}>
-                    <RecentEvents
-                      imageUri={evento.imagen}
-                      eventName={ evento.nombre}
-                      venue={ evento.ubicacion}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            )}
+            <ScrollView horizontal>
+              {eventosRecientes.map((evento, idx) => (
+                <View key={evento.id || idx} style={{ marginRight: 12 }}>
+                  <RecentEvents
+                    imageUri={evento.imagen}
+                    eventName={evento.nombre}
+                    venue={evento.ubicacion}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </ScrollView>
       </SafeAreaView>
-    </GradientBackground>
+    </View>
   );
 }
 
-
 const styles = StyleSheet.create({
-  gradient: {
+  container: {
     flex: 1,
-    width: width,
-    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+    position: 'relative',
   },
   safeArea: {
     flex: 1,

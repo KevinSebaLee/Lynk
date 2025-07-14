@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Header from './header.js';
 
 const { width } = Dimensions.get('window');
@@ -50,9 +49,15 @@ function getEventsForDay(year, month, day) {
 }
 
 export default function Agenda() {
-  const [year, setYear] = useState(2025);
-  const [month, setMonth] = useState(8);
-  const [selectedDay, setSelectedDay] = useState(2);
+  // Get today's date on first render
+  const now = new Date();
+  const initialYear = now.getFullYear();
+  const initialMonth = now.getMonth();
+  const initialDay = now.getDate();
+
+  const [year, setYear] = useState(initialYear);
+  const [month, setMonth] = useState(initialMonth);
+  const [selectedDay, setSelectedDay] = useState(initialDay);
 
   const numDays = getDaysInMonth(year, month);
   const firstDayOfWeek = getFirstDayOfWeek(year, month);
@@ -102,57 +107,57 @@ export default function Agenda() {
 
   return (
     <View style={styles.container}>
-        <View style={styles.calendarContainer}>
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={goToPrevMonth} style={styles.chevronBtn}>
-              <Text style={styles.chevron}>{'<'}</Text>
-            </TouchableOpacity>
-            <View>
-              <Text style={styles.monthText}>{MONTHS_ES[month]}</Text>
-              <Text style={styles.yearText}>{year}</Text>
-            </View>
-            <TouchableOpacity onPress={goToNextMonth} style={styles.chevronBtn}>
-              <Text style={styles.chevron}>{'>'}</Text>
-            </TouchableOpacity>
+      <View style={styles.calendarContainer}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={goToPrevMonth} style={styles.chevronBtn}>
+            <Text style={styles.chevron}>{'<'}</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.monthText}>{MONTHS_ES[month]}</Text>
+            <Text style={styles.yearText}>{year}</Text>
           </View>
-          <View style={styles.weekdaysRow}>
-            {WEEKDAYS_ES.map((w, idx) => (
-              <Text key={w + idx} style={styles.weekdayText}>{w}</Text>
-            ))}
-          </View>
-          <View style={styles.daysGrid}>
-            {fullCalendar.map((item, idx) => {
-              const isSelected = !item.isOtherMonth && item.day === selectedDay;
-              const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
-              return (
-                <TouchableOpacity
-                  key={idx}
-                  style={[
-                    styles.dayCell,
-                    item.isOtherMonth && styles.dayCellOtherMonth,
-                    isSelected && styles.dayCellSelected
-                  ]}
-                  disabled={item.isOtherMonth}
-                  onPress={() => setSelectedDay(item.day)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[
-                    styles.dayText,
-                    item.isOtherMonth ? styles.dayTextOtherMonth : null,
-                    isSelected ? styles.dayTextSelected : null
-                  ]}>
-                    {item.day}
-                  </Text>
-                  <View style={styles.dotsRow}>
-                    {dayEvents.map((ev, j) => (
-                      <View key={j} style={[styles.dot, { backgroundColor: ev.color }]} />
-                    ))}
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <TouchableOpacity onPress={goToNextMonth} style={styles.chevronBtn}>
+            <Text style={styles.chevron}>{'>'}</Text>
+          </TouchableOpacity>
         </View>
+        <View style={styles.weekdaysRow}>
+          {WEEKDAYS_ES.map((w, idx) => (
+            <Text key={w + idx} style={styles.weekdayText}>{w}</Text>
+          ))}
+        </View>
+        <View style={styles.daysGrid}>
+          {fullCalendar.map((item, idx) => {
+            const isSelected = !item.isOtherMonth && item.day === selectedDay;
+            const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
+            return (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  styles.dayCell,
+                  item.isOtherMonth && styles.dayCellOtherMonth,
+                  isSelected && styles.dayCellSelected
+                ]}
+                disabled={item.isOtherMonth}
+                onPress={() => setSelectedDay(item.day)}
+                activeOpacity={0.8}
+              >
+                <Text style={[
+                  styles.dayText,
+                  item.isOtherMonth ? styles.dayTextOtherMonth : null,
+                  isSelected ? styles.dayTextSelected : null
+                ]}>
+                  {item.day}
+                </Text>
+                <View style={styles.dotsRow}>
+                  {dayEvents.map((ev, j) => (
+                    <View key={j} style={[styles.dot, { backgroundColor: ev.color }]} />
+                  ))}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
     </View>
   );
 }

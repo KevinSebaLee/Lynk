@@ -111,6 +111,16 @@ export class ApiService {
       throw error;
     }
   }
+
+  static async getEventos(){
+    try{
+      const response = await apiClient.get(ENDPOINTS.EVENTOS)
+      return response.data
+    }catch(error){
+      handleApiError(error, 'Failed to load events')
+      throw error
+    }
+  }
 }
 
 export default ApiService;
