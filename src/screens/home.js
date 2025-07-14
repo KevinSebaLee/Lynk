@@ -136,7 +136,7 @@ export default function Home() {
               </ScrollView>
             )}
           <View style={{marginTop: 20,}}>
-          <Button title="Cerrar Sesión" color={'#9a0606'}/>
+          <Button  onPress={handleLogout} title="Cerrar Sesión" color={'#9a0606'}/>
           </View>
           </View>
           <View style={styles.headerRow}>

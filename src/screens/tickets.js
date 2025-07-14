@@ -124,6 +124,7 @@ export default function Tickets() {
               </View>
             </View>
           ))}
+          
         </View>
 
         <Text style={styles.trans}>Movimientos</Text>

@@ -63,8 +63,8 @@ export default function LogInScreen() {
               style={styles.btnView}
             />
           </KeyboardAvoidingView>
-          <View style={styles.bottomSection}>
-            <Text style={{ fontSize: 15 }}>
+          <View style={styles.bottomSectionRow}>
+            <Text>
               No tienes cuenta?{' '}
               <Pressable onPress={() => navigation.navigate('signUpScreen')}>
                 <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
@@ -95,5 +95,11 @@ const styles = StyleSheet.create({
   btnView: { display: 'flex', justifyContent: 'center', alignContent: 'center', width: 300, borderRadius: 5, marginBottom: 45, backgroundColor: '#642684', height: 45 },
   container: { flex: 2, backgroundColor: 'transparent', alignItems: 'center' },
   input: { height: 45, width: 300, margin: 12, borderWidth: 1, borderRadius: 5, padding: 10, borderColor: '#642684', backgroundColor: 'white' },
-  bottomSection: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  bottomSectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    paddingBottom: 50,
+  },  
 });
