@@ -64,21 +64,21 @@ export default function LogInScreen() {
             />
           </KeyboardAvoidingView>
           <View style={styles.bottomSectionRow}>
-            <Text>
-              No tienes cuenta?{' '}
-              <Pressable onPress={() => navigation.navigate('signUpScreen')}>
-                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
-              </Pressable>
-            </Text>
-            <View style={styles.redes}>
-              <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>O continua con </Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-1.png' }} />
-                <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
-                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
-              </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ fontSize: 15 }}>No tienes cuenta? </Text>
+            <Pressable onPress={() => navigation.navigate('signUpScreen')}>
+              <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
+            </Pressable>
+          </View>
+          <View style={styles.redes}>
+            <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>O continua con </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+            <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }} />
+            <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
+            <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
             </View>
           </View>
+        </View>  
         </View>
       </ImageBackground>
     </View>
@@ -96,10 +96,10 @@ const styles = StyleSheet.create({
   container: { flex: 2, backgroundColor: 'transparent', alignItems: 'center' },
   input: { height: 45, width: 300, margin: 12, borderWidth: 1, borderRadius: 5, padding: 10, borderColor: '#642684', backgroundColor: 'white' },
   bottomSectionRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
-    paddingBottom: 50,
-  },  
+    paddingBottom: 0,
+    // Optional: flexDirection: 'column' if you want "O continua con" below the row
+  },
 });
