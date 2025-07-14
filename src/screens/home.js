@@ -17,7 +17,7 @@ import TicketCard from "../components/TicketCard.js";
 import PremiumBanner from "../components/premiumBanner";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
-import AgendaIcon from "../components/agendaIcon";
+import AgendaIcon from "../components/agenda.js";
 import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
 import ApiService from "../services/api";
