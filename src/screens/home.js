@@ -104,7 +104,7 @@ export default function Home() {
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
-                tickets={userData?.tickets}
+                tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
               />
             </View>
