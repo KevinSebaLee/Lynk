@@ -24,13 +24,11 @@ export default function Tickets() {
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
-      console.log("Focus effect triggered");
       setLoading(true);
       setError(null);
 
       ApiService.getMovimientos()
         .then(data => {
-          console.log("Movimientos data received:", data);
           if (isActive && data) {
             setMovimientosData(data);
           } else {

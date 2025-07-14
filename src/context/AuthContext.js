@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { isLoggedIn, removeToken, storeToken } from '../utils/Token';
+import { setAuthErrorHandler } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -7,7 +8,16 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userDataCache, setUserDataCache] = useState(null);
 
+  const logout = async () => {
+    console.log("Logging out user due to expired token...");
+    await removeToken();
+    setIsAuthenticated(false);
+    setUserDataCache(null);
+  };
+
   useEffect(() => {
+    setAuthErrorHandler(logout);
+
     (async () => {
       setIsAuthenticated(await isLoggedIn());
     })();
@@ -15,16 +25,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (token, userData = null) => {
     await storeToken(token);
-    setIsAuthenticated(true);
+
     if (userData) {
       setUserDataCache(userData);
     }
-  };
 
-  const logout = async () => {
-    await removeToken();
-    setIsAuthenticated(false);
-    setUserDataCache(null);
+    setIsAuthenticated(true);
   };
 
   const checkAuth = async () => {
@@ -36,13 +42,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      isAuthenticated, 
-      login, 
-      logout, 
-      checkAuth, 
-      userDataCache, 
-      clearUserDataCache 
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      login,
+      logout,
+      checkAuth,
+      userDataCache,
+      clearUserDataCache
     }}>
       {children}
     </AuthContext.Provider>
