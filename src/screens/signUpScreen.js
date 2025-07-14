@@ -328,17 +328,10 @@ const styles = StyleSheet.create({
     borderColor: '#642684',
     backgroundColor: 'white',
   },
-<<<<<<< HEAD
-  tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 14,
-=======
   bottomSection: {
     display: 'flex',
     alignItems: 'center',    
     gap: 10,
->>>>>>> 6ba813d2bfbf32bec7c225ac28decf468e157c56
     marginTop: 10,
   },
   tabText: {

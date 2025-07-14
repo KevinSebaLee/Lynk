@@ -4,6 +4,7 @@ import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApi } from "../hooks/useApi";
 import ApiService from '../services/api.js';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ export default function Eventos() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [events, setEvents] = useState([]);
+  const navigation = useNavigation();
 
   const { execute: loadEvents } = useApi(ApiService.getEventos);
 
@@ -67,6 +69,11 @@ export default function Eventos() {
     }
   };
 
+  // Navigate to the correct screen name!
+  const handleEventPress = (event) => {
+    navigation.navigate('eventoElegido', { event });
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
@@ -113,12 +120,14 @@ export default function Eventos() {
           <View style={styles.gridRow}>
             <View style={styles.gridColumn}>
               {leftEvents.map((ev, i) => (
-                <View
+                <TouchableOpacity
                   key={ev.id || i}
                   style={[
                     styles.card,
                     { width: CARD_WIDTH, height: ev.big ? CARD_HEIGHT_BIG : CARD_HEIGHT_SMALL }
                   ]}
+                  activeOpacity={0.9}
+                  onPress={() => handleEventPress(ev)}
                 >
                   <Image source={{ uri: ev.imagen }} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
@@ -127,17 +136,19 @@ export default function Eventos() {
                       <Text style={styles.cardTitle}>{ev.nombre}</Text>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
             <View style={styles.gridColumn}>
               {rightEvents.map((ev, i) => (
-                <View
+                <TouchableOpacity
                   key={ev.id || i}
                   style={[
                     styles.card,
                     { width: CARD_WIDTH, height: CARD_HEIGHT_SMALL }
                   ]}
+                  activeOpacity={0.9}
+                  onPress={() => handleEventPress(ev)}
                 >
                   <Image source={{ uri: ev.imagen }} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
@@ -146,7 +157,7 @@ export default function Eventos() {
                       <Text style={styles.cardTitle}>{ev.nombre}</Text>
                     </View>
                   </View>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </View>
