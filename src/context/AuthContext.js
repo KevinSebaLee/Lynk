@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
     })();
   }, []);
 
+
   const login = async (token, userData = null) => {
+
     await storeToken(token);
 
     if (userData) {

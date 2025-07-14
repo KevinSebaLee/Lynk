@@ -32,7 +32,6 @@ export default function Home() {
   const navigation = useNavigation();
   const { logout, userDataCache, clearUserDataCache } = useAuth();
 
-
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
@@ -103,7 +102,7 @@ export default function Home() {
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
-                tickets={userData?.tickets}
+                tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
               />
             </View>

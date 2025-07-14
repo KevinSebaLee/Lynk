@@ -13,6 +13,7 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
+  ImageBackground,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +36,6 @@ export default function SignUpScreen() {
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();
-
   const { loading, execute: registerUser } = useApi(ApiService.register);
 
   const handleRegister = async () => {
@@ -206,7 +206,8 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f6f2ff' }}>
+    <SafeAreaView style={{ flex: 1}}>
+      <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -261,6 +262,7 @@ export default function SignUpScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -326,10 +328,17 @@ const styles = StyleSheet.create({
     borderColor: '#642684',
     backgroundColor: 'white',
   },
+<<<<<<< HEAD
   tabBar: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 14,
+=======
+  bottomSection: {
+    display: 'flex',
+    alignItems: 'center',    
+    gap: 10,
+>>>>>>> 6ba813d2bfbf32bec7c225ac28decf468e157c56
     marginTop: 10,
   },
   tabText: {
