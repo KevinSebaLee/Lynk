@@ -121,6 +121,16 @@ export class ApiService {
       throw error
     }
   }
+
+  static async getEventoById(id){
+    try{
+      const response = await apiClient.get(`${ENDPOINTS.EVENTO_BY_ID}/${id}`)
+      return response.data
+    }catch(error){
+      handleApiError(error, 'Failed to load event details')
+      throw error
+    }
+  }
 }
 
 export default ApiService;

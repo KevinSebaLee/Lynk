@@ -18,6 +18,7 @@ export const ENDPOINTS = {
   MOVIMIENTOS: '/tickets/transacciones',
   TRANSFERIR: "/tickets/transferir",
   EVENTOS: "/eventos",
+  EVENTO_BY_ID: "/eventos",
 };
 
 // App Constants

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,35 +8,119 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import { useApi } from "../hooks/useApi";
+import ApiService from '../services/api.js';
 
 const { width } = Dimensions.get("window");
 
 export default function EventoElegido() {
   const route = useRoute();
   const navigation = useNavigation();
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const event = route?.params?.event || {
-    nombre: "Garden party!",
-    categoria_nombre: "Jardín botánico",
-    fecha: "2025-12-14",
-    hora: "4:00PM - 9:00PM",
-    descripcion: `¡Te esperamos el 17 de febrero a las 18:30 en la Garden Party del Jardín Botánico! 🌿✨
+  const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
+
+  useEffect(() => {
+    const loadEvent = async () => {
+      try {
+        // If we have event data from navigation params, use it
+        const eventFromParams = route?.params?.event;
+        if (eventFromParams) {
+          // If we have an ID, fetch fresh data from backend
+          if (eventFromParams.id) {
+            try {
+              const eventData = await loadEventDetails(eventFromParams.id);
+              // If backend call succeeds, use that data
+              if (eventData && eventData.length > 0) {
+                setEvent(eventData[0]); // Backend returns array, take first element
+              } else {
+                // If backend returns empty, use params data
+                setEvent(eventFromParams);
+              }
+            } catch (error) {
+              console.log('Backend fetch failed, using params data:', error);
+              // If backend call fails, use params data
+              setEvent(eventFromParams);
+            }
+          } else {
+            // No ID, use params data
+            setEvent(eventFromParams);
+          }
+        } else {
+          // No params, use default data
+          setEvent({
+            nombre: "Garden party!",
+            categoria_nombre: "Jardín botánico",
+            fecha: "2025-12-14",
+            hora: "4:00PM - 9:00PM",
+            descripcion: `¡Te esperamos el 17 de febrero a las 18:30 en la Garden Party del Jardín Botánico! 🌿✨
 
 Ven a disfrutar de una tarde mágica rodeado de naturaleza, buena música y deliciosos aperitivos.
 Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidables.
 ¡No faltes, vístete de jardín y acompáñanos! 💞🌸`,
-    ubicacion: "Av. Sta. Fe 3957. Cdad Autónoma de Buenos Aires",
-    imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
-    usuario_nombre: "Ariela",
-    usuario_apellido: "Mojrenfeld",
-    usuario_pfp: null,
-    presupuesto: "10.000.000",
-    objetivo: "15.000.000",
-  };
+            ubicacion: "Av. Sta. Fe 3957. Cdad Autónoma de Buenos Aires",
+            imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
+            usuario_nombre: "Ariela",
+            usuario_apellido: "Mojrenfeld",
+            usuario_pfp: null,
+            presupuesto: "10.000.000",
+            objetivo: "15.000.000",
+          });
+        }
+      } catch (error) {
+        console.error('Error loading event:', error);
+        // Use default data on error
+        setEvent({
+          nombre: "Garden party!",
+          categoria_nombre: "Jardín botánico",
+          fecha: "2025-12-14",
+          hora: "4:00PM - 9:00PM",
+          descripcion: `¡Te esperamos el 17 de febrero a las 18:30 en la Garden Party del Jardín Botánico! 🌿✨
+
+Ven a disfrutar de una tarde mágica rodeado de naturaleza, buena música y deliciosos aperitivos.
+Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidables.
+¡No faltes, vístete de jardín y acompáñanos! 💞🌸`,
+          ubicacion: "Av. Sta. Fe 3957. Cdad Autónoma de Buenos Aires",
+          imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
+          usuario_nombre: "Ariela",
+          usuario_apellido: "Mojrenfeld",
+          usuario_pfp: null,
+          presupuesto: "10.000.000",
+          objetivo: "15.000.000",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEvent();
+  }, [route?.params?.event]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#642684" />
+        <Text style={styles.loadingText}>Cargando evento...</Text>
+      </View>
+    );
+  }
+
+  if (!event) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>No se pudo cargar el evento</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>Volver</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   // Format date/time
   const dateObj = new Date(event.fecha);
@@ -137,6 +221,42 @@ const CIRCLE_SIZE = width * 0.85;
 const MAP_SIZE = width * 0.34;
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#642684',
+    fontWeight: '500',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: '#642684',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  backButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   headerGradient: {
     paddingTop: 44,
     paddingBottom: 38,
