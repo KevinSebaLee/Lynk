@@ -207,7 +207,7 @@ export default function SignUpScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1}}>
-      <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
+      <ImageBackground  resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -280,6 +280,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+  bottomSection: {
+    display: 'flex',
+    alignItems: 'center',    
+    gap: 10,
+    marginTop: 10,
+  },
+
   arrow: {
     resizeMode: 'contain',
     width: 25,
@@ -328,17 +340,10 @@ const styles = StyleSheet.create({
     borderColor: '#642684',
     backgroundColor: 'white',
   },
-<<<<<<< HEAD
-  tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 14,
-=======
   bottomSection: {
     display: 'flex',
     alignItems: 'center',    
     gap: 10,
->>>>>>> 6ba813d2bfbf32bec7c225ac28decf468e157c56
     marginTop: 10,
   },
   tabText: {
