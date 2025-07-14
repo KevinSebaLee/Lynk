@@ -13,6 +13,7 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
+  ImageBackground,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -31,7 +32,6 @@ export default function SignUpScreen() {
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();
-
   const { loading, execute: registerUser } = useApi(ApiService.register);
 
   const handleRegister = async () => {
@@ -78,7 +78,8 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f6f2ff' }}>
+    <SafeAreaView style={{ flex: 1}}>
+      <ImageBackground source={bgLogin} resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -155,6 +156,7 @@ export default function SignUpScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -163,7 +165,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'flex-start',
-    backgroundColor: '#f6f2ff',
     paddingBottom: 30,
   },
   header: {
@@ -219,8 +220,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   bottomSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: 'flex',
+    alignItems: 'center',    
+    gap: 10,
     marginTop: 10,
     marginBottom: 15,
   },

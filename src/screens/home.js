@@ -32,7 +32,6 @@ export default function Home() {
   const navigation = useNavigation();
   const { logout, userDataCache, clearUserDataCache } = useAuth();
 
-
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
@@ -103,7 +102,7 @@ export default function Home() {
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
-                tickets={userData?.tickets}
+                tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
               />
             </View>
@@ -136,7 +135,7 @@ export default function Home() {
               </ScrollView>
             )}
           <View style={{marginTop: 20,}}>
-          <Button title="Cerrar Sesión" color={'#9a0606'}/>
+            <Button onPress={handleLogout} title="Cerrar Sesión" color={'#9a0606'}/>
           </View>
           </View>
           <View style={styles.headerRow}>
