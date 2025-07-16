@@ -1,39 +1,100 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Animated, Dimensions, ScrollView } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, TextInput, Switch, Animated, Dimensions, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ApiService from '../services/api';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { height, width } = Dimensions.get('window');
 
+// Helper function for unique IDs (you may want to use UUID or your DB's IDs in production)
+let categoryIdCounter = 1;
+
 export default function CreateEventModal({ visible, onClose }) {
-  // Animation setup
   const translateY = useRef(new Animated.Value(height)).current;
 
-  // Categories state
+  // Each category now has an id
   const [categories, setCategories] = useState([
-    { name: 'Deportes', color: '#f3e9f9', textColor: '#642684' },
-    { name: 'Música', color: '#e3f7ef', textColor: '#3ec19f' },
-    { name: 'Global', color: '#eaf4fb', textColor: '#3792e3' },
+    { id: categoryIdCounter++, name: 'Deportes', color: '#f3e9f9', textColor: '#642684' },
+    { id: categoryIdCounter++, name: 'Música', color: '#e3f7ef', textColor: '#3ec19f' },
+    { id: categoryIdCounter++, name: 'Global', color: '#eaf4fb', textColor: '#3792e3' },
   ]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(categories[0]?.id);
+
+  // State for fields
   const [newCategory, setNewCategory] = useState('');
   const [categoryError, setCategoryError] = useState('');
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [fecha, setFecha] = useState('');
+  const [fechaDate, setFechaDate] = useState(null);
+  const [showFechaPicker, setShowFechaPicker] = useState(false);
+
+  const [horaInicio, setHoraInicio] = useState('');
+  const [horaInicioDate, setHoraInicioDate] = useState(null);
+  const [showHoraInicioPicker, setShowHoraInicioPicker] = useState(false);
+
+  const [horaFin, setHoraFin] = useState('');
+  const [horaFinDate, setHoraFinDate] = useState(null);
+  const [showHoraFinPicker, setShowHoraFinPicker] = useState(false);
+
+  const [visibilidad, setVisiblidad] = useState(false);
+  const [ubicacion, setUbicacion] = useState('');
+  const [presupuesto, setPresupuesto] = useState('');
+  const [objetivo, setObjetivo] = useState('');
+  const [color, setColor] = useState(null);
+  const [imagenVerificar, setImagenVerificar] = useState(null);
+
+  const createEvento = ApiService.createEvento;
 
   useEffect(() => {
-    if (visible) {
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 420,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(translateY, {
-        toValue: height,
-        duration: 320,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [visible, translateY]);
+    Animated.timing(translateY, {
+      toValue: visible ? 0 : height,
+      duration: visible ? 420 : 320,
+      useNativeDriver: true,
+    }).start();
+  }, [visible]);
 
-  // Add new category
+  const handleFechaChange = (event, selectedDate) => {
+    setShowFechaPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setFechaDate(selectedDate);
+      setFecha(selectedDate.toISOString().split('T')[0]);
+    }
+  };
+
+  const handleHoraInicioChange = (event, selectedDate) => {
+    setShowHoraInicioPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setHoraInicioDate(selectedDate);
+      const hours = selectedDate.getHours().toString().padStart(2, '0');
+      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+      setHoraInicio(`${hours}:${minutes}`);
+    }
+  };
+
+  const handleHoraFinChange = (event, selectedDate) => {
+    setShowHoraFinPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setHoraFinDate(selectedDate);
+      const hours = selectedDate.getHours().toString().padStart(2, '0');
+      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+      setHoraFin(`${hours}:${minutes}`);
+    }
+  };
+
+  const handleNumericChange = setter => value => {
+    const filtered = value.replace(/[^0-9]/g, '');
+    setter(filtered);
+  };
+
+  const handlePrivadoChange = value => {
+    setVisiblidad(value);
+    if (value) {
+      setPresupuesto('');
+      setObjetivo('');
+    }
+  };
+
   const handleAddCategory = () => {
     const trimmedName = newCategory.trim();
     if (!trimmedName) {
@@ -44,38 +105,65 @@ export default function CreateEventModal({ visible, onClose }) {
       setCategoryError('Ya existe esa categoría');
       return;
     }
-    setCategories([
-      ...categories,
-      {
-        name: trimmedName,
-        color: '#f5f5f8',
-        textColor: '#642684',
-      }
-    ]);
+    const newCat = {
+      id: categoryIdCounter++,
+      name: trimmedName,
+      color: '#f5f5f8',
+      textColor: '#642684',
+    };
+    setCategories([...categories, newCat]);
     setNewCategory('');
     setCategoryError('');
+    setSelectedCategoryId(newCat.id);
   };
 
-  // Delete category
   const handleDeleteCategory = (idx) => {
-    setCategories(categories.filter((_, i) => i !== idx));
+    const deletedId = categories[idx].id;
+    const newCategories = categories.filter((_, i) => i !== idx);
+    setCategories(newCategories);
+
+    if (selectedCategoryId === deletedId) {
+      setSelectedCategoryId(newCategories[0]?.id);
+    }
+  };
+
+  const handleSelectCategory = id => setSelectedCategoryId(id);
+
+  const handleCreateEvent = async () => {
+    if (!nombre || !descripcion || !fecha || !horaInicio || !horaFin || !ubicacion) {
+      setCategoryError('Por favor completa todos los campos requeridos.');
+      return;
+    }
+    try {
+      // Always send id_categoria as an array
+      const eventData = {
+        id_categoria: [selectedCategoryId], // <-- Always array!
+        nombre,
+        descripcion,
+        fecha,
+        horaInicio,
+        horaFin,
+        visibilidad,
+        ubicacion,
+        presupuesto: visibilidad ? 0 : presupuesto,
+        objetivo: visibilidad ? 0 : objetivo,
+        color,
+        imagen: imagenVerificar,
+      };
+
+      const response = await createEvento(eventData);
+      console.log('Evento creado:', response);
+      onClose();
+    } catch (error) {
+      console.error('Error creando evento:', error);
+    }
   };
 
   return (
-    <Modal
-      transparent
-      animationType="none"
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
-        <Animated.View
-          style={[
-            styles.animatedCard,
-            { transform: [{ translateY }] }
-          ]}
-        >
+        <Animated.View style={[styles.animatedCard, { transform: [{ translateY }] }]}>
           <View style={styles.card}>
             <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
               <Ionicons name="close" size={28} color="#642684" />
@@ -84,41 +172,106 @@ export default function CreateEventModal({ visible, onClose }) {
             <View style={styles.imageBox}>
               <Ionicons name="image-outline" size={40} color="#c7c9d8" />
             </View>
-            <TextInput style={styles.input} placeholder="Nombre" />
-            <TextInput style={styles.input} placeholder="Descripcion..." multiline />
+            <TextInput style={styles.input} placeholder="Nombre" value={nombre} onChangeText={setNombre} />
+            <TextInput style={styles.input} placeholder="Descripcion..." multiline value={descripcion} onChangeText={setDescripcion} />
             <View style={styles.row}>
-              <TextInput style={[styles.input, styles.dateInput]} placeholder="Fecha" />
-              <TouchableOpacity>
+              <TextInput
+                style={[styles.input, styles.dateInput]}
+                placeholder="Fecha"
+                value={fecha}
+                editable={false}
+              />
+              <TouchableOpacity onPress={() => setShowFechaPicker(true)}>
                 <Ionicons name="calendar-outline" size={21} color="#642684" />
               </TouchableOpacity>
+              {showFechaPicker && (
+                <DateTimePicker
+                  value={fechaDate || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={handleFechaChange}
+                />
+              )}
             </View>
             <View style={styles.row}>
               <View style={{flex: 1}}>
-                <TextInput style={styles.input} placeholder="Comienzo" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Comienzo"
+                  value={horaInicio}
+                  editable={false}
+                />
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowHoraInicioPicker(true)}>
                 <Ionicons name="time-outline" size={21} color="#642684" />
               </TouchableOpacity>
+              {showHoraInicioPicker && (
+                <DateTimePicker
+                  value={horaInicioDate || new Date()}
+                  mode="time"
+                  display="default"
+                  onChange={handleHoraInicioChange}
+                  is24Hour={true}
+                />
+              )}
               <View style={{flex: 1}}>
-                <TextInput style={styles.input} placeholder="Fin" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Fin"
+                  value={horaFin}
+                  editable={false}
+                />
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowHoraFinPicker(true)}>
                 <Ionicons name="time-outline" size={21} color="#642684" />
               </TouchableOpacity>
+              {showHoraFinPicker && (
+                <DateTimePicker
+                  value={horaFinDate || new Date()}
+                  mode="time"
+                  display="default"
+                  onChange={handleHoraFinChange}
+                  is24Hour={true}
+                />
+              )}
             </View>
+            <TextInput style={styles.input} placeholder="Ubicación" value={ubicacion} onChangeText={setUbicacion} />
+            {!visibilidad && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Presupuesto"
+                  value={presupuesto}
+                  keyboardType="numeric"
+                  onChangeText={handleNumericChange(setPresupuesto)}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Objetivo"
+                  value={objetivo}
+                  keyboardType="numeric"
+                  onChangeText={handleNumericChange(setObjetivo)}
+                />
+              </>
+            )}
             <View style={styles.privadoRow}>
               <Text style={styles.privadoLabel}>Privado</Text>
-              <Switch />
+              <Switch value={visibilidad} onValueChange={handlePrivadoChange} />
             </View>
             <Text style={styles.categoriaLabel}>Categoría</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
               {categories.map((cat, idx) => (
-                <View key={cat.name + idx} style={[styles.chip, { backgroundColor: cat.color }]}>
-                  <Text style={[styles.chipText, { color: cat.textColor }]}>{cat.name}</Text>
-                  <TouchableOpacity style={styles.chipDelete} onPress={() => handleDeleteCategory(idx)}>
-                    <Ionicons name="close-circle" size={16} color="#9F4B97" />
-                  </TouchableOpacity>
-                </View>
+                <TouchableOpacity key={cat.id} onPress={() => handleSelectCategory(cat.id)}>
+                  <View style={[
+                    styles.chip,
+                    { backgroundColor: cat.color, borderWidth: selectedCategoryId === cat.id ? 2 : 0, borderColor: "#642684" }
+                  ]}>
+                    <Text style={[styles.chipText, { color: cat.textColor }]}>{cat.name}</Text>
+                    <TouchableOpacity style={styles.chipDelete} onPress={() => handleDeleteCategory(idx)}>
+                      <Ionicons name="close-circle" size={16} color="#9F4B97" />
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
             <View style={styles.addCategoryRow}>
@@ -136,7 +289,7 @@ export default function CreateEventModal({ visible, onClose }) {
             {categoryError ? (
               <Text style={styles.errorText}>{categoryError}</Text>
             ) : null}
-            <TouchableOpacity style={styles.createBtn}>
+            <TouchableOpacity style={styles.createBtn} onPress={handleCreateEvent}>
               <Text style={styles.createBtnText}>Crear evento</Text>
             </TouchableOpacity>
           </View>

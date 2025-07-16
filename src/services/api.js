@@ -160,6 +160,17 @@ export class ApiService {
       throw err
     }
   }
+
+  static async createEvento(eventData) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.EVENTOS, eventData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to create event');
+      console.log(eventData);
+      throw error;
+    }
+  }
 }
 
 export default ApiService;
