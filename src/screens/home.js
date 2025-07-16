@@ -33,6 +33,7 @@ export default function Home() {
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
+  const [eventosUsuario, setEventosUsuario] = useState([]);
 
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
@@ -41,22 +42,20 @@ export default function Home() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Check if we have cached user data from registration
         if (userDataCache) {
           setUserData(userDataCache);
           if (userDataCache.eventosRecientes) {
             setEventosRecientes(userDataCache.eventosRecientes);
           }
-          // Clear the cache after using it
           clearUserDataCache();
           return;
         }
 
-        // Otherwise, load data from API as usual
         const data = await loadHomeData();
         if (data) {
           setUserData(data.user);
           setEventosRecientes(data.eventosRecientes);
+          setEventosUsuario(data.eventosUsuario || []);
         }
       } catch (error) {
         // Error is already handled by the ApiService
@@ -119,9 +118,9 @@ export default function Home() {
                 <Text style={styles.header}>Mis eventos</Text>
               </View>
             </View>
-            {eventosRecientes.length > 0 && (
+            {eventosUsuario.length > 0 ? (
               <ScrollView horizontal>
-                {eventosRecientes.map((evento, idx) => (
+                {eventosUsuario.map((evento, idx) => (
                   <View key={evento.id || idx} style={{ marginRight: 12 }}>
                     <EventCard
                       imageUri={evento.imagen}
@@ -133,6 +132,8 @@ export default function Home() {
                   </View>
                 ))}
               </ScrollView>
+            ) : (
+              <Text style={{ marginTop: 10, color: '#888' }}>No tienes eventos agendados.</Text>
             )}
             <View style={{ marginTop: 20 }}>
               <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
