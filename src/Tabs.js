@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
@@ -31,6 +31,12 @@ export default function MyTabs() {
       setTickets(userDataCache.tickets);
     }
   }, [userDataCache]);
+
+  // Memoize the close handler to prevent recreating it on each render
+  const handleCloseModal = useCallback(() => {
+    console.log("Closing modal from Tabs component");
+    setShowCreateModal(false);
+  }, []);
 
   return (
     <>
@@ -102,7 +108,13 @@ export default function MyTabs() {
           </>
         )}
       </Tab.Navigator>
-      <CreateEventModal visible={showCreateModal} onClose={() => setShowCreateModal(false)} tickets={tickets} />
+      
+      {/* Modal with clear props */}
+      <CreateEventModal 
+        visible={showCreateModal} 
+        onClose={handleCloseModal} 
+        tickets={tickets || 0} 
+      />
     </>
   );
 }

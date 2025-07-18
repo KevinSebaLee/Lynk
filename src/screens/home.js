@@ -33,7 +33,6 @@ export default function Home() {
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
-  const [eventosUsuario, setEventosUsuario] = useState([]);
 
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
@@ -42,20 +41,24 @@ export default function Home() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
+        // Check if we have cached user data from registration
         if (userDataCache) {
           setUserData(userDataCache);
           if (userDataCache.eventosRecientes) {
-            setEventosRecientes(userDataCache.eventosRecientes);
+            setEventosRecientes(userDataCache.eventosRecientes || []);
           }
+          // Clear the cache after using it
           clearUserDataCache();
           return;
         }
 
+        // Otherwise, load data from API as usual
         const data = await loadHomeData();
         if (data) {
           setUserData(data.user);
-          setEventosRecientes(data.eventosRecientes);
-          setEventosUsuario(data.eventosUsuario || []);
+          if (data.eventosRecientes) {
+            setEventosRecientes(data.eventosRecientes || []);
+          }
         }
       } catch (error) {
         // Error is already handled by the ApiService
@@ -82,6 +85,19 @@ export default function Home() {
     return <LoadingSpinner />;
   }
 
+  // Function to validate image URIs
+  const validateImageUri = (uri) => {
+    if (typeof uri === 'string' && uri.trim() !== '') {
+      return uri;
+    } else if (uri && typeof uri === 'object' && uri.uri && typeof uri.uri === 'string') {
+      return uri.uri;
+    }
+    return null; // Let the component handle the fallback
+  };
+
+  // Safely access array
+  const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
+
   return (
     <View style={styles.container}>
       {/* Fixed gradient background */}
@@ -101,7 +117,6 @@ export default function Home() {
           <Header nombre={userData?.user_nombre || "Usuario"} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
-              {/* Use TicketCard with tickets icon */}
               <TicketCard
                 tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
@@ -118,22 +133,20 @@ export default function Home() {
                 <Text style={styles.header}>Mis eventos</Text>
               </View>
             </View>
-            {eventosUsuario.length > 0 ? (
+            {safeEventosRecientes.length > 0 && (
               <ScrollView horizontal>
-                {eventosUsuario.map((evento, idx) => (
-                  <View key={evento.id || idx} style={{ marginRight: 12 }}>
+                {safeEventosRecientes.map((evento, idx) => (
+                  <View key={evento?.id || idx} style={{ marginRight: 12 }}>
                     <EventCard
-                      imageUri={evento.imagen}
-                      eventName={evento.nombre}
-                      eventFullDate={evento.fecha}
-                      venue={evento.ubicacion}
+                      imageUri={validateImageUri(evento?.imagen)}
+                      eventName={evento?.nombre}
+                      eventFullDate={evento?.fecha}
+                      venue={evento?.ubicacion}
                       priceRange={"$12.000 - $15.000"}
                     />
                   </View>
                 ))}
               </ScrollView>
-            ) : (
-              <Text style={{ marginTop: 10, color: '#888' }}>No tienes eventos agendados.</Text>
             )}
             <View style={{ marginTop: 20 }}>
               <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
@@ -145,14 +158,14 @@ export default function Home() {
               <Text style={{ color: '#642684' }}>Ver más</Text>
             </TouchableOpacity>
           </View>
-          {eventosRecientes.length > 0 && (
+          {safeEventosRecientes.length > 0 && (
             <ScrollView horizontal>
-              {eventosRecientes.map((evento, idx) => (
-                <View key={evento.id || idx} style={{ marginRight: 12 }}>
+              {safeEventosRecientes.map((evento, idx) => (
+                <View key={evento?.id || idx} style={{ marginRight: 12 }}>
                   <RecentEvents
-                    imageUri={evento.imagen}
-                    eventName={evento.nombre}
-                    venue={evento.ubicacion}
+                    imageUri={validateImageUri(evento?.imagen)}
+                    eventName={evento?.nombre}
+                    venue={evento?.ubicacion}
                   />
                 </View>
               ))}

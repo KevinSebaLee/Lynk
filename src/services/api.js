@@ -161,13 +161,43 @@ export class ApiService {
     }
   }
 
-  static async createEvento(eventData) {
+  static async createEvento(formData) {
     try {
-      const response = await apiClient.post(ENDPOINTS.EVENTOS, eventData);
+      console.log('Sending event creation request to:', `${API_CONFIG.BASE_URL}${ENDPOINTS.EVENTOS}`);
+      
+      const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
+        },
+        maxRedirects: 0,
+        validateStatus: status => status < 500 
+      });
+      
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+      
+      if (typeof response.data === 'string' && response.data.includes('Current Date and Time')) {
+        console.warn('Received unexpected text response instead of JSON');
+        console.warn('Response text:', response.data);
+        
+        return { 
+          error: 'Request intercepted by network or security system. Check your connection.', 
+          interceptedResponse: response.data 
+        };
+      }
+      
       return response.data;
     } catch (error) {
+      if (error.response && typeof error.response.data === 'string' && 
+          error.response.data.includes('Current Date and Time')) {
+        console.warn('Error response contains unexpected text:', error.response.data);
+        return { 
+          error: 'Request intercepted by network or security system'
+        };
+      }
+      
       handleApiError(error, 'Failed to create event');
-      console.log(eventData);
       throw error;
     }
   }
