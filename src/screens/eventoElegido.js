@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,90 +18,80 @@ import { useApi } from "../hooks/useApi";
 import ApiService from '../services/api.js';
 
 const { width } = Dimensions.get("window");
+const CIRCLE_SIZE = width * 0.84;
+const MAP_SIZE = width * 0.36;
 
 export default function EventoElegido() {
   const route = useRoute();
   const navigation = useNavigation();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [eventosAgendados, setEventosAgendados] = useState([]);
+  const [agendado, setAgendado] = useState(false);
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
+  const { execute: agendarEvento, loading: loadingAgendar } = useApi(ApiService.agendarEventos);
+  const { execute: loadScheduledEvents } = useApi(ApiService.getEventosAgendados);
+  const { execute: deleteScheduledEvent } = useApi(ApiService.deleteEventoAgendado);
 
   useEffect(() => {
     const loadEvent = async () => {
       try {
-        // If we have event data from navigation params, use it
         const eventFromParams = route?.params?.event;
         if (eventFromParams) {
-          // If we have an ID, fetch fresh data from backend
           if (eventFromParams.id) {
             try {
               const eventData = await loadEventDetails(eventFromParams.id);
-              // If backend call succeeds, use that data
-              if (eventData && eventData.length > 0) {
-                setEvent(eventData[0]); // Backend returns array, take first element
-              } else {
-                // If backend returns empty, use params data
-                setEvent(eventFromParams);
+              const scheduled = await loadScheduledEvents();
+              setEventosAgendados(scheduled);
+
+              let found = false;
+              for (let i = 0; i < scheduled.length; i++) {
+                if (String(scheduled[i].id) === String(eventFromParams.id)) {
+                  found = true;
+                  break;
+                }
               }
+              setAgendado(found);
+
+              setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
             } catch (error) {
-              console.log('Backend fetch failed, using params data:', error);
-              // If backend call fails, use params data
               setEvent(eventFromParams);
             }
           } else {
-            // No ID, use params data
             setEvent(eventFromParams);
           }
-        } else {
-          // No params, use default data
-          setEvent({
-            nombre: "Garden party!",
-            categoria_nombre: "Jardín botánico",
-            fecha: "2025-12-14",
-            hora: "4:00PM - 9:00PM",
-            descripcion: `¡Te esperamos el 17 de febrero a las 18:30 en la Garden Party del Jardín Botánico! 🌿✨
-
-Ven a disfrutar de una tarde mágica rodeado de naturaleza, buena música y deliciosos aperitivos.
-Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidables.
-¡No faltes, vístete de jardín y acompáñanos! 💞🌸`,
-            ubicacion: "Av. Sta. Fe 3957. Cdad Autónoma de Buenos Aires",
-            imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
-            usuario_nombre: "Ariela",
-            usuario_apellido: "Mojrenfeld",
-            usuario_pfp: null,
-            presupuesto: "10.000.000",
-            objetivo: "15.000.000",
-          });
         }
       } catch (error) {
         console.error('Error loading event:', error);
-        // Use default data on error
-        setEvent({
-          nombre: "Garden party!",
-          categoria_nombre: "Jardín botánico",
-          fecha: "2025-12-14",
-          hora: "4:00PM - 9:00PM",
-          descripcion: `¡Te esperamos el 17 de febrero a las 18:30 en la Garden Party del Jardín Botánico! 🌿✨
-
-Ven a disfrutar de una tarde mágica rodeado de naturaleza, buena música y deliciosos aperitivos.
-Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidables.
-¡No faltes, vístete de jardín y acompáñanos! 💞🌸`,
-          ubicacion: "Av. Sta. Fe 3957. Cdad Autónoma de Buenos Aires",
-          imagen: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
-          usuario_nombre: "Ariela",
-          usuario_apellido: "Mojrenfeld",
-          usuario_pfp: null,
-          presupuesto: "10.000.000",
-          objetivo: "15.000.000",
-        });
       } finally {
         setLoading(false);
       }
     };
-
     loadEvent();
   }, [route?.params?.event]);
+
+  const handleAgendarEvento = useCallback(async () => {
+    if (!event?.id) return;
+
+    if (!agendado) {
+      try {
+        await agendarEvento(event.id);
+        Alert.alert('Te has unido al evento con éxito.');
+        setAgendado(true);
+      } catch (error) {
+        // Error already handled
+      }
+    } else {
+      try {
+        await deleteScheduledEvent(event.id);
+        Alert.alert('Te has salido del evento con éxito.');
+        setAgendado(false);
+      } catch (err) {
+        // Error already handled
+      }
+    }
+  }, [event, agendado, agendarEvento, deleteScheduledEvent]);
 
   if (loading) {
     return (
@@ -122,61 +113,57 @@ Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidab
     );
   }
 
-  // Format date/time
   const dateObj = new Date(event.fecha);
   const dateStr = dateObj.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
   const dayOfWeek = dateObj.toLocaleDateString("es-AR", { weekday: "long" });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
-  // Dummy map image, replace with your own Google Static Maps API key if needed
   const dummyMap = "https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY";
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* Header with gradient and organizer info */}
       <LinearGradient colors={["#aeea00", "#ffffff"]} style={styles.headerGradient}>
         <View style={styles.headerRow}>
-          <View style={styles.organizerRow}>
-            <Ionicons name="arrow-back" size={28} color="#fff" onPress={() => navigation.goBack()} />
-            <Text style={styles.organizer}>
-              {event.usuario_nombre} {event.usuario_apellido}
-            </Text>
+          <Ionicons name="arrow-back" size={28} color="#fff" onPress={() => navigation.goBack()} />
+        </View>
+        <View style={styles.topRow}>
+          <View style={styles.leftCircleWrapper}>
+            <ImageBackground
+              source={{ uri: event.imagen || "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" }}
+              style={styles.eventImageCircle}
+              imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
+            >
+              <View style={styles.mapCircleOverlay}>
+                <Image
+                  source={{ uri: dummyMap }}
+                  style={styles.mapCircle}
+                  resizeMode="cover"
+                />
+              </View>
+            </ImageBackground>
           </View>
-          <Ionicons name="notifications-outline" size={28} color="#fff" />
-        </View>
-        {/* Event Image Circle */}
-        <View style={styles.imageCircleWrapper}>
-          <ImageBackground
-            source={{ uri: event.imagen || "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" }}
-            style={styles.eventImageCircle}
-            imageStyle={{ borderRadius: width * 0.42 }}
-          >
-            {/* Overlay Map Circle */}
-            <View style={styles.mapCircleWrapper}>
-              <Image
-                source={{ uri: dummyMap }}
-                style={styles.mapCircle}
-                resizeMode="cover"
-              />
-            </View>
-          </ImageBackground>
-        </View>
-        {/* Floating category icons */}
-        <View style={styles.iconStack}>
-          <View style={styles.iconCircle}><MaterialCommunityIcons name="leaf" size={26} color="#38C172" /></View>
-          <View style={styles.iconCircle}><MaterialCommunityIcons name="earth" size={26} color="#6a2a8c" /></View>
-          <View style={styles.iconCircle}><Ionicons name="location-outline" size={26} color="#222" /></View>
+          <View style={styles.iconStack}>
+            <View style={styles.iconCircle}><MaterialCommunityIcons name="leaf" size={26} color="#38C172" /></View>
+            <View style={styles.iconCircle}><MaterialCommunityIcons name="earth" size={26} color="#6a2a8c" /></View>
+            <View style={styles.iconCircle}><Ionicons name="location-outline" size={26} color="#222" /></View>
+          </View>
         </View>
       </LinearGradient>
-      {/* Details Card */}
       <View style={styles.detailsCard}>
         <Text style={styles.title}>{event.nombre} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
         <Text style={styles.subtitle}>{event.categoria_nombre}</Text>
-
-        <TouchableOpacity style={styles.joinBtn}>
-          <Text style={styles.joinBtnText}>UNIRME</Text>
+        <TouchableOpacity
+          style={[
+            styles.joinBtn,
+            agendado && styles.joinBtnUnido
+          ]}
+          onPress={handleAgendarEvento}
+          disabled={loadingAgendar}
+        >
+          <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
+            {agendado ? "UNIDO" : (loadingAgendar ? "Uniendo..." : "UNIRME")}
+          </Text>
         </TouchableOpacity>
-
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="calendar-outline" size={22} color="#9F4B97" /></View>
           <View>
@@ -184,7 +171,6 @@ Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidab
             <Text style={styles.detailDescription}>{event.hora || ""}</Text>
           </View>
         </View>
-
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="location-outline" size={22} color="#9F4B97" /></View>
           <View>
@@ -192,11 +178,8 @@ Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidab
             <Text style={styles.detailDescription}>{event.direccion}</Text>
           </View>
         </View>
-
-        <Text style={styles.sectionTitle}>Sobre el evento</Text>
+        <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
         <Text style={styles.eventDescription}>{event.descripcion}</Text>
-
-        {/* Invite friends card */}
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
@@ -216,9 +199,6 @@ Una experiencia única para relajarte, conocer gente y crear recuerdos inolvidab
     </ScrollView>
   );
 }
-
-const CIRCLE_SIZE = width * 0.85;
-const MAP_SIZE = width * 0.34;
 
 const styles = StyleSheet.create({
   loadingContainer: {
@@ -259,52 +239,61 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     paddingTop: 44,
-    paddingBottom: 38,
+    paddingBottom: 22,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     position: "relative",
+    zIndex: 0,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 24,
-    marginBottom: 5,
+    justifyContent: "flex-start",
+    paddingHorizontal: 20,
+    marginBottom: 0,
+    zIndex: 2,
   },
-  organizerRow: {
+  topRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
+    justifyContent: "flex-start",
+    width: "100%",
+    minHeight: CIRCLE_SIZE + 18,
+    position: "relative",
   },
-  organizer: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-    marginLeft: 8,
-  },
-  imageCircleWrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 2,
+  leftCircleWrapper: {
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    marginLeft: 0,
+    justifyContent: "flex-end",
+    alignItems: "flex-start",
+    position: "relative",
+    zIndex: 1,
   },
   eventImageCircle: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
     overflow: "hidden",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
     backgroundColor: "#eee",
     shadowColor: "#222",
     shadowOpacity: 0.11,
     shadowRadius: 11,
     elevation: 7,
+    position: 'relative',
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
   },
-  mapCircleWrapper: {
+  mapCircleOverlay: {
     position: "absolute",
-    bottom: 13,
-    right: 24,
-    zIndex: 2,
-    elevation: 6,
+    bottom: -MAP_SIZE * 0.19,
+    right: -MAP_SIZE * 0.17,
+    zIndex: 10,
+    elevation: 10,
+    shadowColor: "#222",
+    shadowOpacity: 0.23,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 8 },
   },
   mapCircle: {
     width: MAP_SIZE,
@@ -316,17 +305,18 @@ const styles = StyleSheet.create({
   },
   iconStack: {
     position: "absolute",
-    top: CIRCLE_SIZE * 0.22,
-    right: 16,
-    zIndex: 4,
-    alignItems: 'center',
+    right: 28,
+    top: 42,
     gap: 15,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    zIndex: 4,
   },
   iconCircle: {
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 8,
-    marginBottom: 10,
+    marginBottom: 15,
     shadowColor: "#222",
     shadowOpacity: 0.13,
     shadowRadius: 6,
@@ -335,8 +325,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   detailsCard: {
-    marginTop: 9,
-    borderRadius: 22,
+    marginTop: 0,
     backgroundColor: "#fff",
     marginHorizontal: 0,
     padding: 22,
@@ -344,12 +333,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.09,
     shadowRadius: 9,
     elevation: 3,
+    zIndex: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
     color: "#18193f",
     marginBottom: 4,
+    marginTop: 8,
   },
   subtitle: {
     color: "#888",
@@ -366,12 +357,21 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     marginVertical: 8,
     marginBottom: 13,
+    minWidth: 130,
+    alignItems: "center",
+  },
+  joinBtnUnido: {
+    backgroundColor: "#38C172",
   },
   joinBtnText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 1,
+    textAlign: "center",
+  },
+  joinBtnTextUnido: {
+    color: "#fff",
   },
   detailRow: {
     flexDirection: "row",
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: "bold",
     fontSize: 18,
-    marginTop: 13,
+    marginTop: 32,
     marginBottom: 4,
     color: "#18193f",
   },

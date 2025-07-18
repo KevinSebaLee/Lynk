@@ -45,7 +45,7 @@ export default function Home() {
         if (userDataCache) {
           setUserData(userDataCache);
           if (userDataCache.eventosRecientes) {
-            setEventosRecientes(userDataCache.eventosRecientes);
+            setEventosRecientes(userDataCache.eventosRecientes || []);
           }
           // Clear the cache after using it
           clearUserDataCache();
@@ -56,7 +56,9 @@ export default function Home() {
         const data = await loadHomeData();
         if (data) {
           setUserData(data.user);
-          setEventosRecientes(data.eventosRecientes);
+          if (data.eventosRecientes) {
+            setEventosRecientes(data.eventosRecientes || []);
+          }
         }
       } catch (error) {
         // Error is already handled by the ApiService
@@ -83,6 +85,19 @@ export default function Home() {
     return <LoadingSpinner />;
   }
 
+  // Function to validate image URIs
+  const validateImageUri = (uri) => {
+    if (typeof uri === 'string' && uri.trim() !== '') {
+      return uri;
+    } else if (uri && typeof uri === 'object' && uri.uri && typeof uri.uri === 'string') {
+      return uri.uri;
+    }
+    return null; // Let the component handle the fallback
+  };
+
+  // Safely access array
+  const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
+
   return (
     <View style={styles.container}>
       {/* Fixed gradient background */}
@@ -102,7 +117,6 @@ export default function Home() {
           <Header nombre={userData?.user_nombre || "Usuario"} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
-              {/* Use TicketCard with tickets icon */}
               <TicketCard
                 tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
@@ -119,15 +133,15 @@ export default function Home() {
                 <Text style={styles.header}>Mis eventos</Text>
               </View>
             </View>
-            {eventosRecientes.length > 0 && (
+            {safeEventosRecientes.length > 0 && (
               <ScrollView horizontal>
-                {eventosRecientes.map((evento, idx) => (
-                  <View key={evento.id || idx} style={{ marginRight: 12 }}>
+                {safeEventosRecientes.map((evento, idx) => (
+                  <View key={evento?.id || idx} style={{ marginRight: 12 }}>
                     <EventCard
-                      imageUri={evento.imagen}
-                      eventName={evento.nombre}
-                      eventFullDate={evento.fecha}
-                      venue={evento.ubicacion}
+                      imageUri={validateImageUri(evento?.imagen)}
+                      eventName={evento?.nombre}
+                      eventFullDate={evento?.fecha}
+                      venue={evento?.ubicacion}
                       priceRange={"$12.000 - $15.000"}
                     />
                   </View>
@@ -144,14 +158,14 @@ export default function Home() {
               <Text style={{ color: '#642684' }}>Ver más</Text>
             </TouchableOpacity>
           </View>
-          {eventosRecientes.length > 0 && (
+          {safeEventosRecientes.length > 0 && (
             <ScrollView horizontal>
-              {eventosRecientes.map((evento, idx) => (
-                <View key={evento.id || idx} style={{ marginRight: 12 }}>
+              {safeEventosRecientes.map((evento, idx) => (
+                <View key={evento?.id || idx} style={{ marginRight: 12 }}>
                   <RecentEvents
-                    imageUri={evento.imagen}
-                    eventName={evento.nombre}
-                    venue={evento.ubicacion}
+                    imageUri={validateImageUri(evento?.imagen)}
+                    eventName={evento?.nombre}
+                    venue={evento?.ubicacion}
                   />
                 </View>
               ))}
