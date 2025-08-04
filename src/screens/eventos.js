@@ -69,6 +69,18 @@ export default function Eventos() {
     }
   };
 
+  // Helper to validate image URI (fixes crash if ev.imagen is an object or invalid)
+  const getImageSource = (imagen) => {
+    if (typeof imagen === 'string' && imagen.trim() !== '') {
+      return { uri: imagen };
+    }
+    if (imagen && typeof imagen === 'object' && typeof imagen.uri === 'string' && imagen.uri.trim() !== '') {
+      return { uri: imagen.uri };
+    }
+    // Fallback image (must exist in assets/img/fallback_image.jpg)
+    return require('../../assets/img/fallback_image.jpg');
+  };
+
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
     navigation.navigate('eventoElegido', { event });
@@ -129,7 +141,7 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={{ uri: ev.imagen }} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
@@ -150,7 +162,7 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={{ uri: ev.imagen }} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
