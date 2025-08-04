@@ -28,12 +28,7 @@ export default function LogInScreen() {
     try {
       const response = await loginUser(mail, contraseña);
       
-      // Use the AuthContext login function to update authentication state
       await login(response.token);
-      
-      // The tab navigator will automatically switch to authenticated view
-      // No need to manually navigate
-
     } catch (error) {
       // Error is already handled by the ApiService
     }
