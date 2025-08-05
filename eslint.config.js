@@ -1,16 +1,14 @@
 import js from '@eslint/js';
 import react from 'eslint-plugin-react/configs/recommended.js';
-import reactNative from 'eslint-plugin-react-native';
 
 export default [
   js.configs.recommended,
-  ...react.configs,
+  react,
   {
-    plugins: {
-      'react-native': reactNative,
-    },
+    ignores: ['node_modules/**', 'dist/**'],
     rules: {
-      // Add any custom rules here
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'always'],
     },
   },
 ];
