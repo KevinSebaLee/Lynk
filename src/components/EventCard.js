@@ -234,20 +234,20 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
     
     // Show picker options
     Alert.alert(
-      "Seleccionar imagen",
-      "¿Cómo quieres seleccionar la imagen?",
+      'Seleccionar imagen',
+      '¿Cómo quieres seleccionar la imagen?',
       [
         {
-          text: "Galería",
+          text: 'Galería',
           onPress: pickFromGallery
         },
         {
-          text: "Cámara",
+          text: 'Cámara',
           onPress: pickFromCamera
         },
         {
-          text: "Cancelar",
-          style: "cancel"
+          text: 'Cancelar',
+          style: 'cancel'
         }
       ]
     );
@@ -258,7 +258,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        setUploadError("Permiso denegado para acceder a la galería.");
+        setUploadError('Permiso denegado para acceder a la galería.');
         return;
       }
 
@@ -272,7 +272,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
       handleImagePickerResult(result);
     } catch (error) {
       console.error('Gallery picker error:', error);
-      setUploadError("Error seleccionando imagen de la galería.");
+      setUploadError('Error seleccionando imagen de la galería.');
     }
   };
 
@@ -281,7 +281,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        setUploadError("Permiso denegado para acceder a la cámara.");
+        setUploadError('Permiso denegado para acceder a la cámara.');
         return;
       }
 
@@ -294,7 +294,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
       handleImagePickerResult(result);
     } catch (error) {
       console.error('Camera picker error:', error);
-      setUploadError("Error al tomar la foto.");
+      setUploadError('Error al tomar la foto.');
     }
   };
 
@@ -376,10 +376,10 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
       formData.append('fecha', fecha);
       formData.append('horaInicio', horaInicio);
       formData.append('horaFin', horaFin);
-      formData.append('visibilidad', visibilidad ? "1" : "0");
+      formData.append('visibilidad', visibilidad ? '1' : '0');
       formData.append('ubicacion', ubicacion);
-      formData.append('presupuesto', visibilidad ? "0" : (presupuesto || "0"));
-      formData.append('objetivo', visibilidad ? "0" : (objetivo || "0"));
+      formData.append('presupuesto', visibilidad ? '0' : (presupuesto || '0'));
+      formData.append('objetivo', visibilidad ? '0' : (objetivo || '0'));
       formData.append('color', color || 'default');
       formData.append('id_categoria', JSON.stringify([selectedCategoryId]));
 
@@ -402,7 +402,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
 
       if (response && response.message) {
         handleCloseModal();
-        Alert.alert("Éxito", "Evento creado correctamente");
+        Alert.alert('Éxito', 'Evento creado correctamente');
       } else {
         setCategoryError(response?.error || 'Error creando evento');
       }
@@ -542,7 +542,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
                   <TouchableOpacity key={cat.id} onPress={() => handleSelectCategory(cat.id)}>
                     <View style={[
                       styles.chip,
-                      { backgroundColor: cat.color, borderWidth: selectedCategoryId === cat.id ? 2 : 0, borderColor: "#642684" }
+                      { backgroundColor: cat.color, borderWidth: selectedCategoryId === cat.id ? 2 : 0, borderColor: '#642684' }
                     ]}>
                       <Text style={[styles.chipText, { color: cat.textColor }]}>{cat.name}</Text>
                       <TouchableOpacity style={styles.chipDelete} onPress={() => handleDeleteCategory(idx)}>
@@ -568,7 +568,7 @@ export default function CreateEventModal({ visible = false, onClose, tickets = 0
                 <Text style={styles.errorText}>{categoryError}</Text>
               ) : null}
               <TouchableOpacity style={styles.createBtn} onPress={handleCreateEvent} disabled={isLoading}>
-                <Text style={styles.createBtnText}>{isLoading ? "Creando..." : "Crear evento"}</Text>
+                <Text style={styles.createBtnText}>{isLoading ? 'Creando...' : 'Crear evento'}</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 18,
     width: width,
     padding: 22,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.10,
     shadowRadius: 16,
     elevation: 11,

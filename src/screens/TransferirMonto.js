@@ -17,7 +17,7 @@ const TransferirMonto = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "#fff"
+    flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff'
   },
   title: {
     fontSize: 24, fontWeight: 'bold', marginBottom: 16
@@ -26,10 +26,10 @@ const styles = StyleSheet.create({
     fontSize: 18, marginBottom: 8
   },
   userName: {
-    fontSize: 20, color: "#735BF2", fontWeight: "600", marginBottom: 4
+    fontSize: 20, color: '#735BF2', fontWeight: '600', marginBottom: 4
   },
   userAlias: {
-    fontSize: 14, color: "#555"
+    fontSize: 14, color: '#555'
   }
 });
 

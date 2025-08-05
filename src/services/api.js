@@ -32,7 +32,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      console.log("Authentication error:", error.response.status);
+      console.log('Authentication error:', error.response.status);
       
       if (globalAuthErrorHandler) {
         globalAuthErrorHandler();
@@ -81,11 +81,11 @@ export class ApiService {
 
   static async getTickets() {
     try {
-      console.log("Calling API...");
+      console.log('Calling API...');
       const response = await apiClient.get(ENDPOINTS.TICKETS);
       return response.data;
     } catch (error) {
-      console.log("Error in getTickets:", error);
+      console.log('Error in getTickets:', error);
       handleApiError(error, 'Failed to load tickets data');
       throw error;
     }
@@ -113,11 +113,11 @@ export class ApiService {
 
   static async getEventos(){
     try{
-      const response = await apiClient.get(ENDPOINTS.EVENTOS)
-      return response.data
+      const response = await apiClient.get(ENDPOINTS.EVENTOS);
+      return response.data;
     }catch(error){
-      handleApiError(error, 'Failed to load events')
-      throw error
+      handleApiError(error, 'Failed to load events');
+      throw error;
     }
   }
 
@@ -143,21 +143,21 @@ export class ApiService {
 
   static async getEventosAgendados(){
     try{
-      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`)
-      return response.data
+      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
+      return response.data;
     }catch(err){
-      handleApiError(err, 'Failed to load scheduled events')
-      throw err
+      handleApiError(err, 'Failed to load scheduled events');
+      throw err;
     }
   }
 
   static async deleteEventoAgendado(id){
     try{
-      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id })
-      return response.data
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
+      return response.data;
     }catch(err){
-      handleApiError(err, 'Failed to delete scheduled event')
-      throw err
+      handleApiError(err, 'Failed to delete scheduled event');
+      throw err;
     }
   }
 

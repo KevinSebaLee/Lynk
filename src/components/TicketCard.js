@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     padding: CARD_WIDTH * 0.06,
     borderRadius: 10,
     marginBottom: 10,
-    shadowColor: "#2d1d3a",
+    shadowColor: '#2d1d3a',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
