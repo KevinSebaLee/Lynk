@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
+import React, { useState, useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   View,
@@ -10,21 +10,21 @@ import {
   Alert,
   Text,
   TouchableOpacity
-} from "react-native";
-import Header from "../components/header.js";
-import TicketCard from "../components/TicketCard.js";
-import PremiumBanner from "../components/premiumBanner";
-import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../context/AuthContext";
-import AgendaIcon from "../components/agenda.js";
+} from 'react-native';
+import Header from '../components/header.js';
+import TicketCard from '../components/TicketCard.js';
+import PremiumBanner from '../components/premiumBanner';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+import AgendaIcon from '../components/agenda.js';
 import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
-import ApiService from "../services/api";
-import { useApi } from "../hooks/useApi";
-import { LoadingSpinner, Button } from "../components/common";
-import { LinearGradient } from "expo-linear-gradient";
+import ApiService from '../services/api';
+import { useApi } from '../hooks/useApi';
+import { LoadingSpinner, Button } from '../components/common';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
@@ -33,6 +33,7 @@ export default function Home() {
   // State for user and events
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
+  const [eventosUser, setEventosUser] = useState([]);
 
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
@@ -41,23 +42,14 @@ export default function Home() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // Check if we have cached user data from registration
-        if (userDataCache) {
-          setUserData(userDataCache);
-          if (userDataCache.eventosRecientes) {
-            setEventosRecientes(userDataCache.eventosRecientes || []);
-          }
-          // Clear the cache after using it
-          clearUserDataCache();
-          return;
-        }
-
-        // Otherwise, load data from API as usual
         const data = await loadHomeData();
         if (data) {
           setUserData(data.user);
           if (data.eventosRecientes) {
             setEventosRecientes(data.eventosRecientes || []);
+          }
+          if(data.eventosUsuario){
+            setEventosUser(data.eventosUsuario || []);
           }
         }
       } catch (error) {
@@ -71,7 +63,7 @@ export default function Home() {
   const handleTicketsPress = async () => {
     try {
       const data = await loadTickets();
-      navigation.navigate("tickets", data);
+      navigation.navigate('tickets', data);
     } catch (error) {
       // Error is already handled by the ApiService
     }
@@ -95,8 +87,9 @@ export default function Home() {
     return null; // Let the component handle the fallback
   };
 
-  // Safely access array
+  // Safely access arrays
   const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
+  const safeEventosUser = Array.isArray(eventosUser) ? eventosUser : [];
 
   return (
     <View style={styles.container}>
@@ -114,12 +107,12 @@ export default function Home() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header nombre={userData?.user_nombre || "Usuario"} />
+          <Header nombre={userData?.user_nombre || 'Usuario'} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
                 tickets={userData?.tickets || 0}
-                onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
+                onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
               />
             </View>
           </Pressable>
@@ -133,27 +126,29 @@ export default function Home() {
                 <Text style={styles.header}>Mis eventos</Text>
               </View>
             </View>
-            {safeEventosRecientes.length > 0 && (
+            {safeEventosUser.length > 0 ? (
               <ScrollView horizontal>
-                {safeEventosRecientes.map((evento, idx) => (
+                {safeEventosUser.map((evento, idx) => (
                   <View key={evento?.id || idx} style={{ marginRight: 12 }}>
                     <EventCard
                       imageUri={validateImageUri(evento?.imagen)}
                       eventName={evento?.nombre}
                       eventFullDate={evento?.fecha}
                       venue={evento?.ubicacion}
-                      priceRange={"$12.000 - $15.000"}
+                      priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
                     />
                   </View>
                 ))}
               </ScrollView>
+            ) : (
+              <Text style={{color: '#642684', marginTop: 10}}>No tienes eventos propios aún.</Text>
             )}
             <View style={{ marginTop: 20 }}>
               <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
             </View>
           </View>
           <View style={styles.headerRow}>
-            <Text style={styles.header}>Eventos mas recientes</Text>
+            <Text style={styles.header}>Eventos más recientes</Text>
             <TouchableOpacity>
               <Text style={{ color: '#642684' }}>Ver más</Text>
             </TouchableOpacity>
@@ -162,10 +157,12 @@ export default function Home() {
             <ScrollView horizontal>
               {safeEventosRecientes.map((evento, idx) => (
                 <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                  <RecentEvents
+                  <EventCard
                     imageUri={validateImageUri(evento?.imagen)}
                     eventName={evento?.nombre}
+                    eventFullDate={evento?.fecha}
                     venue={evento?.ubicacion}
+                    priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
                   />
                 </View>
               ))}
@@ -193,7 +190,7 @@ const styles = StyleSheet.create({
     width: width - 5,
   },
   agendaWrapper: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 18,
   },
   agendaImage: {
@@ -217,9 +214,9 @@ const styles = StyleSheet.create({
   },
   logOut: {
     marginTop: 20,
-    backgroundColor: "#9a0606",
+    backgroundColor: '#9a0606',
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     width: width * 0.9,
   },
 });

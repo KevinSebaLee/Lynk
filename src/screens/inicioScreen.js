@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   img:{ width:350, height:250, resizeMode:'contain', flex:16, marginBottom:85, marginTop:220 },
   botones:{ width: 280, height: 40, flexDirection:'row', justifyContent: 'space-between', flex:7 },
-  botonVio:{ backgroundColor: '#642684', width:120, height:40, color: 'white', borderRadius:5, textAlign:'center', paddingTop:9, shadowColor: "#000", shadowOffset: {width: 0, height: 9}, shadowOpacity: 0.50, shadowRadius: 12.35, elevation: 19 },
-  botonLight:{ backgroundColor: '#fff', width:120, height:40, borderRadius:5, textAlign:'center', paddingTop:9, shadowColor: "#000", shadowOffset: {width: 0, height: 9}, shadowOpacity: 0.50, shadowRadius: 12.35, elevation: 19 },
+  botonVio:{ backgroundColor: '#642684', width:120, height:40, color: 'white', borderRadius:5, textAlign:'center', paddingTop:9, shadowColor: '#000', shadowOffset: {width: 0, height: 9}, shadowOpacity: 0.50, shadowRadius: 12.35, elevation: 19 },
+  botonLight:{ backgroundColor: '#fff', width:120, height:40, borderRadius:5, textAlign:'center', paddingTop:9, shadowColor: '#000', shadowOffset: {width: 0, height: 9}, shadowOpacity: 0.50, shadowRadius: 12.35, elevation: 19 },
 });

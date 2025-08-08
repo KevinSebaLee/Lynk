@@ -264,7 +264,7 @@ export default function CreateEventModal({ visible, onClose }) {
                 <TouchableOpacity key={cat.id} onPress={() => handleSelectCategory(cat.id)}>
                   <View style={[
                     styles.chip,
-                    { backgroundColor: cat.color, borderWidth: selectedCategoryId === cat.id ? 2 : 0, borderColor: "#642684" }
+                    { backgroundColor: cat.color, borderWidth: selectedCategoryId === cat.id ? 2 : 0, borderColor: '#642684' }
                   ]}>
                     <Text style={[styles.chipText, { color: cat.textColor }]}>{cat.name}</Text>
                     <TouchableOpacity style={styles.chipDelete} onPress={() => handleDeleteCategory(idx)}>
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 18,
     width: width,
     padding: 22,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.10,
     shadowRadius: 16,
     elevation: 11,

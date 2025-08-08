@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [userDataCache, setUserDataCache] = useState(null);
 
   const logout = async () => {
-    console.log("Logging out user due to expired token...");
+    console.log('Logging out user due to expired token...');
     await removeToken();
     setIsAuthenticated(false);
     setUserDataCache(null);

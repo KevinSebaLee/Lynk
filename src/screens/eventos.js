@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useApi } from "../hooks/useApi";
+import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
-const CATEGORIES = ["Musica", "Exposiciones", "Stand Up Show", "Theater", "Más"];
+const CATEGORIES = ['Musica', 'Exposiciones', 'Stand Up Show', 'Theater', 'Más'];
 
 export default function Eventos() {
   const [search, setSearch] = useState('');

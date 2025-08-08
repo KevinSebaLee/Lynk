@@ -34,7 +34,7 @@ export default function MyTabs() {
 
   // Memoize the close handler to prevent recreating it on each render
   const handleCloseModal = useCallback(() => {
-    console.log("Closing modal from Tabs component");
+    console.log('Closing modal from Tabs component');
     setShowCreateModal(false);
   }, []);
 
