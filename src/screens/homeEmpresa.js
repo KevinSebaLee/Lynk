@@ -9,21 +9,22 @@ import {
   Pressable,
   Alert,
   Text,
-  TouchableOpacity
+  TouchableOpacity, 
+  Image 
 } from 'react-native';
 import Header from '../components/header.js';
 import TicketCard from '../components/TicketCard.js';
-import PremiumBanner from '../components/premiumBanner';
+import PremiumBanner from '../components/premiumBanner.js';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.js';
 import AgendaIcon from '../components/agenda.js';
 import EventCard from '../components/EventCard.js';
-import RecentEvents from '../components/RecentEvents';
-import ApiService from '../services/api';
-import { useApi } from '../hooks/useApi';
-import { LoadingSpinner, Button } from '../components/common';
+import RecentEvents from '../components/RecentEvents.js';
+import ApiService from '../services/api.js';
+import { useApi } from '../hooks/useApi.js';
+import { LoadingSpinner, Button } from '../components/common/index.js';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import empresaHomeImg from '../../assets/img/empresaHome.png'; 
 const { width } = Dimensions.get('window');
 
 export default function Home() {
@@ -77,10 +78,6 @@ export default function Home() {
     }
   };
 
-  const handleHomeEmpresa = () => {
-    navigation.navigate('homeEmpresa');
-  };
-
   const handleLogout = async () => {
     await logout();
   };
@@ -106,7 +103,7 @@ export default function Home() {
     <View style={styles.container}>
       {/* Fixed gradient background */}
       <LinearGradient
-        colors={['#642684', '#ffffff', '#ffffff']}
+        colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
@@ -121,12 +118,10 @@ export default function Home() {
           <Header nombre={userData?.user_nombre || 'Usuario'} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
-              <TicketCard
-                tickets={userData?.tickets || 0}
-                onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-              />
             </View>
           </Pressable>
+       
+
           <View style={styles.bannerWrapper}>
             <PremiumBanner plan={userData?.plan_titulo} />
           </View>
@@ -152,14 +147,8 @@ export default function Home() {
                 ))}
               </ScrollView>
             )}
-            
             <View style={{ marginTop: 20 }}>
               <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
-            </View>
-            <View style={{ marginTop: 10 }}>
-              <TouchableOpacity style={styles.homeEmpresaBtn} onPress={handleHomeEmpresa}>
-                <Text style={styles.homeEmpresaBtnText}>Ir a Home Empresa</Text>
-              </TouchableOpacity>
             </View>
           </View>
           <View style={styles.headerRow}>

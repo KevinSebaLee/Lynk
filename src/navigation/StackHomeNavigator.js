@@ -5,6 +5,7 @@ import Tickets from '../screens/tickets';
 import PremiumGeneral from '../screens/premiumGeneral';
 import Transferir from '../screens/Transferir'; 
 import TransferirMonto from '../screens/TransferirMonto'; 
+import HomeEmpresa from '../screens/homeEmpresa';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ export default function StackHomeNavigator() {
       <Stack.Screen name="premiumGeneral" component={PremiumGeneral} />
       <Stack.Screen name="Transferir" component={Transferir} /> 
       <Stack.Screen name="TransferirMonto" component={TransferirMonto} options={{ title: 'Transferir Monto' }} />
+      <Stack.Screen name="homeEmpresa" component={HomeEmpresa} /> 
     </Stack.Navigator>
   );
 }
