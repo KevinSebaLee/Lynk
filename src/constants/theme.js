@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get('window');
 
 // Common colors
 export const COLORS = {
@@ -49,6 +49,6 @@ export const FONTS = {
 
 // Common gradients
 export const GRADIENTS = {
-  primary: ["#642684", "#ffffff", "#ffffff"],
-  secondary: ["#ffffff", "#f6f2ff"],
+  primary: ['#642684', '#ffffff', '#ffffff'],
+  secondary: ['#ffffff', '#f6f2ff'],
 };

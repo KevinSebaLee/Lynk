@@ -100,8 +100,8 @@ export default function SignUpScreen() {
         };
         await login(response.token, userDataForCache);
       } else {
-        console.error("Registration response missing token:", response);
-        Alert.alert("Error", "No se pudo completar el registro. Por favor intente de nuevo.");
+        console.error('Registration response missing token:', response);
+        Alert.alert('Error', 'No se pudo completar el registro. Por favor intente de nuevo.');
       }
     } catch (error) {
       // Already handled by error handler

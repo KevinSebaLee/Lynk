@@ -6,24 +6,24 @@ export const handleApiError = (error, defaultMessage = 'An unexpected error occu
   const isAuthError = error.response && (error.response.status === 401 || error.response.status === 403);
   
   if (isAuthError) {
-    console.log("Auth error - token likely expired");
-    return "Authentication error";
+    console.log('Auth error - token likely expired');
+    return 'Authentication error';
   }
   
   if (error.response && error.response.data && error.response.data.error) {
     errorMessage = error.response.data.error;
-    console.log("Backend error:", error.response.data.error);
+    console.log('Backend error:', error.response.data.error);
   } else if (error.request) {
     // Network error
-    errorMessage = "No response from server. Check your network or API URL.";
-    console.log("No response:", error.request);
+    errorMessage = 'No response from server. Check your network or API URL.';
+    console.log('No response:', error.request);
   } else {
     // Other error
     errorMessage = `Unexpected error: ${error.message}`;
-    console.log("Unexpected error:", error.message);
+    console.log('Unexpected error:', error.message);
   }
   
-  Alert.alert("Error", errorMessage);
+  Alert.alert('Error', errorMessage);
   return errorMessage;
 };
 
