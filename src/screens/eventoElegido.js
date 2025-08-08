@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,14 +10,14 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { useApi } from "../hooks/useApi";
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.84;
 const MAP_SIZE = width * 0.36;
 
@@ -114,22 +114,22 @@ export default function EventoElegido() {
   }
 
   const dateObj = new Date(event.fecha);
-  const dateStr = dateObj.toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
-  const dayOfWeek = dateObj.toLocaleDateString("es-AR", { weekday: "long" });
+  const dateStr = dateObj.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const dayOfWeek = dateObj.toLocaleDateString('es-AR', { weekday: 'long' });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
-  const dummyMap = "https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY";
+  const dummyMap = 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#fff" }}>
-      <LinearGradient colors={["#aeea00", "#ffffff"]} style={styles.headerGradient}>
+    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <LinearGradient colors={['#aeea00', '#ffffff']} style={styles.headerGradient}>
         <View style={styles.headerRow}>
           <Ionicons name="arrow-back" size={28} color="#fff" onPress={() => navigation.goBack()} />
         </View>
         <View style={styles.topRow}>
           <View style={styles.leftCircleWrapper}>
             <ImageBackground
-              source={{ uri: event.imagen || "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80" }}
+              source={{ uri: event.imagen || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80' }}
               style={styles.eventImageCircle}
               imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
             >
@@ -161,14 +161,14 @@ export default function EventoElegido() {
           disabled={loadingAgendar}
         >
           <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
-            {agendado ? "UNIDO" : (loadingAgendar ? "Uniendo..." : "UNIRME")}
+            {agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME')}
           </Text>
         </TouchableOpacity>
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="calendar-outline" size={22} color="#9F4B97" /></View>
           <View>
             <Text style={styles.detailTitle}>{fullDate}</Text>
-            <Text style={styles.detailDescription}>{event.hora || ""}</Text>
+            <Text style={styles.detailDescription}>{event.hora || ''}</Text>
           </View>
         </View>
         <View style={styles.detailRow}>
@@ -242,55 +242,55 @@ const styles = StyleSheet.create({
     paddingBottom: 22,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    position: "relative",
+    position: 'relative',
     zIndex: 0,
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
     paddingHorizontal: 20,
     marginBottom: 0,
     zIndex: 2,
   },
   topRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "flex-start",
-    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-start',
+    width: '100%',
     minHeight: CIRCLE_SIZE + 18,
-    position: "relative",
+    position: 'relative',
   },
   leftCircleWrapper: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     marginLeft: 0,
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
-    position: "relative",
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    position: 'relative',
     zIndex: 1,
   },
   eventImageCircle: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
-    overflow: "hidden",
-    backgroundColor: "#eee",
-    shadowColor: "#222",
+    overflow: 'hidden',
+    backgroundColor: '#eee',
+    shadowColor: '#222',
     shadowOpacity: 0.11,
     shadowRadius: 11,
     elevation: 7,
     position: 'relative',
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
   },
   mapCircleOverlay: {
-    position: "absolute",
+    position: 'absolute',
     bottom: -MAP_SIZE * 0.19,
     right: -MAP_SIZE * 0.17,
     zIndex: 10,
     elevation: 10,
-    shadowColor: "#222",
+    shadowColor: '#222',
     shadowOpacity: 0.23,
     shadowRadius: 15,
     shadowOffset: { width: 0, height: 8 },
@@ -300,11 +300,11 @@ const styles = StyleSheet.create({
     height: MAP_SIZE,
     borderRadius: MAP_SIZE / 2,
     borderWidth: 3,
-    borderColor: "#fff",
-    backgroundColor: "#fff",
+    borderColor: '#fff',
+    backgroundColor: '#fff',
   },
   iconStack: {
-    position: "absolute",
+    position: 'absolute',
     right: 28,
     top: 42,
     gap: 15,
@@ -313,11 +313,11 @@ const styles = StyleSheet.create({
     zIndex: 4,
   },
   iconCircle: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 8,
     marginBottom: 15,
-    shadowColor: "#222",
+    shadowColor: '#222',
     shadowOpacity: 0.13,
     shadowRadius: 6,
     elevation: 4,
@@ -326,10 +326,10 @@ const styles = StyleSheet.create({
   },
   detailsCard: {
     marginTop: 0,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     marginHorizontal: 0,
     padding: 22,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.09,
     shadowRadius: 9,
     elevation: 3,
@@ -337,89 +337,89 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
-    color: "#18193f",
+    fontWeight: 'bold',
+    color: '#18193f',
     marginBottom: 4,
     marginTop: 8,
   },
   subtitle: {
-    color: "#888",
+    color: '#888',
     marginBottom: 9,
     fontSize: 15,
-    fontWeight: "500",
+    fontWeight: '500',
     marginLeft: 2,
   },
   joinBtn: {
-    backgroundColor: "#642684",
+    backgroundColor: '#642684',
     borderRadius: 9,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     paddingHorizontal: 26,
     paddingVertical: 11,
     marginVertical: 8,
     marginBottom: 13,
     minWidth: 130,
-    alignItems: "center",
+    alignItems: 'center',
   },
   joinBtnUnido: {
-    backgroundColor: "#38C172",
+    backgroundColor: '#38C172',
   },
   joinBtnText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 16,
     letterSpacing: 1,
-    textAlign: "center",
+    textAlign: 'center',
   },
   joinBtnTextUnido: {
-    color: "#fff",
+    color: '#fff',
   },
   detailRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 18,
     gap: 12,
   },
   detailIconBox: {
-    backgroundColor: "#f4e9fa",
+    backgroundColor: '#f4e9fa',
     borderRadius: 13,
     padding: 11,
     marginRight: 7,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 2,
   },
   detailTitle: {
-    fontWeight: "bold",
-    color: "#18193f",
+    fontWeight: 'bold',
+    color: '#18193f',
     fontSize: 16,
     marginBottom: 2,
   },
   detailDescription: {
-    color: "#888",
+    color: '#888',
     fontSize: 13,
     marginBottom: 1,
   },
   sectionTitle: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 18,
     marginTop: 32,
     marginBottom: 4,
-    color: "#18193f",
+    color: '#18193f',
   },
   eventDescription: {
-    color: "#444",
+    color: '#444',
     fontSize: 15,
     marginBottom: 11,
     marginTop: 3,
     lineHeight: 22,
   },
   inviteCard: {
-    backgroundColor: "#9F4B97",
+    backgroundColor: '#9F4B97',
     borderRadius: 13,
     padding: 18,
     marginTop: 9,
     marginBottom: 7,
-    shadowColor: "#9F4B97",
+    shadowColor: '#9F4B97',
     shadowOpacity: 0.09,
     shadowRadius: 9,
     elevation: 2,
@@ -428,32 +428,32 @@ const styles = StyleSheet.create({
     width: 55,
     height: 55,
     borderRadius: 13,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     marginRight: 8,
   },
   inviteTitle: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontWeight: 'bold',
     fontSize: 17,
     marginBottom: 3,
   },
   inviteSubtitle: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 15,
     marginBottom: 2,
   },
   inviteBtn: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 19,
     paddingVertical: 6,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
     marginLeft: 10,
     marginTop: 4,
   },
   inviteBtnText: {
-    color: "#9F4B97",
+    color: '#9F4B97',
     fontSize: 15,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });

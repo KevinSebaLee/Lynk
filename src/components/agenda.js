@@ -220,18 +220,18 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 25,
-    color: "#642684",
+    color: '#642684',
     fontWeight: 'bold',
   },
   monthText: {
     fontSize: 20,
-    color: "#222",
+    color: '#222',
     fontWeight: 'bold',
     textAlign: 'center',
   },
   yearText: {
     fontSize: 13,
-    color: "#888",
+    color: '#888',
     textAlign: 'center',
     marginTop: -3,
   },

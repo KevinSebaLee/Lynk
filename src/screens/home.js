@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
+import React, { useState, useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   View,
@@ -10,21 +10,21 @@ import {
   Alert,
   Text,
   TouchableOpacity
-} from "react-native";
-import Header from "../components/header.js";
-import TicketCard from "../components/TicketCard.js";
-import PremiumBanner from "../components/premiumBanner";
-import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../context/AuthContext";
-import AgendaIcon from "../components/agenda.js";
+} from 'react-native';
+import Header from '../components/header.js';
+import TicketCard from '../components/TicketCard.js';
+import PremiumBanner from '../components/premiumBanner';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+import AgendaIcon from '../components/agenda.js';
 import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents';
-import ApiService from "../services/api";
-import { useApi } from "../hooks/useApi";
-import { LoadingSpinner, Button } from "../components/common";
-import { LinearGradient } from "expo-linear-gradient";
+import ApiService from '../services/api';
+import { useApi } from '../hooks/useApi';
+import { LoadingSpinner, Button } from '../components/common';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 export default function Home() {
   const navigation = useNavigation();
@@ -71,7 +71,7 @@ export default function Home() {
   const handleTicketsPress = async () => {
     try {
       const data = await loadTickets();
-      navigation.navigate("tickets", data);
+      navigation.navigate('tickets', data);
     } catch (error) {
       // Error is already handled by the ApiService
     }
@@ -114,12 +114,12 @@ export default function Home() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
-          <Header nombre={userData?.user_nombre || "Usuario"} />
+          <Header nombre={userData?.user_nombre || 'Usuario'} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
                 tickets={userData?.tickets || 0}
-                onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
+                onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
               />
             </View>
           </Pressable>
@@ -142,7 +142,7 @@ export default function Home() {
                       eventName={evento?.nombre}
                       eventFullDate={evento?.fecha}
                       venue={evento?.ubicacion}
-                      priceRange={"$12.000 - $15.000"}
+                      priceRange={'$12.000 - $15.000'}
                     />
                   </View>
                 ))}
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: width - 5,
   },
   agendaWrapper: {
-    alignItems: "center",
+    alignItems: 'center',
     marginTop: 18,
   },
   agendaImage: {
@@ -217,9 +217,9 @@ const styles = StyleSheet.create({
   },
   logOut: {
     marginTop: 20,
-    backgroundColor: "#9a0606",
+    backgroundColor: '#9a0606',
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
     width: width * 0.9,
   },
 });

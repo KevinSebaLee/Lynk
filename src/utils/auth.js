@@ -12,7 +12,7 @@ import { isLoggedIn } from './Token';
 export const requireAuth = async () => {
   const userIsLoggedIn = await isLoggedIn();
   if (!userIsLoggedIn) {
-    Alert.alert("Error", "You must be logged in to access this feature.");
+    Alert.alert('Error', 'You must be logged in to access this feature.');
     return false;
   }
   return true;

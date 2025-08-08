@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     margin: BANNER_MARGIN,
     marginLeft: BANNER_MARGIN + 3,
     minHeight: ILLUSTRATION_HEIGHT + 10,
-    shadowColor: "#735BF2",
+    shadowColor: '#735BF2',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,

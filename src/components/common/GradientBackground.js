@@ -2,14 +2,14 @@ import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 /**
  * Reusable gradient background component
  */
 const GradientBackground = ({ 
   children,
-  colors = ["#642684", "#ffffff", "#ffffff"],
+  colors = ['#642684', '#ffffff', '#ffffff'],
   style = {},
   ...props
 }) => {

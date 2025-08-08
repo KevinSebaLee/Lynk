@@ -4,11 +4,11 @@ import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import MovCard from "../components/MovCard.js";
+import MovCard from '../components/MovCard.js';
 import GradientBarChart from '../components/GradientBarChart.js';
-import React, { useState, useCallback } from "react";
-import ApiService from "../services/api";
-import { LoadingSpinner } from "../components/common";
+import React, { useState, useCallback } from 'react';
+import ApiService from '../services/api';
+import { LoadingSpinner } from '../components/common';
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
@@ -32,13 +32,13 @@ export default function Tickets() {
           if (isActive && data) {
             setMovimientosData(data);
           } else {
-            console.log("Data is falsy or focus lost");
+            console.log('Data is falsy or focus lost');
           }
         })
         .catch(err => {
-          if (isActive) setError("No se pudieron cargar los movimientos.");
-          console.log(err)
-          console.error("Error loading movimientos:", err);
+          if (isActive) setError('No se pudieron cargar los movimientos.');
+          console.log(err);
+          console.error('Error loading movimientos:', err);
         })
         .finally(() => {
           if (isActive) setLoading(false);
@@ -47,16 +47,16 @@ export default function Tickets() {
 
       ApiService.getTickets()
         .then(data => {
-          console.log("API response:", data);
+          console.log('API response:', data);
           if (isActive && data) {
             setTicketsData(data[0] || null);
           } else {
-            console.log("Data is falsy or focus lost");
+            console.log('Data is falsy or focus lost');
           }
         })
         .catch(err => {
-          if (isActive) setError("No se pudieron cargar los tickets.");
-          console.error("Error loading tickets:", err);
+          if (isActive) setError('No se pudieron cargar los tickets.');
+          console.error('Error loading tickets:', err);
         })
         .finally(() => {
           if (isActive) setLoading(false);
@@ -95,7 +95,7 @@ export default function Tickets() {
           <View style={styles.ticketWrapper}>
           <MovCard
             tickets={ticketsData?.tickets || 0}
-            onGetMore={() => Alert.alert("¡Función para conseguir más tickets!")}
+            onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
             onTransfer={() => navigation.navigate('Transferir')}
           />
           </View>
@@ -105,7 +105,7 @@ export default function Tickets() {
           {(movimientosData.length > 0 ? movimientosData : []).map((tx, idx) => (
             <View style={styles.container} key={tx.id || idx}>
               <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name={tx.tipo_movimiento_icon || "cash"} size={24} color={tx.color || "#7b4ef7"} />
+                <MaterialCommunityIcons name={tx.tipo_movimiento_icon || 'cash'} size={24} color={tx.color || '#7b4ef7'} />
               </View>
               <View style={styles.textContainer}>
                 <Text style={styles.title}>{tx.titulo}</Text>
