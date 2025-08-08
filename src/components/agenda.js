@@ -44,15 +44,11 @@ export default function Agenda() {
   function getEventsForDay(year, month, day) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     // Si la fecha que viene del backend está en otro formato, hay que convertirla aquí.
-    return events.filter(e => {
-      // Si e.fecha está en formato "YYYY-MM-DD", esta comparación funciona.
-      // Si está en otro formato, conviértelo antes de comparar.
-      return e.fecha === dateStr;
-    });
+    return events.filter(e => {e.fecha === dateStr;});
   }
 
   useEffect(() => {
-    const getEvents = async () => {
+    const getEventosAgendados = async () => {
       try {
         const data = await loadEvents();
         if (Array.isArray(data)) {
@@ -64,7 +60,7 @@ export default function Agenda() {
         console.error("Error loading events", err);
       }
     };
-    getEvents();
+    getEventosAgendados();
   }, []);
 
   // Navegación de meses
@@ -220,18 +216,18 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 25,
-    color: '#642684',
+    color: "#642684",
     fontWeight: 'bold',
   },
   monthText: {
     fontSize: 20,
-    color: '#222',
+    color: "#222",
     fontWeight: 'bold',
     textAlign: 'center',
   },
   yearText: {
     fontSize: 13,
-    color: '#888',
+    color: "#888",
     textAlign: 'center',
     marginTop: -3,
   },
