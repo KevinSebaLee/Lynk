@@ -6,12 +6,26 @@ import PremiumGeneral from '../screens/premiumGeneral';
 import Transferir from '../screens/Transferir'; 
 import TransferirMonto from '../screens/TransferirMonto'; 
 import HomeEmpresa from '../screens/homeEmpresa';
+import { useAuth } from '../context/AuthContext';
+import { LoadingSpinner } from '../components/common';
 
 const Stack = createNativeStackNavigator();
 
 export default function StackHomeNavigator() {
+  const { esEmpresa, authInitialized } = useAuth();
+
+  if (!authInitialized) {
+    return <LoadingSpinner />;
+  }
+
+  console.log('StackHomeNavigator - esEmpresa:', esEmpresa); // Debug log
+
   return (
-    <Stack.Navigator initialRouteName="home" screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName={esEmpresa ? "homeEmpresa" : "home"}
+      screenOptions={{ headerShown: false }}
+      key={`navigation-${esEmpresa ? "empresa" : "personal"}`}
+    >
       <Stack.Screen name="home" component={Home} />
       <Stack.Screen name="tickets" component={Tickets} />
       <Stack.Screen name="premiumGeneral" component={PremiumGeneral} />
