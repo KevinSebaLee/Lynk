@@ -75,7 +75,7 @@ export default function SignUpScreen() {
       } else {
         userData = {
           nombre,
-          apellido: null, // <-- Mandar null explícito, NUNCA undefined
+          apellido: null,
           email: mail,
           contraseña,
           id_pais: APP_CONSTANTS.DEFAULT_COUNTRY_ID,
@@ -99,13 +99,12 @@ export default function SignUpScreen() {
           plan_titulo: response.user?.plan_titulo || 'Básico',
           eventosRecientes: []
         };
+        
+        // Login will decode the token and set esEmpresa appropriately
         await login(response.token, userDataForCache);
-        if (userType === 'empresa') {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'homeEmpresa' }]
-          });
-        }
+        
+        // Navigation will be handled automatically by the AuthContext and StackHomeNavigator
+        // No need to manually navigate here as the auth state change will trigger re-render
       } else {
         console.error('Registration response missing token:', response);
         Alert.alert('Error', 'No se pudo completar el registro. Por favor intente de nuevo.');

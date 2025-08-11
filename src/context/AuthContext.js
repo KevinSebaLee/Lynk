@@ -1,32 +1,65 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { isLoggedIn, removeToken, storeToken } from '../utils/Token';
+import { isLoggedIn, removeToken, storeToken, getToken } from '../utils/Token';
 import { setAuthErrorHandler } from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userDataCache, setUserDataCache] = useState(null);
+  const [esEmpresa, setEsEmpresa] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
   const logout = async () => {
     console.log('Logging out user due to expired token...');
     await removeToken();
     setIsAuthenticated(false);
     setUserDataCache(null);
+    setEsEmpresa(false);
+  };
+
+  const checkAndDecodeToken = async () => {
+    const token = await getToken();
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setEsEmpresa(!!decoded.esEmpresa);
+        return true;
+      } catch (error) {
+        console.error('JWT decode error:', error);
+        setEsEmpresa(false);
+        return false;
+      }
+    }
+    setEsEmpresa(false);
+    return false;
   };
 
   useEffect(() => {
     setAuthErrorHandler(logout);
 
     (async () => {
-      setIsAuthenticated(await isLoggedIn());
+      const loggedIn = await isLoggedIn();
+      if (loggedIn) {
+        await checkAndDecodeToken();
+      }
+      setIsAuthenticated(loggedIn);
+      setAuthInitialized(true);
     })();
   }, []);
 
-
   const login = async (token, userData = null) => {
-
     await storeToken(token);
+
+    // Decode token to get esEmpresa value
+    try {
+      const decoded = jwtDecode(token);
+      setEsEmpresa(!!decoded.esEmpresa);
+    } catch (error) {
+      console.error('JWT decode error during login:', error);
+      setEsEmpresa(false);
+    }
 
     if (userData) {
       setUserDataCache(userData);
@@ -36,7 +69,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const checkAuth = async () => {
-    setIsAuthenticated(await isLoggedIn());
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+      await checkAndDecodeToken();
+    }
+    setIsAuthenticated(loggedIn);
   };
 
   const clearUserDataCache = () => {
@@ -50,7 +87,9 @@ export const AuthProvider = ({ children }) => {
       logout,
       checkAuth,
       userDataCache,
-      clearUserDataCache
+      clearUserDataCache,
+      esEmpresa,
+      authInitialized
     }}>
       {children}
     </AuthContext.Provider>
