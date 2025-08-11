@@ -163,27 +163,34 @@ export class ApiService {
 
   static async createEvento(formData) {
     try {
-      console.log('Sending event creation request to:', `${API_CONFIG.BASE_URL}${ENDPOINTS.EVENTOS}`);
+      console.log('Sending event creation request...');
+      
+      const formEntries = {};
+      for (let [key, value] of formData._parts) {
+        if (key === 'imagen' && value && typeof value === 'object') {
+          formEntries[key] = {
+            name: value.name,
+            type: value.type,
+            uri: value.uri ? 'binary data (uri exists)' : 'missing uri'
+          };
+        } else {
+          formEntries[key] = value;
+        }
+      }
       
       const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Accept': 'application/json'
         },
-        maxRedirects: 0,
-        validateStatus: status => status < 500 
+        timeout: 30000, 
       });
       
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-      
       if (typeof response.data === 'string' && response.data.includes('Current Date and Time')) {
-        console.warn('Received unexpected text response instead of JSON');
-        console.warn('Response text:', response.data);
-        
+        console.warn('Server response intercepted by proxy or firewall');
         return { 
-          error: 'Request intercepted by network or security system. Check your connection.', 
-          interceptedResponse: response.data 
+          error: 'Request intercepted by network system',
+          interceptedResponse: true
         };
       }
       
@@ -191,11 +198,14 @@ export class ApiService {
     } catch (error) {
       if (error.response && typeof error.response.data === 'string' && 
           error.response.data.includes('Current Date and Time')) {
-        console.warn('Error response contains unexpected text:', error.response.data);
+        console.warn('Error response intercepted by proxy or firewall');
         return { 
-          error: 'Request intercepted by network or security system'
+          error: 'Request intercepted by network system',
+          interceptedResponse: true
         };
       }
+      
+      console.error('Create event error:', error.message);
       
       handleApiError(error, 'Failed to create event');
       throw error;
