@@ -43,7 +43,7 @@ export default function Agenda() {
   // Filtra los eventos para un día concreto
   function getEventsForDay(year, month, day) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return events.filter(e =>  e.fecha.split("T")[0] === dateStr);
+    return events.filter(e =>  e.fecha.split("T")[0] === dateStr );
   }
 
   useEffect(() => {
@@ -132,6 +132,7 @@ export default function Agenda() {
           {fullCalendar.map((item, idx) => {
             const isSelected = !item.isOtherMonth && item.day === selectedDay;
             const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
+            console.log(dayEvents)
 
             return (
               <TouchableOpacity
@@ -154,27 +155,20 @@ export default function Agenda() {
                 </Text>
                 <View style={styles.dotsRow}>
                   {dayEvents.map((ev, j) => (
-                    <View key={j} style={[styles.dot, { backgroundColor: ev.color }]} />
+                    <View key={j} style={[styles.dot, { backgroundColor: '#642684' }]} />
                   ))}
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
-        
-        {/* Mostrar los eventos del día seleccionado debajo del calendario */}
-        <ScrollView style={styles.eventList}>
+                <ScrollView style={styles.eventList}>
           {selectedDayEvents.length > 0 ? (
             selectedDayEvents.map((ev, idx) => (
               <View key={idx} style={styles.eventCard}>
-                <Text style={{ fontWeight: 'bold', color: ev.color }}>{ev.nombre}</Text>
+                <Text style={{ fontWeight: 'bold', color: '#642684' }}>{ev.nombre}</Text>
                 <Text>{ev.descripcion}</Text>
                 <Text>Ubicación: {ev.ubicacion}</Text>
-                <Text>Visibilidad: {ev.visibilidad}</Text>
-                <Text>Presupuesto: {ev.presupuesto}</Text>
-                <Text>Objetivo: {ev.objetivo}</Text>
-                {/* Si tienes imagen podrías mostrarla */}
-                {/* <Image source={{ uri: ev.imagen }} style={{ width: 40, height: 40 }} /> */}
               </View>
             ))
           ) : (
