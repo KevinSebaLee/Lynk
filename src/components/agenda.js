@@ -43,7 +43,7 @@ export default function Agenda() {
   // Filtra los eventos para un día concreto
   function getEventsForDay(year, month, day) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return events.filter(e => { e.fecha.split("T")[0] === dateStr;});
+    return events.filter(e =>  e.fecha.split("T")[0] === dateStr);
   }
 
   useEffect(() => {
@@ -161,22 +161,7 @@ export default function Agenda() {
             );
           })}
         </View>
-        {events.length > 0 ? (
-            events.map((ev, idx) => (
-              <View key={idx} style={styles.eventCard}>
-                <Text style={{ fontWeight: 'bold', color: ev.color }}>{ev.nombre}</Text>
-                <Text>{ev.descripcion}</Text>
-                <Text>Ubicación: {ev.ubicacion}</Text>
-                <Text>Visibilidad: {ev.visibilidad}</Text>
-                <Text>Presupuesto: {ev.presupuesto}</Text>
-                <Text>Objetivo: {ev.objetivo}</Text>
-                {/* Si tienes imagen podrías mostrarla */}
-                {/* <Image source={{ uri: ev.imagen }} style={{ width: 40, height: 40 }} /> */}
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noEventsText}>No hay eventos para este día.</Text>
-          )}
+        
         {/* Mostrar los eventos del día seleccionado debajo del calendario */}
         <ScrollView style={styles.eventList}>
           {selectedDayEvents.length > 0 ? (
