@@ -132,7 +132,6 @@ export default function Agenda() {
           {fullCalendar.map((item, idx) => {
             const isSelected = !item.isOtherMonth && item.day === selectedDay;
             const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
-            console.log(dayEvents)
 
             return (
               <TouchableOpacity
@@ -162,6 +161,7 @@ export default function Agenda() {
             );
           })}
         </View>
+        {console.log(events)}
                 <ScrollView style={styles.eventList}>
           {selectedDayEvents.length > 0 ? (
             selectedDayEvents.map((ev, idx) => (
@@ -190,10 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 10,
-    shadowColor: '#642684',
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    elevation: 2,
+
     flex: 1
   },
   headerRow: {

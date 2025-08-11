@@ -157,12 +157,10 @@ export default function Home() {
             <ScrollView horizontal>
               {safeEventosRecientes.map((evento, idx) => (
                 <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                  <EventCard
+                  <RecentEvents
                     imageUri={validateImageUri(evento?.imagen)}
                     eventName={evento?.nombre}
-                    eventFullDate={evento?.fecha}
                     venue={evento?.ubicacion}
-                    priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
                   />
                 </View>
               ))}
