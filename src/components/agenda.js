@@ -1,33 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import Header from './header.js';
+import { useApi } from "../hooks/useApi";
+import ApiService from '../services/api.js';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
-
-const DUMMY_EVENTS = [
-  { date: '2025-09-02', color: '#735BF2' },
-  { date: '2025-09-02', color: '#60c18b' },
-  { date: '2025-09-02', color: '#f89bb4' },
-  { date: '2025-09-03', color: '#60c18b' },
-  { date: '2025-09-08', color: '#f89bb4' },
-  { date: '2025-09-09', color: '#735BF2' },
-  { date: '2025-09-10', color: '#60c18b' },
-  { date: '2025-09-10', color: '#735BF2' },
-  { date: '2025-09-17', color: '#60c18b' },
-  { date: '2025-09-21', color: '#f89bb4' },
-  { date: '2025-09-21', color: '#60c18b' },
-  { date: '2025-09-22', color: '#735BF2' },
-  { date: '2025-09-22', color: '#735BF2' },
-  { date: '2025-09-22', color: '#f89bb4' },
-  { date: '2025-09-23', color: '#735BF2' },
-  { date: '2025-09-23', color: '#60c18b' },
-  { date: '2025-09-29', color: '#735BF2' },
-  { date: '2025-09-29', color: '#f89bb4' },
-  { date: '2025-09-29', color: '#60c18b' },
-  { date: '2025-09-30', color: '#735BF2' },
-  { date: '2025-09-30', color: '#f89bb4' },
-  { date: '2025-09-30', color: '#60c18b' },
-];
 
 const MONTHS_ES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
@@ -39,17 +17,13 @@ const WEEKDAYS_ES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 function getDaysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
 }
+
 function getFirstDayOfWeek(year, month) {
   let d = new Date(year, month, 1).getDay();
   return d === 0 ? 6 : d - 1;
 }
-function getEventsForDay(year, month, day) {
-  const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  return DUMMY_EVENTS.filter(e => e.date === dateStr);
-}
 
 export default function Agenda() {
-  // Get today's date on first render
   const now = new Date();
   const initialYear = now.getFullYear();
   const initialMonth = now.getMonth();
@@ -58,11 +32,37 @@ export default function Agenda() {
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const [selectedDay, setSelectedDay] = useState(initialDay);
+  const [events, setEvents] = useState([]);
+  const navigation = useNavigation();
 
   const numDays = getDaysInMonth(year, month);
   const firstDayOfWeek = getFirstDayOfWeek(year, month);
 
-  // For previous/next month navigation
+  const { execute: loadEvents } = useApi(ApiService.getEventosAgendados);
+
+  // Filtra los eventos para un día concreto
+  function getEventsForDay(year, month, day) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return events.filter(e =>  e.fecha.split("T")[0] === dateStr );
+  }
+
+  useEffect(() => {
+    const getEventosAgendados = async () => {
+      try {
+        const data = await loadEvents();
+        if (Array.isArray(data)) {
+          setEvents(data);
+          console.log("event data", data);
+        }
+      } catch (err) {
+        setEvents([]);
+        console.error("Error loading events", err);
+      }
+    };
+    getEventosAgendados();
+  }, []);
+
+  // Navegación de meses
   const goToPrevMonth = () => {
     if (month === 0) {
       setMonth(11); setYear(year - 1);
@@ -105,6 +105,9 @@ export default function Agenda() {
   }
   const fullCalendar = [...prevMonthDays, ...daysArray, ...nextMonthDays];
 
+  // Eventos del día seleccionado
+  const selectedDayEvents = getEventsForDay(year, month, selectedDay);
+  console.log("select", selectedDayEvents)
   return (
     <View style={styles.container}>
       <View style={styles.calendarContainer}>
@@ -129,6 +132,7 @@ export default function Agenda() {
           {fullCalendar.map((item, idx) => {
             const isSelected = !item.isOtherMonth && item.day === selectedDay;
             const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
+
             return (
               <TouchableOpacity
                 key={idx}
@@ -150,13 +154,27 @@ export default function Agenda() {
                 </Text>
                 <View style={styles.dotsRow}>
                   {dayEvents.map((ev, j) => (
-                    <View key={j} style={[styles.dot, { backgroundColor: ev.color }]} />
+                    <View key={j} style={[styles.dot, { backgroundColor: '#642684' }]} />
                   ))}
                 </View>
               </TouchableOpacity>
             );
           })}
         </View>
+        {console.log(events)}
+                <ScrollView style={styles.eventList}>
+          {selectedDayEvents.length > 0 ? (
+            selectedDayEvents.map((ev, idx) => (
+              <View key={idx} style={styles.eventCard}>
+                <Text style={{ fontWeight: 'bold', color: '#642684' }}>{ev.nombre}</Text>
+                <Text>{ev.descripcion}</Text>
+                <Text>Ubicación: {ev.ubicacion}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.noEventsText}>No hay eventos para este día.</Text>
+          )}
+        </ScrollView>
       </View>
     </View>
   );
@@ -167,15 +185,14 @@ const CELL_SIZE = Math.floor((width - 32) / 7);
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   calendarContainer: {
-    margin: 18,
+    margin: 4,
+    marginLeft:10,
     marginTop: 10,
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 10,
-    shadowColor: '#642684',
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    elevation: 2,
+    padding: 0,
+
+    flex: 1
   },
   headerRow: {
     flexDirection: 'row',
@@ -190,18 +207,18 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 25,
-    color: '#642684',
+    color: "#642684",
     fontWeight: 'bold',
   },
   monthText: {
     fontSize: 20,
-    color: '#222',
+    color: "#222",
     fontWeight: 'bold',
     textAlign: 'center',
   },
   yearText: {
     fontSize: 13,
-    color: '#888',
+    color: "#888",
     textAlign: 'center',
     marginTop: -3,
   },
@@ -222,7 +239,7 @@ const styles = StyleSheet.create({
   daysGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     paddingBottom: 10,
     marginTop: 6,
   },
@@ -265,5 +282,23 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginHorizontal: 2,
+  },
+  eventList: {
+    marginTop: 10,
+    maxHeight: 180,
+  },
+  eventCard: {
+    backgroundColor: '#f7f7fa',
+    borderRadius: 10,
+    marginVertical: 4,
+    padding: 8,
+    shadowColor: '#642684',
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+  },
+  noEventsText: {
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 16,
   },
 });
