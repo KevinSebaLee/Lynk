@@ -1,364 +1,369 @@
+import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView,
-  ActivityIndicator,
-  KeyboardAvoidingView,
+import {
+  TouchableOpacity,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Image,
+  KeyboardAvoidingView,
+  Pressable,
   Alert,
-  Image
+  ScrollView,
+  SafeAreaView,
+  ImageBackground,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import ApiService from '../services/api.js';
+import { useAuth } from '../context/AuthContext';
+import ApiService from '../services/api';
+import { APP_CONSTANTS } from '../constants/config';
+import { useApi } from '../hooks/useApi';
+import { Button } from '../components/common';
 
-
-export default function Register() {
-  const navigation = useNavigation();
-  const logo = require('../../assets/img/signPic.png');
-
-  // Form states
+export default function SignUpScreen() {
+  const [userType, setUserType] = useState('personal');
+  const [mail, setMail] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('');
-  const [contraseña, setContraseña] = useState('');
-  const [confirmContraseña, setConfirmContraseña] = useState('');
-  
-  // Business-specific fields
-  const [cuil, setCuil] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [direccion, setDireccion] = useState('');
-  
-  // Form control states
-  const [esEmpresa, setEsEmpresa] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  // Default IDs (these should ideally come from API)
-  const id_pais = 1; // Default country ID
-  const id_genero = 1; // Default gender ID
-  const id_premium = 1; // Default premium plan ID
-  
-  const toggleUserType = (isCompany) => {
-    setEsEmpresa(isCompany);
-    // Reset business fields if switching to personal account
-    if (!isCompany) {
-      setCuil('');
-      setTelefono('');
-      setDireccion('');
-    }
-  };
-  
-  const validateForm = () => {
-    if (!nombre || !email || !contraseña || !confirmContraseña) {
-      setError('Por favor complete todos los campos requeridos');
-      return false;
-    }
-    
-    // Only validate apellido if not a business
-    if (!esEmpresa && !apellido) {
-      setError('Por favor complete todos los campos requeridos');
-      return false;
-    }
-    
-    if (contraseña !== confirmContraseña) {
-      setError('Las contraseñas no coinciden');
-      return false;
-    }
-    
-    if (esEmpresa && (!cuil || !telefono || !direccion)) {
-      setError('Por favor complete todos los campos de empresa');
-      return false;
-    }
-    
-    setError('');
-    return true;
-  };
-  
+  const [cuil, setCuil] = useState('');
+  const [domicilio, setDomicilio] = useState('');
+  const [contraseña, setContraseña] = useState('');
+  const [confirmarContraseña, setConfirmarContraseña] = useState('');
+  const signUpPic = require('../../assets/img/signPic.png');
+  const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
+  const navigation = useNavigation();
+  const { login } = useAuth();
+  const { loading, execute: registerUser } = useApi(ApiService.register);
+
   const handleRegister = async () => {
-    if (!validateForm()) return;
-    
+    // Validar campos
+    if (userType === 'personal') {
+      if (!mail || !contraseña || !nombre || !apellido) {
+        Alert.alert('Por favor completa todos los campos.');
+        return;
+      }
+      if (contraseña !== confirmarContraseña) {
+        Alert.alert('Las contraseñas no coinciden.');
+        return;
+      }
+    } else {
+      if (!mail || !contraseña || !nombre || !telefono || !cuil || !domicilio) {
+        Alert.alert('Por favor completa todos los campos de empresa.');
+        return;
+      }
+      if (contraseña !== confirmarContraseña) {
+        Alert.alert('Las contraseñas no coinciden.');
+        return;
+      }
+    }
+
     try {
-      setLoading(true);
-      
-      const userData = {
-        nombre,
-        apellido: esEmpresa ? '' : apellido, // Empty string for business
-        email,
-        contraseña,
-        id_pais,
-        id_genero,
-        id_premium,
-        esEmpresa
-      };
-      
-      // Only add business fields if registering as a company
-      if (esEmpresa) {
-        userData.cuil = cuil;
-        userData.telefono = telefono;
-        userData.direccion = direccion;
+      let userData;
+      if (userType === 'personal') {
+        userData = {
+          nombre,
+          apellido,
+          email: mail,
+          contraseña,
+          id_pais: APP_CONSTANTS.DEFAULT_COUNTRY_ID,
+          id_genero: APP_CONSTANTS.DEFAULT_GENDER_ID,
+          id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
+        };
+      } else {
+        userData = {
+          nombre,
+          apellido: null, // <-- Mandar null explícito, NUNCA undefined
+          email: mail,
+          contraseña,
+          id_pais: APP_CONSTANTS.DEFAULT_COUNTRY_ID,
+          id_genero: APP_CONSTANTS.DEFAULT_GENDER_ID,
+          id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
+          telefono,
+          cuil,
+          direccion: domicilio,
+          esEmpresa: true,
+        };
       }
-      
-      const response = await ApiService.register(userData);
-      
-      if (response && response.token) {
-        // Registration successful
-        Alert.alert(
-          "Registro exitoso", 
-          "Tu cuenta ha sido creada correctamente",
-          [{ text: "OK", onPress: () => navigation.navigate('Login') }]
-        );
+
+      const response = await registerUser(userData);
+
+      if (response.token) {
+        const userDataForCache = {
+          user_nombre: nombre,
+          user_apellido: userType === 'personal' ? apellido : '',
+          user_email: mail,
+          tickets: 0,
+          plan_titulo: response.user?.plan_titulo || 'Básico',
+          eventosRecientes: []
+        };
+        await login(response.token, userDataForCache);
+        if (userType === 'empresa') {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'homeEmpresa' }]
+          });
+        }
+      } else {
+        console.error('Registration response missing token:', response);
+        Alert.alert('Error', 'No se pudo completar el registro. Por favor intente de nuevo.');
       }
-    } catch (err) {
-      setError(err.message || 'Error al registrar. Intente nuevamente.');
-      console.error('Registration error:', err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      // El error ya es manejado por el handler global
     }
   };
-  
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#642684" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Crear cuenta</Text>
-        </View>
-        
-        {/* Logo Image */}
-        <View style={styles.imageContainer}>
-          <Image 
-            source={require('../../assets/img/signPic.png')} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-        
-        {/* Account type selection */}
-        <View style={styles.accountTypeContainer}>
-          <TouchableOpacity 
-            style={[styles.accountTypeButton, !esEmpresa && styles.accountTypeSelected]}
-            onPress={() => toggleUserType(false)}
-          >
-            <Text style={[styles.accountTypeText, !esEmpresa && styles.accountTypeTextSelected]}>
-              Personal
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.accountTypeButton, esEmpresa && styles.accountTypeSelected]}
-            onPress={() => toggleUserType(true)}
-          >
-            <Text style={[styles.accountTypeText, esEmpresa && styles.accountTypeTextSelected]}>
-              Empresa
-            </Text>
-          </TouchableOpacity>
-        </View>
-        
-        {/* Basic info fields */}
-        <View style={styles.formContainer}>
+
+  // Campos condicionales del formulario
+  const renderFormFields = () => {
+    if (userType === 'personal') {
+      return (
+        <>
           <TextInput
             style={styles.input}
-            placeholder="Nombre"
-            value={nombre}
             onChangeText={setNombre}
+            value={nombre}
+            placeholder="Nombre"
           />
-          
-          {/* Only show apellido for personal accounts */}
-          {!esEmpresa && (
-            <TextInput
-              style={styles.input}
-              placeholder="Apellido"
-              value={apellido}
-              onChangeText={setApellido}
-            />
-          )}
-          
           <TextInput
             style={styles.input}
+            onChangeText={setApellido}
+            value={apellido}
+            placeholder="Apellido"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setMail}
+            value={mail}
             placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
             autoCapitalize="none"
+            keyboardType="email-address"
           />
           <TextInput
             style={styles.input}
-            placeholder="Contraseña"
-            value={contraseña}
             onChangeText={setContraseña}
+            value={contraseña}
+            placeholder="Contraseña"
             secureTextEntry
           />
           <TextInput
             style={styles.input}
-            placeholder="Confirmar contraseña"
-            value={confirmContraseña}
-            onChangeText={setConfirmContraseña}
+            onChangeText={setConfirmarContraseña}
+            value={confirmarContraseña}
+            placeholder="Confirmar Contraseña"
             secureTextEntry
           />
-          
-          {/* Business-specific fields */}
-          {esEmpresa && (
-            <>
-              <Text style={styles.sectionTitle}>Datos de la empresa</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="CUIL/CUIT"
-                value={cuil}
-                onChangeText={setCuil}
-                keyboardType="number-pad"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Teléfono"
-                value={telefono}
-                onChangeText={setTelefono}
-                keyboardType="phone-pad"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Dirección"
-                value={direccion}
-                onChangeText={setDireccion}
-              />
-            </>
-          )}
-          
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          
-          <TouchableOpacity 
-            style={styles.registerButton}
-            onPress={handleRegister}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" size="small" />
-            ) : (
-              <Text style={styles.registerButtonText}>Registrarse</Text>
-            )}
-          </TouchableOpacity>
-          
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginLink}>Inicia sesión</Text>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <TextInput
+            style={styles.input}
+            onChangeText={setNombre}
+            value={nombre}
+            placeholder="Nombre empresa"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setTelefono}
+            value={telefono}
+            placeholder="Teléfono"
+            keyboardType="phone-pad"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setMail}
+            value={mail}
+            placeholder="Email"
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setCuil}
+            value={cuil}
+            placeholder="CUIL/CUIT"
+            keyboardType="numeric"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setDomicilio}
+            value={domicilio}
+            placeholder="Domicilio"
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setContraseña}
+            value={contraseña}
+            placeholder="Contraseña"
+            secureTextEntry
+          />
+          <TextInput
+            style={styles.input}
+            onChangeText={setConfirmarContraseña}
+            value={confirmarContraseña}
+            placeholder="Confirmar Contraseña"
+            secureTextEntry
+          />
+        </>
+      );
+    }
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1}}>
+      <ImageBackground  resizeMode="cover" style={{ flex: 1, justifyContent: 'center' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.navigate('inicioScreen')}>
+              <Image style={styles.arrow} source={arrow} />
+            </TouchableOpacity>
+            <Text style={styles.headerText}> Crear una cuenta</Text>
+          </View>
+          <View style={styles.picView}>
+            <Image style={styles.logPic} source={signUpPic} />
+          </View>
+          <View style={styles.tabBar}>
+            <TouchableOpacity onPress={() => setUserType('personal')}>
+              <Text style={[styles.tabText, userType === 'personal' && styles.tabTextActive]}>Personal</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setUserType('empresa')}>
+              <Text style={[styles.tabText, userType === 'empresa' && styles.tabTextActive]}>Empresa</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <View style={styles.formSection}>
+            {renderFormFields()}
+            <StatusBar style='dark' />
+            <Button
+              title="Crear cuenta"
+              onPress={handleRegister}
+              loading={loading}
+              style={styles.btnView}
+            />
+            <View style={styles.bottomSectionRow}>
+              <Text style={{ fontSize: 15 }}>¿Ya tienes cuenta? </Text>
+              <Pressable onPress={() => navigation.navigate('logInScreen')}>
+                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>
+                  Iniciar sesión
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      </ImageBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollContainer: {
+  scrollContent: {
     flexGrow: 1,
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    justifyContent: 'flex-start',
+    backgroundColor: '#fff',
+    paddingBottom: 30,
   },
   header: {
+    marginTop: 40,
+    marginLeft: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  backButton: {
-    padding: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#18193f',
-    marginLeft: 10,
-  },
-  imageContainer: {
-    alignItems: 'center',
+  tabBar: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 30,
+    marginBottom: 14,
   },
-  logo: {
-    width: 150,
-    height: 150,
+  bottomSection: {
+    display: 'flex',
+    alignItems: 'center',    
+    gap: 10,
+    marginTop: 10,
   },
-  accountTypeContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    borderRadius: 10,
-    backgroundColor: '#f5f5f8',
-    overflow: 'hidden',
+  arrow: {
+    resizeMode: 'contain',
+    width: 25,
+    height: 25,
+    marginRight: 10,
+    marginLeft: 15,
+    marginTop:20,
   },
-  accountTypeButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
+  logPic: {
+    resizeMode: 'contain',
+    width: '80%',
+    height: 220,
   },
-  accountTypeSelected: {
-    backgroundColor: '#642684',
-  },
-  accountTypeText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#666',
-  },
-  accountTypeTextSelected: {
-    color: '#fff',
-  },
-  formContainer: {
+  picView: {
     width: '100%',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#18193f',
-    marginTop: 10,
-    marginBottom: 15,
-  },
-  input: {
-    backgroundColor: '#f5f5f8',
-    borderRadius: 8,
-    padding: 15,
-    fontSize: 16,
-    marginBottom: 15,
-  },
-  errorText: {
-    color: '#d72f5a',
-    marginBottom: 15,
-  },
-  registerButton: {
-    backgroundColor: '#642684',
-    borderRadius: 8,
-    padding: 15,
     alignItems: 'center',
-    marginTop: 10,
+    marginBottom: 15,
+    marginTop: 30,
   },
-  registerButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  headerText: {
+    fontSize: 20,
     marginTop: 20,
   },
-  loginText: {
-    color: '#666',
-    fontSize: 16,
+  btnView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 300,
+    borderRadius: 5,
+    marginBottom: 10,
+    margin:10,
+    backgroundColor: '#642684',
+    height: 45,
+    alignSelf: 'center',
   },
-  loginLink: {
-    color: '#642684',
-    fontSize: 16,
+  formSection: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  input: {
+    height: 45,
+    width: 300,
+    margin: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    borderColor: '#642684',
+    backgroundColor: 'white',
+  },
+  bottomSection: {
+    display: 'flex',
+    alignItems: 'center',    
+    gap: 10,
+    marginTop: 10,
+  },
+  tabText: {
+    fontSize: 17,
+    color: '#999',
+    marginHorizontal: 10,
     fontWeight: '500',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+    paddingBottom: 3,
+  },
+  tabTextActive: {
+    color: '#642684',
+    borderBottomColor: '#642684',
+    borderBottomWidth: 2,
+  },
+  bottomSectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 15,
   },
 });
