@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Header from '../components/header.js';
 import CalendarAgenda from '../components/agenda.js';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Agenda() {
   return (
@@ -10,12 +11,13 @@ export default function Agenda() {
         <View style={styles.calendarWrapper}>
           <CalendarAgenda />
         </View>
+        <StatusBar></StatusBar>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, marginTop:60, backgroundColor:'#fff' },
   calendarWrapper: {
     flex: 1,
     paddingHorizontal: 2,

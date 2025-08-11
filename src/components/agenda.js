@@ -185,11 +185,12 @@ const CELL_SIZE = Math.floor((width - 32) / 7);
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   calendarContainer: {
-    margin: 18,
+    margin: 4,
+    marginLeft:10,
     marginTop: 10,
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 10,
+    padding: 0,
 
     flex: 1
   },
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
   daysGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     paddingBottom: 10,
     marginTop: 6,
   },
