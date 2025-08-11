@@ -39,7 +39,7 @@ export default function SignUpScreen() {
   const { loading, execute: registerUser } = useApi(ApiService.register);
 
   const handleRegister = async () => {
-    // Validate fields
+    // Validar campos
     if (userType === 'personal') {
       if (!mail || !contraseña || !nombre || !apellido) {
         Alert.alert('Por favor completa todos los campos.');
@@ -73,17 +73,18 @@ export default function SignUpScreen() {
           id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
         };
       } else {
-        // For "empresa", adapt as per your backend requirements
         userData = {
           nombre,
-          telefono,
+          apellido: null, // <-- Mandar null explícito, NUNCA undefined
           email: mail,
-          cuil,
-          domicilio,
           contraseña,
           id_pais: APP_CONSTANTS.DEFAULT_COUNTRY_ID,
           id_genero: APP_CONSTANTS.DEFAULT_GENDER_ID,
           id_premium: APP_CONSTANTS.DEFAULT_PREMIUM_ID,
+          telefono,
+          cuil,
+          direccion: domicilio,
+          esEmpresa: true,
         };
       }
 
@@ -92,23 +93,29 @@ export default function SignUpScreen() {
       if (response.token) {
         const userDataForCache = {
           user_nombre: nombre,
-          user_apellido: apellido,
+          user_apellido: userType === 'personal' ? apellido : '',
           user_email: mail,
           tickets: 0,
           plan_titulo: response.user?.plan_titulo || 'Básico',
           eventosRecientes: []
         };
         await login(response.token, userDataForCache);
+        if (userType === 'empresa') {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'homeEmpresa' }]
+          });
+        }
       } else {
         console.error('Registration response missing token:', response);
         Alert.alert('Error', 'No se pudo completar el registro. Por favor intente de nuevo.');
       }
     } catch (error) {
-      // Already handled by error handler
+      // El error ya es manejado por el handler global
     }
   };
 
-  // Conditional form fields
+  // Campos condicionales del formulario
   const renderFormFields = () => {
     if (userType === 'personal') {
       return (
@@ -224,15 +231,9 @@ export default function SignUpScreen() {
             </TouchableOpacity>
             <Text style={styles.headerText}> Crear una cuenta</Text>
           </View>
-
-          {/* Only show image if Personal is selected */}
-          
-            <View style={styles.picView}>
-              <Image style={styles.logPic} source={signUpPic} />
-            </View>
-         
-
-          {/* Tabs */}
+          <View style={styles.picView}>
+            <Image style={styles.logPic} source={signUpPic} />
+          </View>
           <View style={styles.tabBar}>
             <TouchableOpacity onPress={() => setUserType('personal')}>
               <Text style={[styles.tabText, userType === 'personal' && styles.tabTextActive]}>Personal</Text>
@@ -241,7 +242,6 @@ export default function SignUpScreen() {
               <Text style={[styles.tabText, userType === 'empresa' && styles.tabTextActive]}>Empresa</Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.formSection}>
             {renderFormFields()}
             <StatusBar style='dark' />
@@ -252,13 +252,13 @@ export default function SignUpScreen() {
               style={styles.btnView}
             />
             <View style={styles.bottomSectionRow}>
-  <Text style={{ fontSize: 15 }}>¿Ya tienes cuenta? </Text>
-  <Pressable onPress={() => navigation.navigate('logInScreen')}>
-    <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>
-      Iniciar sesión
-    </Text>
-  </Pressable>
-</View>
+              <Text style={{ fontSize: 15 }}>¿Ya tienes cuenta? </Text>
+              <Pressable onPress={() => navigation.navigate('logInScreen')}>
+                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>
+                  Iniciar sesión
+                </Text>
+              </Pressable>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -291,7 +291,6 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 10,
   },
-
   arrow: {
     resizeMode: 'contain',
     width: 25,
@@ -361,10 +360,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
   },
   bottomSectionRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: 10,
-  marginBottom: 15,
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 15,
+  },
 });
