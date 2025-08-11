@@ -32,16 +32,17 @@ export default function MyTabs() {
     }
   }, [userDataCache]);
 
-  // Memoize the close handler to prevent recreating it on each render
   const handleCloseModal = useCallback(() => {
-    console.log('Closing modal from Tabs component');
     setShowCreateModal(false);
   }, []);
 
   return (
     <>
       <Tab.Navigator
-        screenOptions={{ headerShown: false }}
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#642684', // <--- Color morado para el icono activo
+        }}
         initialRouteName={isAuthenticated ? 'Home' : 'Inicio'}
       >
         {!isAuthenticated ? (
@@ -109,7 +110,6 @@ export default function MyTabs() {
         )}
       </Tab.Navigator>
       
-      {/* Modal with clear props */}
       <CreateEventModal 
         visible={showCreateModal} 
         onClose={handleCloseModal} 
