@@ -102,11 +102,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       {/* Fixed gradient background */}
-      <LinearGradient
-        colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
+
 
       {/* Scrollable content */}
       <SafeAreaView style={styles.safeArea}>
@@ -115,6 +111,10 @@ export default function Home() {
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
         >
+                <LinearGradient
+        colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"/>
           <Header nombre={userData?.user_nombre || 'Usuario'} />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>

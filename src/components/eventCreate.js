@@ -37,7 +37,7 @@ export default function CreateEventModal({ visible, onClose }) {
   const [horaFinDate, setHoraFinDate] = useState(null);
   const [showHoraFinPicker, setShowHoraFinPicker] = useState(false);
 
-  const [visibilidad, setVisiblidad] = useState(false);
+  const [visibilidad, setVisiblidad] = useState(true);
   const [ubicacion, setUbicacion] = useState('');
   const [presupuesto, setPresupuesto] = useState('');
   const [objetivo, setObjetivo] = useState('');
