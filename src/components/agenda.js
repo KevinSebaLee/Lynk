@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 const MONTHS_ES = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
@@ -43,7 +43,7 @@ export default function Agenda() {
   // Filtra los eventos para un día concreto
   function getEventsForDay(year, month, day) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return events.filter(e =>  e.fecha.split("T")[0] === dateStr );
+    return events.filter(e => e.fecha.split("T")[0] === dateStr);
   }
 
   useEffect(() => {
@@ -52,7 +52,6 @@ export default function Agenda() {
         const data = await loadEvents();
         if (Array.isArray(data)) {
           setEvents(data);
-          console.log("event data", data);
         }
       } catch (err) {
         setEvents([]);
@@ -107,7 +106,6 @@ export default function Agenda() {
 
   // Eventos del día seleccionado
   const selectedDayEvents = getEventsForDay(year, month, selectedDay);
-  console.log("select", selectedDayEvents)
   return (
     <View style={styles.container}>
       <View style={styles.calendarContainer}>
@@ -161,8 +159,7 @@ export default function Agenda() {
             );
           })}
         </View>
-        {console.log(events)}
-                <ScrollView style={styles.eventList}>
+        <ScrollView style={styles.eventList}>
           {selectedDayEvents.length > 0 ? (
             selectedDayEvents.map((ev, idx) => (
               <View key={idx} style={styles.eventCard}>
@@ -186,7 +183,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   calendarContainer: {
     margin: 4,
-    marginLeft:10,
+    marginLeft: 10,
     marginTop: 10,
     backgroundColor: '#fff',
     borderRadius: 16,
