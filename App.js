@@ -1,4 +1,4 @@
-//NO BORRAR: npm install --global @expo/ngrok@^4.1.0
+//NO BORRAR esto: npm install --global @expo/ngrok@^4.1.0
 
 
 import React from 'react';
