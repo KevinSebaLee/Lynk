@@ -141,6 +141,7 @@ export default function Home() {
                       eventFullDate={evento?.fecha}
                       venue={evento?.ubicacion}
                       priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
+                      onPress={() => navigation.navigate('eventoElegido', { evento })}
                     />
                   </View>
                 ))}
