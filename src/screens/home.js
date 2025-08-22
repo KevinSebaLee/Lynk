@@ -23,6 +23,7 @@ import ApiService from '../services/api';
 import { useApi } from '../hooks/useApi';
 import { LoadingSpinner, Button } from '../components/common';
 import { LinearGradient } from 'expo-linear-gradient';
+import OverlayMenu from '../components/overlayMenu';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +39,7 @@ export default function Home() {
   // Use the API hook for loading home data
   const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
   const { execute: loadTickets } = useApi(ApiService.getTickets);
+  const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -67,6 +69,12 @@ export default function Home() {
     } catch (error) {
       // Error is already handled by the ApiService
     }
+  };
+
+  const handleOverlayNavigate = (screen) => {
+    setMenuVisible(false);
+    if (screen === 'Home') navigation.navigate('Home');
+    else navigation.navigate(screen);
   };
 
   const handleHomeEmpresa = () => {
@@ -112,7 +120,12 @@ export default function Home() {
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
-          <Header nombre={userData?.user_nombre || 'Usuario'} />
+          <Header nombre={userData?.user_nombre || 'Usuario'} onHamburgerPress={() => setMenuVisible(true)} />
+          <OverlayMenu
+  visible={menuVisible}
+  onClose={() => setMenuVisible(false)}
+  onNavigate={(screen) => navigation.navigate(screen)}
+/>
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard

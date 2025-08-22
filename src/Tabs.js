@@ -69,7 +69,7 @@ export default function MyTabs() {
               component={StackEventosNavigator}
               options={{
                 tabBarIcon: ({ color }) => (
-                  <Ionicons name="calendar" size={24} color={color} />
+                  <Ionicons name="search" size={24} color={color} />
                 ),
               }}
             />
@@ -93,7 +93,7 @@ export default function MyTabs() {
               component={StackGestionNavigator}
               options={{
                 tabBarIcon: ({ color }) => (
-                  <Ionicons name="construct" size={24} color={color} />
+                  <Ionicons name="card-outline" size={24} color={color} />
                 ),
               }}
             />
@@ -102,7 +102,7 @@ export default function MyTabs() {
               component={StackAgendaNavigator}
               options={{
                 tabBarIcon: ({ color }) => (
-                  <Ionicons name="book" size={24} color={color} />
+                  <Ionicons name="calendar" size={24} color={color} />
                 ),
               }}
             />
