@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { API_CONFIG } from '../constants/config';
 import {
   View,
   Text,
@@ -93,6 +94,19 @@ export default function EventoElegido() {
     }
   }, [event, agendado, agendarEvento, deleteScheduledEvent]);
 
+  const getImageSource = (imagen) => {
+    if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
+      return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
+    }
+    if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
+      return { uri: imagen };
+    }
+    if (typeof imagen === 'string' && imagen.trim() !== '') {
+      return { uri: imagen };
+    }
+    return require('../../assets/img/fallback_image.jpg');
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -129,7 +143,7 @@ export default function EventoElegido() {
         <View style={styles.topRow}>
           <View style={styles.leftCircleWrapper}>
             <ImageBackground
-              source={{ uri: event.imagen || 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80' }}
+              source={getImageSource(event.imagen)}
               style={styles.eventImageCircle}
               imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
             >
