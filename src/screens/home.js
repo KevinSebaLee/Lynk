@@ -50,7 +50,7 @@ export default function Home() {
           if (data.eventosRecientes) {
             setEventosRecientes(data.eventosRecientes || []);
           }
-          if(data.eventosUsuario){
+          if (data.eventosUsuario) {
             setEventosUser(data.eventosUsuario || []);
           }
         }
@@ -106,7 +106,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       {/* Fixed gradient background */}
-      
+
 
       {/* Scrollable content */}
       <SafeAreaView style={styles.safeArea}>
@@ -116,16 +116,16 @@ export default function Home() {
           showsVerticalScrollIndicator={false}
         >
           <LinearGradient
-        colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
+            colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          />
           <Header nombre={userData?.user_nombre || 'Usuario'} onHamburgerPress={() => setMenuVisible(true)} />
           <OverlayMenu
-  visible={menuVisible}
-  onClose={() => setMenuVisible(false)}
-  onNavigate={(screen) => navigation.navigate(screen)}
-/>
+            visible={menuVisible}
+            onClose={() => setMenuVisible(false)}
+            onNavigate={(screen) => navigation.navigate(screen)}
+          />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
               <TicketCard
@@ -160,9 +160,9 @@ export default function Home() {
                 ))}
               </ScrollView>
             ) : (
-              <Text style={{color: '#642684', marginTop: 10}}>No tienes eventos propios aún.</Text>
+              <Text style={{ color: '#642684', marginTop: 10 }}>No tienes eventos propios aún.</Text>
             )}
-            
+
             <View style={{ marginTop: 20 }}>
               <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
             </View>

@@ -4,6 +4,7 @@ import Header from './header.js';
 import { useApi } from "../hooks/useApi";
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -46,20 +47,27 @@ export default function Agenda() {
     return events.filter(e => e.fecha.split("T")[0] === dateStr);
   }
 
-  useEffect(() => {
-    const getEventosAgendados = async () => {
-      try {
-        const data = await loadEvents();
-        if (Array.isArray(data)) {
-          setEvents(data);
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+
+      const getEventosAgendados = async () => {
+        try {
+          const data = await loadEvents();
+          if (isActive && Array.isArray(data)) {
+            setEvents(data);
+          }
+        } catch (err) {
+          if (isActive) setEvents([]);
+          console.error("Error loading events", err);
         }
-      } catch (err) {
-        setEvents([]);
-        console.error("Error loading events", err);
-      }
-    };
-    getEventosAgendados();
-  }, []);
+      };
+      getEventosAgendados();
+
+      // Cleanup: avoid setting state if component is unfocused
+      return () => { isActive = false; };
+    }, [loadEvents])
+  );
 
   // Navegación de meses
   const goToPrevMonth = () => {
