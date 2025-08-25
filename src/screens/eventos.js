@@ -6,6 +6,7 @@ import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
 import { API_CONFIG } from '../constants/config';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -19,19 +20,21 @@ export default function Eventos() {
 
   const { execute: loadEvents } = useApi(ApiService.getEventos);
 
-  useEffect(() => {
-    const getEvents = async () => {
-      try {
-        const data = await loadEvents();
-        if (Array.isArray(data)) {
-          setEvents(data);
+  useFocusEffect(
+    React.useCallback(() => {
+      const getEvents = async () => {
+        try {
+          const data = await loadEvents();
+          if (Array.isArray(data)) {
+            setEvents(data);
+          }
+        } catch (err) {
+          setEvents([]);
         }
-      } catch (err) {
-        setEvents([]);
-      }
-    };
-    getEvents();
-  }, []);
+      };
+      getEvents();
+    }, [])
+  );
 
   // Responsive card sizes (Pinterest-style)
   const CARD_WIDTH = (width - 36) / 2;

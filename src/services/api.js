@@ -60,14 +60,14 @@ export class ApiService {
   }
 
   static async register(userData) {
-  try {
-    const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
-    return response.data;
-  } catch (error) {
-    handleApiError(error, 'Registration failed');
-    throw error;
+    try {
+      const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Registration failed');
+      throw error;
+    }
   }
-}
 
   static async getHomeData() {
     try {
@@ -107,6 +107,18 @@ export class ApiService {
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load users data');
+      throw error;
+    }
+  }
+
+  // Added the missing transferTickets function
+  static async transferTickets(transferData) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.TRANSFERIR, transferData);
+      return response.data;
+    } catch (error) {
+      console.error('Transfer tickets error:', error);
+      handleApiError(error, 'Failed to transfer tickets');
       throw error;
     }
   }
