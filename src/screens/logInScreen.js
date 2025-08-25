@@ -15,8 +15,7 @@ export default function LogInScreen() {
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();
-  
-  // Use the API hook for login
+
   const { loading, execute: loginUser } = useApi(ApiService.login);
 
   const handleLogin = async () => {
@@ -24,13 +23,12 @@ export default function LogInScreen() {
       Alert.alert('Por favor ingresa tu email y contraseña.');
       return;
     }
-    
+
     try {
       const response = await loginUser(mail, contraseña);
-      
+
       await login(response.token);
     } catch (error) {
-      // Error is already handled by the ApiService
     }
   };
 
@@ -59,21 +57,21 @@ export default function LogInScreen() {
             />
           </KeyboardAvoidingView>
           <View style={styles.bottomSectionRow}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 15 }}>No tienes cuenta? </Text>
-            <Pressable onPress={() => navigation.navigate('signUpScreen')}>
-              <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
-            </Pressable>
-          </View>
-          <View style={styles.redes}>
-            <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>O continua con </Text>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-            <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }} />
-            <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
-            <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 15 }}>No tienes cuenta? </Text>
+              <Pressable onPress={() => navigation.navigate('signUpScreen')}>
+                <Text style={{ color: '#642684', fontSize: 15, textDecorationLine: 'underline' }}>Crear cuenta</Text>
+              </Pressable>
+            </View>
+            <View style={styles.redes}>
+              <Text style={{ fontSize: 15, textAlign: 'center', marginBottom: 10 }}>O continua con </Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.iconscout.com/icon/free/png-512/free-google-logo-icon-download-in-svg-png-gif-file-formats--brands-pack-logos-icons-189824.png?f=webp&w=256' }} />
+                <Image style={{ width: 48, height: 48 }} source={{ uri: 'https://static.vecteezy.com/system/resources/previews/042/148/632/non_2x/instagram-logo-instagram-social-media-icon-free-png.png' }} />
+                <Image style={{ width: 30, height: 30 }} source={{ uri: 'https://cdn.pixabay.com/photo/2021/06/15/12/51/facebook-6338508_1280.png' }} />
+              </View>
             </View>
           </View>
-        </View>  
         </View>
       </ImageBackground>
     </View>

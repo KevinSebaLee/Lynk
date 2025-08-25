@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
+import { API_CONFIG } from '../constants/config';
 
 const { width } = Dimensions.get('window');
 
@@ -69,15 +70,13 @@ export default function Eventos() {
     }
   };
 
-  // Helper to validate image URI (fixes crash if ev.imagen is an object or invalid)
   const getImageSource = (imagen) => {
-    if (typeof imagen === 'string' && imagen.trim() !== '') {
+    if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
+      return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
+    }
+    if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
       return { uri: imagen };
     }
-    if (imagen && typeof imagen === 'object' && typeof imagen.uri === 'string' && imagen.uri.trim() !== '') {
-      return { uri: imagen.uri };
-    }
-    // Fallback image (must exist in assets/img/fallback_image.jpg)
     return require('../../assets/img/fallback_image.jpg');
   };
 
