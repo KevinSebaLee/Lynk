@@ -6,7 +6,7 @@ import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
-const MovCard = ({ tickets, onGetMore, onTransfer, style }) => (
+const MovCard = ({ tickets, onGetMore, onTransfer, onRedeem,  style }) => (
   <LinearGradient
     colors={['#735BF2', '#642684']}
     start={{ x: 0, y: 0 }}
@@ -27,7 +27,7 @@ const MovCard = ({ tickets, onGetMore, onTransfer, style }) => (
     <View style={styles.actionsRow}>
       <ActionButton icon={<MaterialIcons name="shopping-cart" size={28} color="#fff" />} label="Comprar" onPress={onGetMore} />
       <ActionButton icon={<Ionicons name="cash" size={28} color="#fff" />} label="Transferir" onPress={onTransfer} />
-      <ActionButton icon={<MaterialIcons name="cached" size={28} color="#fff" />} label="Canjear" />
+      <ActionButton icon={<MaterialIcons name="cached" size={28} color="#fff" />} label="Canjear" onPress={onRedeem}/>
       <ActionButton icon={<Ionicons name="person-circle-outline" size={28} color="#fff" />} label="Tu ID" />
     </View>
   </LinearGradient>

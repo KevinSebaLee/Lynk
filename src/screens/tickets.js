@@ -97,6 +97,7 @@ export default function Tickets() {
             tickets={ticketsData?.tickets || 0}
             onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
             onTransfer={() => navigation.navigate('Transferir')}
+            onRedeem={() => navigation.navigate('Cupones')}
           />
           </View>
         </Pressable>
