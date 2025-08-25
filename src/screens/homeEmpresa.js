@@ -25,6 +25,7 @@ import { useApi } from '../hooks/useApi.js';
 import { LoadingSpinner, Button } from '../components/common/index.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import empresaHomeImg from '../../assets/img/empresaHome.png'; 
+import { useFocusEffect } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 export default function Home() {
