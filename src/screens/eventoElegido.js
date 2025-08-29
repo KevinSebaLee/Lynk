@@ -132,10 +132,22 @@ export default function EventoElegido() {
   const dayOfWeek = dateObj.toLocaleDateString('es-AR', { weekday: 'long' });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
+  // Handle both old and new API response formats
+  const getEventName = () => event.name || event.nombre || 'Evento';
+  const getEventDescription = () => event.description || event.descripcion || '';
+  const getEventPrice = () => event.price || event.precio || null;
+  const getEventCapacity = () => event.max_assistance || event.capacidad || null;
+  const getEventDuration = () => event.duration_in_minutes || null;
+  const getEventLocation = () => event.event_location || null;
+  const getEventCreator = () => event.creator_user || null;
+  const getEventTags = () => event.tags || [];
+  const isEnrollmentEnabled = () => event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true;
+
   // Generate map URL from event location if available
   const getMapUrl = () => {
-    if (event.event_location && event.event_location.latitude && event.event_location.longitude) {
-      return `https://maps.googleapis.com/maps/api/staticmap?center=${event.event_location.latitude},${event.event_location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${event.event_location.latitude},${event.event_location.longitude}&key=YOUR_API_KEY`;
+    const location = getEventLocation();
+    if (location && location.latitude && location.longitude) {
+      return `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${location.latitude},${location.longitude}&key=YOUR_API_KEY`;
     }
     return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
   };
@@ -170,29 +182,30 @@ export default function EventoElegido() {
         </View>
       </LinearGradient>
       <View style={styles.detailsCard}>
-        <Text style={styles.title}>{event.name || event.nombre} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
+        <Text style={styles.title}>{getEventName()} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
         <Text style={styles.subtitle}>{event.categoria_nombre || 'Evento'}</Text>
-        {event.price && (
-          <Text style={styles.price}>Precio: ${event.price}</Text>
+        
+        {getEventPrice() && (
+          <Text style={styles.price}>Precio: ${getEventPrice()}</Text>
         )}
-        {event.max_assistance && (
-          <Text style={styles.capacity}>Capacidad: {event.max_assistance} personas</Text>
+        {getEventCapacity() && (
+          <Text style={styles.capacity}>Capacidad: {getEventCapacity()} personas</Text>
         )}
-        {event.duration_in_minutes && (
-          <Text style={styles.duration}>Duración: {event.duration_in_minutes} minutos</Text>
+        {getEventDuration() && (
+          <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
         
         <TouchableOpacity
           style={[
             styles.joinBtn,
             agendado && styles.joinBtnUnido,
-            (!event.enabled_for_enrollment || event.enabled_for_enrollment === '0') && styles.joinBtnDisabled
+            !isEnrollmentEnabled() && styles.joinBtnDisabled
           ]}
           onPress={handleAgendarEvento}
-          disabled={loadingAgendar || !event.enabled_for_enrollment || event.enabled_for_enrollment === '0'}
+          disabled={loadingAgendar || !isEnrollmentEnabled()}
         >
           <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
-            {!event.enabled_for_enrollment || event.enabled_for_enrollment === '0' 
+            {!isEnrollmentEnabled() 
               ? 'INSCRIPCIÓN CERRADA' 
               : (agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME'))
             }
@@ -213,33 +226,33 @@ export default function EventoElegido() {
           <View style={styles.detailIconBox}><Ionicons name="location-outline" size={22} color="#9F4B97" /></View>
           <View>
             <Text style={styles.detailTitle}>
-              {event.event_location?.name || event.ubicacion || 'Ubicación'}
+              {getEventLocation()?.name || event.ubicacion || 'Ubicación'}
             </Text>
             <Text style={styles.detailDescription}>
-              {event.event_location?.full_address || event.direccion || ''}
-              {event.event_location?.location?.name && `, ${event.event_location.location.name}`}
-              {event.event_location?.location?.province?.name && `, ${event.event_location.location.province.name}`}
+              {getEventLocation()?.full_address || event.direccion || ''}
+              {getEventLocation()?.location?.name && `, ${getEventLocation().location.name}`}
+              {getEventLocation()?.location?.province?.name && `, ${getEventLocation().location.province.name}`}
             </Text>
           </View>
         </View>
 
-        {event.creator_user && (
+        {getEventCreator() && (
           <View style={styles.detailRow}>
             <View style={styles.detailIconBox}><Ionicons name="person-outline" size={22} color="#9F4B97" /></View>
             <View>
               <Text style={styles.detailTitle}>Organizador</Text>
               <Text style={styles.detailDescription}>
-                {event.creator_user.first_name} {event.creator_user.last_name}
+                {getEventCreator().first_name} {getEventCreator().last_name}
               </Text>
             </View>
           </View>
         )}
 
-        {event.tags && event.tags.length > 0 && (
+        {getEventTags().length > 0 && (
           <View style={styles.tagsContainer}>
             <Text style={styles.sectionTitle}>Tags</Text>
             <View style={styles.tagsRow}>
-              {event.tags.map((tag, index) => (
+              {getEventTags().map((tag, index) => (
                 <View key={tag.id || index} style={styles.tag}>
                   <Text style={styles.tagText}>{tag.name}</Text>
                 </View>
@@ -249,7 +262,7 @@ export default function EventoElegido() {
         )}
         
         <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
-        <Text style={styles.eventDescription}>{event.description || event.descripcion}</Text>
+        <Text style={styles.eventDescription}>{getEventDescription()}</Text>
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image

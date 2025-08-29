@@ -33,22 +33,27 @@ export default function Eventos() {
       
       const data = await loadEvents(params);
       
+      let eventList = [];
+      let hasMoreData = false;
+      
+      // Handle different response formats
       if (Array.isArray(data)) {
-        if (currentPage === 1) {
-          setEvents(data);
-        } else {
-          setEvents(prev => [...prev, ...data]);
-        }
-        setHasMore(data.length === 10); // If we get less than limit, no more pages
-      } else if (data && data.events) {
-        // Handle paginated response
-        if (currentPage === 1) {
-          setEvents(data.events);
-        } else {
-          setEvents(prev => [...prev, ...data.events]);
-        }
-        setHasMore(data.hasMore || false);
+        eventList = data;
+        hasMoreData = data.length === 10;
+      } else if (data && data.events && Array.isArray(data.events)) {
+        eventList = data.events;
+        hasMoreData = data.hasMore || false;
+      } else if (data && data.data && Array.isArray(data.data)) {
+        eventList = data.data;
+        hasMoreData = data.pagination ? data.pagination.hasMore : false;
       }
+      
+      if (currentPage === 1) {
+        setEvents(eventList);
+      } else {
+        setEvents(prev => [...prev, ...eventList]);
+      }
+      setHasMore(hasMoreData);
     } catch (error) {
       if (currentPage === 1) {
         setEvents([]);
@@ -66,14 +71,22 @@ export default function Eventos() {
   // Search functionality
   const handleSearch = () => {
     const searchParams = {};
-    if (search.trim()) {
+    const searchTerm = search.trim();
+    
+    if (searchTerm) {
       // Check if search looks like a date (YYYY-MM-DD)
-      if (/^\d{4}-\d{2}-\d{2}$/.test(search.trim())) {
-        searchParams.startdate = search.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(searchTerm)) {
+        searchParams.startdate = searchTerm;
       } else {
-        searchParams.name = search.trim();
+        // Check if it starts with # for tag search
+        if (searchTerm.startsWith('#')) {
+          searchParams.tag = searchTerm.substring(1);
+        } else {
+          searchParams.name = searchTerm;
+        }
       }
     }
+    
     setPage(1);
     getEvents(1, searchParams);
   };
@@ -117,14 +130,23 @@ export default function Eventos() {
   };
 
   const getImageSource = (imagen) => {
-    if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
-      return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
+    // Handle different image field names and formats
+    const imageField = imagen || event?.image || event?.foto;
+    
+    if (typeof imageField === 'string' && imageField.startsWith('/uploads/')) {
+      return { uri: `${API_CONFIG.BASE_URL}${imageField}` };
     }
-    if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
-      return { uri: imagen };
+    if (typeof imageField === 'string' && imageField.startsWith('data:image')) {
+      return { uri: imageField };
+    }
+    if (typeof imageField === 'string' && imageField.startsWith('http')) {
+      return { uri: imageField };
     }
     return require('../../assets/img/fallback_image.jpg');
   };
+
+  // Handle different event name fields
+  const getEventName = (ev) => ev.name || ev.nombre || 'Evento sin nombre';
 
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
@@ -141,7 +163,7 @@ export default function Eventos() {
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar por nombre o fecha (YYYY-MM-DD)..."
+              placeholder="Buscar por nombre, fecha (YYYY-MM-DD) o #tag..."
               placeholderTextColor="#4d3769"
               onSubmitEditing={handleSearch}
               returnKeyType="search"
@@ -198,11 +220,11 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen || ev.image)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
-                      <Text style={styles.cardTitle}>{ev.nombre}</Text>
+                      <Text style={styles.cardTitle}>{getEventName(ev)}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -219,11 +241,11 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen || ev.image)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
-                      <Text style={styles.cardTitle}>{ev.nombre}</Text>
+                      <Text style={styles.cardTitle}>{getEventName(ev)}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
