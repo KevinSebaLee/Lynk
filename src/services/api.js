@@ -223,6 +223,27 @@ export class ApiService {
       throw error;
     }
   }
+
+  static async getTickets() {
+    try {
+      console.log('Calling API...');
+      const response = await apiClient.get(ENDPOINTS.TICKETS);
+      
+      // Check if we have the new data structure with ticketsMonth
+      if (response.data && response.data.movimientos && response.data.ticketsMonth !== undefined) {
+        return {
+          tickets: response.data.movimientos,
+          ticketsMonth: response.data.ticketsMonth
+        };
+      }
+      // Fallback to old structure
+      return response.data;
+    } catch (error) {
+      console.log('Error in getTickets:', error);
+      handleApiError(error, 'Failed to load tickets data');
+      throw error;
+    }
+  }
 }
 
 export default ApiService;
