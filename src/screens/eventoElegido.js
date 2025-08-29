@@ -31,7 +31,7 @@ export default function EventoElegido() {
   const [agendado, setAgendado] = useState(false);
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
-  const { execute: agendarEvento, loading: loadingAgendar } = useApi(ApiService.agendarEventos);
+  const { execute: agendarEvento, loading: loadingAgendar } = useApi(ApiService.agendarEvento);
   const { execute: loadScheduledEvents } = useApi(ApiService.getEventosAgendados);
   const { execute: deleteScheduledEvent } = useApi(ApiService.deleteEventoAgendado);
 
@@ -127,12 +127,30 @@ export default function EventoElegido() {
     );
   }
 
-  const dateObj = new Date(event.fecha);
+  const dateObj = new Date(event.start_date || event.fecha);
   const dateStr = dateObj.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
   const dayOfWeek = dateObj.toLocaleDateString('es-AR', { weekday: 'long' });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
-  const dummyMap = 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+  // Handle both old and new API response formats
+  const getEventName = () => event.name || event.nombre || 'Evento';
+  const getEventDescription = () => event.description || event.descripcion || '';
+  const getEventPrice = () => event.price || event.precio || null;
+  const getEventCapacity = () => event.max_assistance || event.capacidad || null;
+  const getEventDuration = () => event.duration_in_minutes || null;
+  const getEventLocation = () => event.event_location || null;
+  const getEventCreator = () => event.creator_user || null;
+  const getEventTags = () => event.tags || [];
+  const isEnrollmentEnabled = () => event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true;
+
+  // Generate map URL from event location if available
+  const getMapUrl = () => {
+    const location = getEventLocation();
+    if (location && location.latitude && location.longitude) {
+      return `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${location.latitude},${location.longitude}&key=YOUR_API_KEY`;
+    }
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -143,13 +161,13 @@ export default function EventoElegido() {
         <View style={styles.topRow}>
           <View style={styles.leftCircleWrapper}>
             <ImageBackground
-              source={getImageSource(event.imagen)}
+              source={getImageSource(event.imagen || event.image)}
               style={styles.eventImageCircle}
               imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
             >
               <View style={styles.mapCircleOverlay}>
                 <Image
-                  source={{ uri: dummyMap }}
+                  source={{ uri: getMapUrl() }}
                   style={styles.mapCircle}
                   resizeMode="cover"
                 />
@@ -164,36 +182,87 @@ export default function EventoElegido() {
         </View>
       </LinearGradient>
       <View style={styles.detailsCard}>
-        <Text style={styles.title}>{event.nombre} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
-        <Text style={styles.subtitle}>{event.categoria_nombre}</Text>
+        <Text style={styles.title}>{getEventName()} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
+        <Text style={styles.subtitle}>{event.categoria_nombre || 'Evento'}</Text>
+        
+        {getEventPrice() && (
+          <Text style={styles.price}>Precio: ${getEventPrice()}</Text>
+        )}
+        {getEventCapacity() && (
+          <Text style={styles.capacity}>Capacidad: {getEventCapacity()} personas</Text>
+        )}
+        {getEventDuration() && (
+          <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
+        )}
+        
         <TouchableOpacity
           style={[
             styles.joinBtn,
-            agendado && styles.joinBtnUnido
+            agendado && styles.joinBtnUnido,
+            !isEnrollmentEnabled() && styles.joinBtnDisabled
           ]}
           onPress={handleAgendarEvento}
-          disabled={loadingAgendar}
+          disabled={loadingAgendar || !isEnrollmentEnabled()}
         >
           <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
-            {agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME')}
+            {!isEnrollmentEnabled() 
+              ? 'INSCRIPCIÓN CERRADA' 
+              : (agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME'))
+            }
           </Text>
         </TouchableOpacity>
+        
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="calendar-outline" size={22} color="#9F4B97" /></View>
           <View>
             <Text style={styles.detailTitle}>{fullDate}</Text>
-            <Text style={styles.detailDescription}>{event.hora || ''}</Text>
+            <Text style={styles.detailDescription}>
+              {event.hora || (event.start_date ? new Date(event.start_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '')}
+            </Text>
           </View>
         </View>
+        
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="location-outline" size={22} color="#9F4B97" /></View>
           <View>
-            <Text style={styles.detailTitle}>{event.ubicacion}</Text>
-            <Text style={styles.detailDescription}>{event.direccion}</Text>
+            <Text style={styles.detailTitle}>
+              {getEventLocation()?.name || event.ubicacion || 'Ubicación'}
+            </Text>
+            <Text style={styles.detailDescription}>
+              {getEventLocation()?.full_address || event.direccion || ''}
+              {getEventLocation()?.location?.name && `, ${getEventLocation().location.name}`}
+              {getEventLocation()?.location?.province?.name && `, ${getEventLocation().location.province.name}`}
+            </Text>
           </View>
         </View>
+
+        {getEventCreator() && (
+          <View style={styles.detailRow}>
+            <View style={styles.detailIconBox}><Ionicons name="person-outline" size={22} color="#9F4B97" /></View>
+            <View>
+              <Text style={styles.detailTitle}>Organizador</Text>
+              <Text style={styles.detailDescription}>
+                {getEventCreator().first_name} {getEventCreator().last_name}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {getEventTags().length > 0 && (
+          <View style={styles.tagsContainer}>
+            <Text style={styles.sectionTitle}>Tags</Text>
+            <View style={styles.tagsRow}>
+              {getEventTags().map((tag, index) => (
+                <View key={tag.id || index} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag.name}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+        
         <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
-        <Text style={styles.eventDescription}>{event.descripcion}</Text>
+        <Text style={styles.eventDescription}>{getEventDescription()}</Text>
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
@@ -377,6 +446,9 @@ const styles = StyleSheet.create({
   joinBtnUnido: {
     backgroundColor: '#38C172',
   },
+  joinBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
   joinBtnText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -386,6 +458,43 @@ const styles = StyleSheet.create({
   },
   joinBtnTextUnido: {
     color: '#fff',
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#642684',
+    marginBottom: 4,
+  },
+  capacity: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  duration: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  tagsContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  tag: {
+    backgroundColor: '#e6e1f7',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  tagText: {
+    color: '#642684',
+    fontSize: 12,
+    fontWeight: '500',
   },
   detailRow: {
     flexDirection: 'row',
