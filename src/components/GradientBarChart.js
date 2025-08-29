@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Platform } from 'react-native';
 import Svg, { Rect, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
-
 
 // Chart constants
 const BAR_WIDTH = 61;
@@ -11,47 +10,91 @@ const BAR_RADIUS = 5;
 const CHART_HEIGHT = 180;
 const ANIMATION_DURATION = 400;
 
-
-// Data for each day
-const DATA = [
-  { date: '27 Julio', value: 80 },
-  { date: '28 Julio', value: 100 },
-  { date: '29 Julio', value: 170, label: '+325.23' },
-  { date: '30 Julio', value: 110 },
-  { date: '31 Julio', value: 60 },
-];
-
-
-const maxValue = Math.max(...DATA.map(d => d.value));
-const chartWidth = DATA.length * BAR_WIDTH + (DATA.length - 1) * BAR_SPACING;
-
-
-function GradientBarChart() {
-  const [selected, setSelected] = useState(2); // Default to July 29
-  const animatedHeights = useRef(
-    DATA.map(d => new Animated.Value((d.value / maxValue) * CHART_HEIGHT))
-  ).current;
-
-
-  // Animate all bars when selection changes
-  const handleSelect = idx => {
-    setSelected(idx);
-    animatedHeights.forEach((a, i) => {
-      Animated.timing(a, {
-        toValue: (DATA[i].value / maxValue) * CHART_HEIGHT,
-        duration: ANIMATION_DURATION,
-        useNativeDriver: false,
-      }).start();
-    });
+function GradientBarChart({ monthlyUsage = 0 }) {
+  // Generate chart data based on the current month
+  const generateChartData = () => {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Get the number of days in the current month
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    // Create array of 5 evenly distributed data points across the month
+    const data = [];
+    const daysToShow = 5; // We want 5 bars
+    
+    for (let i = 0; i < daysToShow; i++) {
+      // Calculate day number (distributed evenly across the month)
+      const dayNum = Math.round((i / (daysToShow - 1)) * (daysInMonth - 1)) + 1;
+      const date = new Date(currentYear, currentMonth, dayNum);
+      const dayOfMonth = date.getDate();
+      const monthName = date.toLocaleString('default', { month: 'long' });
+      
+      // Calculate a portion of monthly usage for each bar
+      // More tickets used as the month progresses
+      const ratio = dayNum / daysInMonth;
+      const value = Math.round(monthlyUsage * ratio * (0.8 + Math.random() * 0.4));
+      
+      const entry = {
+        date: `${dayOfMonth} ${monthName}`,
+        value: value
+      };
+      
+      // Add the label to the middle bar
+      if (i === Math.floor(daysToShow / 2)) {
+        entry.label = `${monthlyUsage}`;
+      }
+      
+      data.push(entry);
+    }
+    
+    return data;
   };
 
+  const [chartData, setChartData] = useState(generateChartData());
+  const [selected, setSelected] = useState(Math.floor(5 / 2)); // Default to middle day
+  
+  // Update chart data when monthlyUsage changes
+  useEffect(() => {
+    setChartData(generateChartData());
+  }, [monthlyUsage]);
+  
+  // Calculate chartWidth INSIDE the component - this fixes the error
+  const chartWidth = chartData.length * BAR_WIDTH + (chartData.length - 1) * BAR_SPACING;
+  
+  // Find max value for scaling the bars
+  const maxValue = Math.max(...chartData.map(d => d.value)) || 1;
+  
+  const animatedHeights = useRef(
+    chartData.map(d => new Animated.Value((d.value / maxValue) * CHART_HEIGHT))
+  ).current;
+
+  // Update animated heights when chartData changes
+  useEffect(() => {
+    if (chartData.length > 0) {
+      const maxVal = Math.max(...chartData.map(d => d.value)) || 1;
+      chartData.forEach((d, i) => {
+        Animated.timing(animatedHeights[i], {
+          toValue: (d.value / maxVal) * CHART_HEIGHT,
+          duration: ANIMATION_DURATION,
+          useNativeDriver: false,
+        }).start();
+      });
+    }
+  }, [chartData]);
+
+  // Handle selection change
+  const handleSelect = idx => {
+    setSelected(idx);
+  };
 
   return (
     <View style={styles.container}>
       <View style={{ height: CHART_HEIGHT + 52, justifyContent: 'flex-end' }}>
         {/* Bars and shadows */}
         <View style={{ width: chartWidth, height: CHART_HEIGHT, flexDirection: 'row' }}>
-          {DATA.map((bar, i) => {
+          {chartData.map((bar, i) => {
             const isSelected = i === selected;
             return (
               <View
@@ -94,7 +137,7 @@ function GradientBarChart() {
                       ]}
                     >
                       {isSelected ? (
-                        // Gradient bar for July 29
+                        // Gradient bar for selected day
                         <LinearGradient
                           colors={['#735BF2', '#642684']}
                           start={{ x: 0.5, y: 0 }}
@@ -136,11 +179,11 @@ function GradientBarChart() {
           })}
         </View>
       </View>
-      {/* Dates below bars */}
-      <View style={[styles.datesRow, {marginLeft:32}]}>
-        {DATA.map((bar, i) => (
+      {/* Dates below bars - FIXED alignment by removing marginLeft */}
+      <View style={styles.datesRow}>
+        {chartData.map((bar, i) => (
           <TouchableWithoutFeedback key={i} onPress={() => handleSelect(i)}>
-            <View style={{ width: 70}}>
+            <View style={{ width: BAR_WIDTH, marginLeft: i !== 0 ? BAR_SPACING : 0 }}>
               <Text style={[styles.dateText, i === selected && styles.selectedDate]}>
                 {bar.date.split(' ')[0]}
               </Text>
@@ -155,15 +198,24 @@ function GradientBarChart() {
   );
 }
 
-
-// Styles
+// Styles - Fixed container to center properly
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
+    alignItems: 'center',
     paddingBottom: 18,
   },
-
-
+  barShadow: {
+    width: BAR_WIDTH,
+    position: 'absolute',
+    bottom: 0,
+    borderRadius: BAR_RADIUS,
+    shadowColor: '#70a1ff',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    backgroundColor: 'transparent',
+  },
   tooltip: {
     position: 'absolute',
     left: '50%',
@@ -209,7 +261,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end',
     marginTop: 26,
-    width: chartWidth,
+    width: '100%', // Take full width of container
   },
   dateText: {
     color: '#7988A3',
@@ -223,6 +275,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
-export default GradientBarChart;

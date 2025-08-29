@@ -6,6 +6,7 @@ import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
 import { API_CONFIG } from '../constants/config';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -15,100 +16,43 @@ export default function Eventos() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [events, setEvents] = useState([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
 
   const { execute: loadEvents } = useApi(ApiService.getEventos);
 
-  const getEvents = async (currentPage = 1, searchParams = {}) => {
-    try {
-      setLoading(true);
-      const params = {
-        page: currentPage,
-        limit: 10,
-        ...searchParams
-      };
-      
-      const data = await loadEvents(params);
-      
-      let eventList = [];
-      let hasMoreData = false;
-      
-      // Handle different response formats
-      if (Array.isArray(data)) {
-        eventList = data;
-        hasMoreData = data.length === 10;
-      } else if (data && data.events && Array.isArray(data.events)) {
-        eventList = data.events;
-        hasMoreData = data.hasMore || false;
-      } else if (data && data.data && Array.isArray(data.data)) {
-        eventList = data.data;
-        hasMoreData = data.pagination ? data.pagination.hasMore : false;
-      }
-      
-      if (currentPage === 1) {
-        setEvents(eventList);
-      } else {
-        setEvents(prev => [...prev, ...eventList]);
-      }
-      setHasMore(hasMoreData);
-    } catch (error) {
-      if (currentPage === 1) {
-        setEvents([]);
-      }
-      console.error('Error loading events:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getEvents();
-  }, []);
-
-  // Search functionality
-  const handleSearch = () => {
-    const searchParams = {};
-    const searchTerm = search.trim();
-    
-    if (searchTerm) {
-      // Check if search looks like a date (YYYY-MM-DD)
-      if (/^\d{4}-\d{2}-\d{2}$/.test(searchTerm)) {
-        searchParams.startdate = searchTerm;
-      } else {
-        // Check if it starts with # for tag search
-        if (searchTerm.startsWith('#')) {
-          searchParams.tag = searchTerm.substring(1);
-        } else {
-          searchParams.name = searchTerm;
+  useFocusEffect(
+    React.useCallback(() => {
+      const getEvents = async () => {
+        try {
+          const data = await loadEvents();
+          if (Array.isArray(data)) {
+            setEvents(data);
+          }
+        } catch (err) {
+          setEvents([]);
         }
-      }
-    }
-    
-    setPage(1);
-    getEvents(1, searchParams);
-  };
-
-  const loadMoreEvents = () => {
-    if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      getEvents(nextPage);
-    }
-  };
+      };
+      getEvents();
+    }, [])
+  );
 
   // Responsive card sizes (Pinterest-style)
   const CARD_WIDTH = (width - 36) / 2;
   const CARD_HEIGHT_BIG = CARD_WIDTH * 1.53; // first card
   const CARD_HEIGHT_SMALL = CARD_WIDTH * 1.08; // others
 
+  // Filtering logic
+  const filteredEvents = events.filter(ev => {
+    const nameMatch = (ev.nombre || '').toLowerCase().includes(search.toLowerCase());
+    const categoryMatch = selectedCategory ? (ev.categoria_nombre || '').toLowerCase().includes(selectedCategory.toLowerCase()) : true;
+    return nameMatch && categoryMatch;
+  });
+
   // Arrange events in Pinterest-style columns
   // First event bigger, others alternate
   const leftEvents = [];
   const rightEvents = [];
-  events.forEach((ev, idx) => {
+  filteredEvents.forEach((ev, idx) => {
     if (idx === 0) {
       leftEvents.push({ ...ev, big: true });
     } else if (idx % 2 === 1) {
@@ -130,23 +74,14 @@ export default function Eventos() {
   };
 
   const getImageSource = (imagen) => {
-    // Handle different image field names and formats
-    const imageField = imagen || event?.image || event?.foto;
-    
-    if (typeof imageField === 'string' && imageField.startsWith('/uploads/')) {
-      return { uri: `${API_CONFIG.BASE_URL}${imageField}` };
+    if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
+      return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
     }
-    if (typeof imageField === 'string' && imageField.startsWith('data:image')) {
-      return { uri: imageField };
-    }
-    if (typeof imageField === 'string' && imageField.startsWith('http')) {
-      return { uri: imageField };
+    if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
+      return { uri: imagen };
     }
     return require('../../assets/img/fallback_image.jpg');
   };
-
-  // Handle different event name fields
-  const getEventName = (ev) => ev.name || ev.nombre || 'Evento sin nombre';
 
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
@@ -163,17 +98,13 @@ export default function Eventos() {
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar por nombre, fecha (YYYY-MM-DD) o #tag..."
+              placeholder="Buscar evento..."
               placeholderTextColor="#4d3769"
-              onSubmitEditing={handleSearch}
-              returnKeyType="search"
             />
-            <TouchableOpacity onPress={handleSearch}>
-              <Image
-                source={require('../../assets/img/icons/comprar.png')}
-                style={styles.searchIcon}
-              />
-            </TouchableOpacity>
+            <Image
+              source={require('../../assets/img/icons/comprar.png')}
+              style={styles.searchIcon}
+            />
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
             {CATEGORIES.map(cat => (
@@ -199,14 +130,6 @@ export default function Eventos() {
           style={styles.eventsScroll}
           contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 30 }}
           showsVerticalScrollIndicator={false}
-          onScroll={({ nativeEvent }) => {
-            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-            const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
-            if (isCloseToBottom) {
-              loadMoreEvents();
-            }
-          }}
-          scrollEventThrottle={400}
         >
           <View style={styles.gridRow}>
             <View style={styles.gridColumn}>
@@ -220,11 +143,11 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={getImageSource(ev.imagen || ev.image)} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
-                      <Text style={styles.cardTitle}>{getEventName(ev)}</Text>
+                      <Text style={styles.cardTitle}>{ev.nombre}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -241,22 +164,17 @@ export default function Eventos() {
                   activeOpacity={0.9}
                   onPress={() => handleEventPress(ev)}
                 >
-                  <Image source={getImageSource(ev.imagen || ev.image)} style={styles.cardImage} />
+                  <Image source={getImageSource(ev.imagen)} style={styles.cardImage} />
                   <View style={styles.cardOverlay}>
                     <View style={styles.cardTitleRow}>
                       <Image source={iconForCategory(ev.categoria_nombre)} style={styles.cardIcon} />
-                      <Text style={styles.cardTitle}>{getEventName(ev)}</Text>
+                      <Text style={styles.cardTitle}>{ev.nombre}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
-          {loading && page > 1 && (
-            <View style={styles.loadingMore}>
-              <Text style={styles.loadingText}>Cargando más eventos...</Text>
-            </View>
-          )}
         </ScrollView>
       </LinearGradient>
     </View>
@@ -373,14 +291,5 @@ const styles = StyleSheet.create({
     width: 19,
     height: 19,
     tintColor: '#fff',
-  },
-  loadingMore: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: '#642684',
-    fontSize: 14,
-    fontWeight: '500',
   },
 });

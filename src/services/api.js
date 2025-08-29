@@ -49,8 +49,8 @@ export class ApiService {
   static async login(email, password) {
     try {
       const response = await apiClient.post(ENDPOINTS.LOGIN, {
-        username: email,
-        password: password,
+        email,
+        contraseña: password,
       });
       return response.data;
     } catch (error) {
@@ -61,15 +61,7 @@ export class ApiService {
 
   static async register(userData) {
     try {
-      // Transform data to match backend expectations
-      const registerData = {
-        first_name: userData.nombre,
-        last_name: userData.apellido || '',
-        username: userData.email,
-        password: userData.contraseña,
-      };
-      
-      const response = await apiClient.post(ENDPOINTS.REGISTER, registerData);
+      const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Registration failed');
@@ -119,26 +111,23 @@ export class ApiService {
     }
   }
 
-  static async getEventos(params = {}) {
+  // Added the missing transferTickets function
+  static async transferTickets(transferData) {
     try {
-      const queryParams = new URLSearchParams();
-      
-      // Add pagination params
-      if (params.page) queryParams.append('page', params.page);
-      if (params.limit) queryParams.append('limit', params.limit);
-      
-      // Add search params
-      if (params.name) queryParams.append('name', params.name);
-      if (params.startdate) queryParams.append('startdate', params.startdate);
-      if (params.tag) queryParams.append('tag', params.tag);
-      
-      const url = queryParams.toString() ? 
-        `${ENDPOINTS.EVENTS}?${queryParams.toString()}` : 
-        ENDPOINTS.EVENTS;
-        
-      const response = await apiClient.get(url);
+      const response = await apiClient.post(ENDPOINTS.TRANSFERIR, transferData);
       return response.data;
     } catch (error) {
+      console.error('Transfer tickets error:', error);
+      handleApiError(error, 'Failed to transfer tickets');
+      throw error;
+    }
+  }
+
+  static async getEventos(){
+    try{
+      const response = await apiClient.get(ENDPOINTS.EVENTOS);
+      return response.data;
+    }catch(error){
       handleApiError(error, 'Failed to load events');
       throw error;
     }
@@ -146,7 +135,7 @@ export class ApiService {
 
   static async getEventoById(id) {
     try {
-      const response = await apiClient.get(`${ENDPOINTS.EVENTS}/${id}`);
+      const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${id}`);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load event details');
@@ -154,84 +143,33 @@ export class ApiService {
     }
   }
 
-  static async agendarEvento(id) {
+  static async agendarEventos(id) {
     try {
-      const response = await apiClient.post(`${ENDPOINTS.EVENTS}/${id}/enrollment`);
+      const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
       return response.data;
     } catch (error) {
-      handleApiError(error, 'Failed to enroll in event');
+      handleApiError(error, 'Failed to schedule event');
       throw error;
     }
   }
 
-  static async deleteEventoAgendado(id) {
-    try {
-      const response = await apiClient.delete(`${ENDPOINTS.EVENTS}/${id}/enrollment`);
+  static async getEventosAgendados(){
+    try{
+      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
       return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to unenroll from event');
-      throw error;
+    }catch(err){
+      handleApiError(err, 'Failed to load scheduled events');
+      throw err;
     }
   }
 
-  static async createEvent(eventData) {
-    try {
-      const response = await apiClient.post(ENDPOINTS.EVENTS, eventData);
+  static async deleteEventoAgendado(id){
+    try{
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
       return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to create event');
-      throw error;
-    }
-  }
-
-  static async updateEvent(eventData) {
-    try {
-      const response = await apiClient.put(ENDPOINTS.EVENTS, eventData);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to update event');
-      throw error;
-    }
-  }
-
-  static async deleteEvent(id) {
-    try {
-      const response = await apiClient.delete(`${ENDPOINTS.EVENTS}/${id}`);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to delete event');
-      throw error;
-    }
-  }
-
-  // Event Location Management
-  static async getEventLocations() {
-    try {
-      const response = await apiClient.get(ENDPOINTS.EVENT_LOCATIONS);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to load event locations');
-      throw error;
-    }
-  }
-
-  static async getEventLocationById(id) {
-    try {
-      const response = await apiClient.get(`${ENDPOINTS.EVENT_LOCATIONS}/${id}`);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to load event location');
-      throw error;
-    }
-  }
-
-  static async createEventLocation(locationData) {
-    try {
-      const response = await apiClient.post(ENDPOINTS.EVENT_LOCATIONS, locationData);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, 'Failed to create event location');
-      throw error;
+    }catch(err){
+      handleApiError(err, 'Failed to delete scheduled event');
+      throw err;
     }
   }
 
@@ -252,7 +190,7 @@ export class ApiService {
         }
       }
       
-      const response = await apiClient.post(ENDPOINTS.EVENTS, formData, {
+      const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Accept': 'application/json'
@@ -286,14 +224,24 @@ export class ApiService {
     }
   }
 
-  // Keep for backwards compatibility
-  static async getEventosAgendados() {
+  static async getTickets() {
     try {
-      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
+      console.log('Calling API...');
+      const response = await apiClient.get(ENDPOINTS.TICKETS);
+      
+      // Check if we have the new data structure with ticketsMonth
+      if (response.data && response.data.movimientos && response.data.ticketsMonth !== undefined) {
+        return {
+          tickets: response.data.movimientos,
+          ticketsMonth: response.data.ticketsMonth
+        };
+      }
+      // Fallback to old structure
       return response.data;
-    } catch (err) {
-      handleApiError(err, 'Failed to load scheduled events');
-      throw err;
+    } catch (error) {
+      console.log('Error in getTickets:', error);
+      handleApiError(error, 'Failed to load tickets data');
+      throw error;
     }
   }
 }

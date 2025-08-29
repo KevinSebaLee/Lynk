@@ -1,9 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image, Dimensions, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import Header from '../components/header.js';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import MovCard from '../components/MovCard.js';
 import GradientBarChart from '../components/GradientBarChart.js';
 import React, { useState, useCallback } from 'react';
@@ -15,7 +13,7 @@ const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
 
 export default function Tickets() {
   const [ticketsData, setTicketsData] = useState([]);
-  const [movimientosData, setMovimientosData] = useState([]);
+  const [ticketsMonth, setTicketsMonth] = useState(0);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,31 +25,18 @@ export default function Tickets() {
       setLoading(true);
       setError(null);
 
-      ApiService.getMovimientos()
-        .then(data => {
-          if (isActive && data) {
-            setMovimientosData(data);
-          } else {
-            console.log('Data is falsy or focus lost');
-          }
-        })
-        .catch(err => {
-          if (isActive) setError('No se pudieron cargar los movimientos.');
-          console.log(err);
-          console.error('Error loading movimientos:', err);
-        })
-        .finally(() => {
-          if (isActive) setLoading(false);
-        }
-      );
-
       ApiService.getTickets()
         .then(data => {
           console.log('API response:', data);
           if (isActive && data) {
-            setTicketsData(data[0] || null);
-          } else {
-            console.log('Data is falsy or focus lost');
+            // Check if we have the new data structure
+            if (data.tickets && data.ticketsMonth !== undefined) {
+              setTicketsData(data.tickets[0] || null);
+              setTicketsMonth(data.ticketsMonth);
+            } else {
+              // Fallback to old structure
+              setTicketsData(data[0] || null);
+            }
           }
         })
         .catch(err => {
@@ -91,45 +76,21 @@ export default function Tickets() {
           </TouchableOpacity>
           <Text style={styles.headerText}> Tus tickets</Text>
         </View>
+
         <Pressable style={{ marginTop: 10 }}>
           <View style={styles.ticketWrapper}>
-          <MovCard
-            tickets={ticketsData?.tickets || 0}
-            onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-            onTransfer={() => navigation.navigate('Transferir')}
-            onRedeem={() => navigation.navigate('Cupones')}
-          />
+            <MovCard
+              tickets={ticketsData?.tickets || 0}
+              onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
+              onTransfer={() => navigation.navigate('Transferir')}
+              onRedeem={() => navigation.navigate('Cupones')}
+            />
           </View>
         </Pressable>
-        <View style={styles.listMov}>
-          <Text style={styles.trans}>Transacciones</Text>
-          {(movimientosData.length > 0 ? movimientosData : []).map((tx, idx) => (
-            <View style={styles.container} key={tx.id || idx}>
-              <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name={tx.tipo_movimiento_icon || 'cash'} size={24} color={tx.color || '#7b4ef7'} />
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={styles.title}>{tx.titulo}</Text>
-                <Text style={styles.subtitle}>{tx.moneda_nombre}</Text>
-              </View>
-              <View style={styles.rightContainer}>
-                <Text
-                  style={[
-                    styles.amount,
-                    { color: tx.monto > 0 ? '#27ae60' : '#ec4d5f' }
-                  ]}
-                >
-                  {tx.monto > 0 ? `+${tx.monto}` : `${tx.monto}`}
-                </Text>
-                <Text style={styles.date}>{tx.date}</Text>
-              </View>
-            </View>
-          ))}
-          
-        </View>
 
         <Text style={styles.trans}>Movimientos</Text>
-        <GradientBarChart />
+        <Text style={styles.monthlyUsage}>Tickets usados este mes: {ticketsMonth}</Text>
+        <GradientBarChart monthlyUsage={ticketsMonth} />
         <StatusBar style="light" />
       </ScrollView>
     </SafeAreaView>
@@ -137,12 +98,6 @@ export default function Tickets() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   header: {
     flex: 1,
     marginTop: 30,
@@ -162,9 +117,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#151C2A',
   },
-  listMov: {
-    marginTop: 20,
-  },
   trans: {
     fontSize: 21,
     fontWeight: '500',
@@ -172,59 +124,14 @@ const styles = StyleSheet.create({
     color: '#151C2A',
     marginVertical: 15,
   },
-  iconContainer: {
-    backgroundColor: '#fff',
-    padding: 25,
-    width: 20,
-    height: 20,
-    borderRadius: 50,
-    shadowColor: '#CFECF8',
-    shadowOffset: { width: 2, height: 7 },
-    shadowOpacity: 0.43,
-    shadowRadius: 73,
-    elevation: 6,
-  },
-  textContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  title: {
+  monthlyUsage: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#151C2A',
-  },
-  subtitle: {
-    fontSize: 13,
-    color: '#888',
-  },
-  rightContainer: {
-    alignItems: 'flex-end',
-  },
-  amount: {
-    fontSize: 16,
-    color: '#ec4d5f',
-    fontWeight: '600',
-  },
-  date: {
-    fontSize: 12,
-    color: '#999',
+    fontWeight: '500',
+    paddingLeft: 16,
+    color: '#642684',
+    marginBottom: 10,
   },
   ticketWrapper: {
     marginVertical: 10,
-  },
-  transferBtnWrapper: {
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  transferBtn: {
-    backgroundColor: '#7b4ef7',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  transferBtnText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
 });
