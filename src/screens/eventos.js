@@ -15,41 +15,86 @@ export default function Eventos() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [events, setEvents] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
 
   const { execute: loadEvents } = useApi(ApiService.getEventos);
 
-  useEffect(() => {
-    const getEvents = async () => {
-      try {
-        const data = await loadEvents();
-        if (Array.isArray(data)) {
+  const getEvents = async (currentPage = 1, searchParams = {}) => {
+    try {
+      setLoading(true);
+      const params = {
+        page: currentPage,
+        limit: 10,
+        ...searchParams
+      };
+      
+      const data = await loadEvents(params);
+      
+      if (Array.isArray(data)) {
+        if (currentPage === 1) {
           setEvents(data);
+        } else {
+          setEvents(prev => [...prev, ...data]);
         }
-      } catch (err) {
+        setHasMore(data.length === 10); // If we get less than limit, no more pages
+      } else if (data && data.events) {
+        // Handle paginated response
+        if (currentPage === 1) {
+          setEvents(data.events);
+        } else {
+          setEvents(prev => [...prev, ...data.events]);
+        }
+        setHasMore(data.hasMore || false);
+      }
+    } catch (err) {
+      if (currentPage === 1) {
         setEvents([]);
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     getEvents();
   }, []);
+
+  // Search functionality
+  const handleSearch = () => {
+    const searchParams = {};
+    if (search.trim()) {
+      // Check if search looks like a date (YYYY-MM-DD)
+      if (/^\d{4}-\d{2}-\d{2}$/.test(search.trim())) {
+        searchParams.startdate = search.trim();
+      } else {
+        searchParams.name = search.trim();
+      }
+    }
+    setPage(1);
+    getEvents(1, searchParams);
+  };
+
+  const loadMoreEvents = () => {
+    if (!loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      getEvents(nextPage);
+    }
+  };
 
   // Responsive card sizes (Pinterest-style)
   const CARD_WIDTH = (width - 36) / 2;
   const CARD_HEIGHT_BIG = CARD_WIDTH * 1.53; // first card
   const CARD_HEIGHT_SMALL = CARD_WIDTH * 1.08; // others
 
-  // Filtering logic
-  const filteredEvents = events.filter(ev => {
-    const nameMatch = (ev.nombre || '').toLowerCase().includes(search.toLowerCase());
-    const categoryMatch = selectedCategory ? (ev.categoria_nombre || '').toLowerCase().includes(selectedCategory.toLowerCase()) : true;
-    return nameMatch && categoryMatch;
-  });
-
   // Arrange events in Pinterest-style columns
   // First event bigger, others alternate
   const leftEvents = [];
   const rightEvents = [];
-  filteredEvents.forEach((ev, idx) => {
+  events.forEach((ev, idx) => {
     if (idx === 0) {
       leftEvents.push({ ...ev, big: true });
     } else if (idx % 2 === 1) {
@@ -95,13 +140,17 @@ export default function Eventos() {
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar evento..."
+              placeholder="Buscar por nombre o fecha (YYYY-MM-DD)..."
               placeholderTextColor="#4d3769"
+              onSubmitEditing={handleSearch}
+              returnKeyType="search"
             />
-            <Image
-              source={require('../../assets/img/icons/comprar.png')}
-              style={styles.searchIcon}
-            />
+            <TouchableOpacity onPress={handleSearch}>
+              <Image
+                source={require('../../assets/img/icons/comprar.png')}
+                style={styles.searchIcon}
+              />
+            </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
             {CATEGORIES.map(cat => (
@@ -127,6 +176,14 @@ export default function Eventos() {
           style={styles.eventsScroll}
           contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 30 }}
           showsVerticalScrollIndicator={false}
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+            const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+            if (isCloseToBottom) {
+              loadMoreEvents();
+            }
+          }}
+          scrollEventThrottle={400}
         >
           <View style={styles.gridRow}>
             <View style={styles.gridColumn}>
@@ -172,6 +229,11 @@ export default function Eventos() {
               ))}
             </View>
           </View>
+          {loading && page > 1 && (
+            <View style={styles.loadingMore}>
+              <Text style={styles.loadingText}>Cargando más eventos...</Text>
+            </View>
+          )}
         </ScrollView>
       </LinearGradient>
     </View>
@@ -288,5 +350,14 @@ const styles = StyleSheet.create({
     width: 19,
     height: 19,
     tintColor: '#fff',
+  },
+  loadingMore: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#642684',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

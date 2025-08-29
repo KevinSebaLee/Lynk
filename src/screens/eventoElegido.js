@@ -31,7 +31,7 @@ export default function EventoElegido() {
   const [agendado, setAgendado] = useState(false);
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
-  const { execute: agendarEvento, loading: loadingAgendar } = useApi(ApiService.agendarEventos);
+  const { execute: agendarEvento, loading: loadingAgendar } = useApi(ApiService.agendarEvento);
   const { execute: loadScheduledEvents } = useApi(ApiService.getEventosAgendados);
   const { execute: deleteScheduledEvent } = useApi(ApiService.deleteEventoAgendado);
 
