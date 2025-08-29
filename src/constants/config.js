@@ -3,7 +3,7 @@ import { API } from '@env';
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: API || 'https://stirring-intense-sheep.ngrok-free.app',
-  TIMEOUT: 5000,
+  TIMEOUT: 10000,
   HEADERS: {
     'Content-Type': 'application/json',
   }
@@ -11,13 +11,15 @@ export const API_CONFIG = {
 
 // API Endpoints
 export const ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER: '/register',
+  LOGIN: '/api/user/login',
+  REGISTER: '/api/user/register',
+  EVENTS: '/api/event',
+  EVENT_LOCATIONS: '/api/event-location',
   HOME: '/',
   TICKETS: '/tickets',
   MOVIMIENTOS: '/tickets/transacciones',
   TRANSFERIR: '/tickets/transferir',
-  EVENTOS: '/eventos',
+  EVENTOS: '/api/event', // Keep for backwards compatibility
   AGENDA: '/agenda',
 };
 

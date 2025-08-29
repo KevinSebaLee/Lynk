@@ -49,8 +49,8 @@ export class ApiService {
   static async login(email, password) {
     try {
       const response = await apiClient.post(ENDPOINTS.LOGIN, {
-        email,
-        contraseña: password,
+        username: email,
+        password: password,
       });
       return response.data;
     } catch (error) {
@@ -60,14 +60,22 @@ export class ApiService {
   }
 
   static async register(userData) {
-  try {
-    const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
-    return response.data;
-  } catch (error) {
-    handleApiError(error, 'Registration failed');
-    throw error;
+    try {
+      // Transform data to match backend expectations
+      const registerData = {
+        first_name: userData.nombre,
+        last_name: userData.apellido || '',
+        username: userData.email,
+        password: userData.contraseña,
+      };
+      
+      const response = await apiClient.post(ENDPOINTS.REGISTER, registerData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Registration failed');
+      throw error;
+    }
   }
-}
 
   static async getHomeData() {
     try {
@@ -111,11 +119,26 @@ export class ApiService {
     }
   }
 
-  static async getEventos(){
-    try{
-      const response = await apiClient.get(ENDPOINTS.EVENTOS);
+  static async getEventos(params = {}) {
+    try {
+      const queryParams = new URLSearchParams();
+      
+      // Add pagination params
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      
+      // Add search params
+      if (params.name) queryParams.append('name', params.name);
+      if (params.startdate) queryParams.append('startdate', params.startdate);
+      if (params.tag) queryParams.append('tag', params.tag);
+      
+      const url = queryParams.toString() ? 
+        `${ENDPOINTS.EVENTS}?${queryParams.toString()}` : 
+        ENDPOINTS.EVENTS;
+        
+      const response = await apiClient.get(url);
       return response.data;
-    }catch(error){
+    } catch (error) {
       handleApiError(error, 'Failed to load events');
       throw error;
     }
@@ -123,7 +146,7 @@ export class ApiService {
 
   static async getEventoById(id) {
     try {
-      const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${id}`);
+      const response = await apiClient.get(`${ENDPOINTS.EVENTS}/${id}`);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load event details');
@@ -131,33 +154,84 @@ export class ApiService {
     }
   }
 
-  static async agendarEventos(id) {
+  static async agendarEvento(id) {
     try {
-      const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
+      const response = await apiClient.post(`${ENDPOINTS.EVENTS}/${id}/enrollment`);
       return response.data;
     } catch (error) {
-      handleApiError(error, 'Failed to schedule event');
+      handleApiError(error, 'Failed to enroll in event');
       throw error;
     }
   }
 
-  static async getEventosAgendados(){
-    try{
-      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
+  static async deleteEventoAgendado(id) {
+    try {
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTS}/${id}/enrollment`);
       return response.data;
-    }catch(err){
-      handleApiError(err, 'Failed to load scheduled events');
-      throw err;
+    } catch (error) {
+      handleApiError(error, 'Failed to unenroll from event');
+      throw error;
     }
   }
 
-  static async deleteEventoAgendado(id){
-    try{
-      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
+  static async createEvent(eventData) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.EVENTS, eventData);
       return response.data;
-    }catch(err){
-      handleApiError(err, 'Failed to delete scheduled event');
-      throw err;
+    } catch (error) {
+      handleApiError(error, 'Failed to create event');
+      throw error;
+    }
+  }
+
+  static async updateEvent(eventData) {
+    try {
+      const response = await apiClient.put(ENDPOINTS.EVENTS, eventData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to update event');
+      throw error;
+    }
+  }
+
+  static async deleteEvent(id) {
+    try {
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTS}/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to delete event');
+      throw error;
+    }
+  }
+
+  // Event Location Management
+  static async getEventLocations() {
+    try {
+      const response = await apiClient.get(ENDPOINTS.EVENT_LOCATIONS);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load event locations');
+      throw error;
+    }
+  }
+
+  static async getEventLocationById(id) {
+    try {
+      const response = await apiClient.get(`${ENDPOINTS.EVENT_LOCATIONS}/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load event location');
+      throw error;
+    }
+  }
+
+  static async createEventLocation(locationData) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.EVENT_LOCATIONS, locationData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to create event location');
+      throw error;
     }
   }
 
@@ -178,7 +252,7 @@ export class ApiService {
         }
       }
       
-      const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
+      const response = await apiClient.post(ENDPOINTS.EVENTS, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Accept': 'application/json'
@@ -209,6 +283,17 @@ export class ApiService {
       
       handleApiError(error, 'Failed to create event');
       throw error;
+    }
+  }
+
+  // Keep for backwards compatibility
+  static async getEventosAgendados() {
+    try {
+      const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
+      return response.data;
+    } catch (err) {
+      handleApiError(err, 'Failed to load scheduled events');
+      throw err;
     }
   }
 }
