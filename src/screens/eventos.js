@@ -49,10 +49,11 @@ export default function Eventos() {
         }
         setHasMore(data.hasMore || false);
       }
-    } catch (err) {
+    } catch (error) {
       if (currentPage === 1) {
         setEvents([]);
       }
+      console.error('Error loading events:', error);
     } finally {
       setLoading(false);
     }

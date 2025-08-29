@@ -127,12 +127,18 @@ export default function EventoElegido() {
     );
   }
 
-  const dateObj = new Date(event.fecha);
+  const dateObj = new Date(event.start_date || event.fecha);
   const dateStr = dateObj.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
   const dayOfWeek = dateObj.toLocaleDateString('es-AR', { weekday: 'long' });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
-  const dummyMap = 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+  // Generate map URL from event location if available
+  const getMapUrl = () => {
+    if (event.event_location && event.event_location.latitude && event.event_location.longitude) {
+      return `https://maps.googleapis.com/maps/api/staticmap?center=${event.event_location.latitude},${event.event_location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${event.event_location.latitude},${event.event_location.longitude}&key=YOUR_API_KEY`;
+    }
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -143,13 +149,13 @@ export default function EventoElegido() {
         <View style={styles.topRow}>
           <View style={styles.leftCircleWrapper}>
             <ImageBackground
-              source={getImageSource(event.imagen)}
+              source={getImageSource(event.imagen || event.image)}
               style={styles.eventImageCircle}
               imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
             >
               <View style={styles.mapCircleOverlay}>
                 <Image
-                  source={{ uri: dummyMap }}
+                  source={{ uri: getMapUrl() }}
                   style={styles.mapCircle}
                   resizeMode="cover"
                 />
@@ -164,36 +170,86 @@ export default function EventoElegido() {
         </View>
       </LinearGradient>
       <View style={styles.detailsCard}>
-        <Text style={styles.title}>{event.nombre} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
-        <Text style={styles.subtitle}>{event.categoria_nombre}</Text>
+        <Text style={styles.title}>{event.name || event.nombre} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
+        <Text style={styles.subtitle}>{event.categoria_nombre || 'Evento'}</Text>
+        {event.price && (
+          <Text style={styles.price}>Precio: ${event.price}</Text>
+        )}
+        {event.max_assistance && (
+          <Text style={styles.capacity}>Capacidad: {event.max_assistance} personas</Text>
+        )}
+        {event.duration_in_minutes && (
+          <Text style={styles.duration}>Duración: {event.duration_in_minutes} minutos</Text>
+        )}
+        
         <TouchableOpacity
           style={[
             styles.joinBtn,
-            agendado && styles.joinBtnUnido
+            agendado && styles.joinBtnUnido,
+            (!event.enabled_for_enrollment || event.enabled_for_enrollment === '0') && styles.joinBtnDisabled
           ]}
           onPress={handleAgendarEvento}
-          disabled={loadingAgendar}
+          disabled={loadingAgendar || !event.enabled_for_enrollment || event.enabled_for_enrollment === '0'}
         >
           <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
-            {agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME')}
+            {!event.enabled_for_enrollment || event.enabled_for_enrollment === '0' 
+              ? 'INSCRIPCIÓN CERRADA' 
+              : (agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME'))
+            }
           </Text>
         </TouchableOpacity>
+        
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="calendar-outline" size={22} color="#9F4B97" /></View>
           <View>
             <Text style={styles.detailTitle}>{fullDate}</Text>
-            <Text style={styles.detailDescription}>{event.hora || ''}</Text>
+            <Text style={styles.detailDescription}>
+              {event.hora || (event.start_date ? new Date(event.start_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '')}
+            </Text>
           </View>
         </View>
+        
         <View style={styles.detailRow}>
           <View style={styles.detailIconBox}><Ionicons name="location-outline" size={22} color="#9F4B97" /></View>
           <View>
-            <Text style={styles.detailTitle}>{event.ubicacion}</Text>
-            <Text style={styles.detailDescription}>{event.direccion}</Text>
+            <Text style={styles.detailTitle}>
+              {event.event_location?.name || event.ubicacion || 'Ubicación'}
+            </Text>
+            <Text style={styles.detailDescription}>
+              {event.event_location?.full_address || event.direccion || ''}
+              {event.event_location?.location?.name && `, ${event.event_location.location.name}`}
+              {event.event_location?.location?.province?.name && `, ${event.event_location.location.province.name}`}
+            </Text>
           </View>
         </View>
+
+        {event.creator_user && (
+          <View style={styles.detailRow}>
+            <View style={styles.detailIconBox}><Ionicons name="person-outline" size={22} color="#9F4B97" /></View>
+            <View>
+              <Text style={styles.detailTitle}>Organizador</Text>
+              <Text style={styles.detailDescription}>
+                {event.creator_user.first_name} {event.creator_user.last_name}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {event.tags && event.tags.length > 0 && (
+          <View style={styles.tagsContainer}>
+            <Text style={styles.sectionTitle}>Tags</Text>
+            <View style={styles.tagsRow}>
+              {event.tags.map((tag, index) => (
+                <View key={tag.id || index} style={styles.tag}>
+                  <Text style={styles.tagText}>{tag.name}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+        
         <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
-        <Text style={styles.eventDescription}>{event.descripcion}</Text>
+        <Text style={styles.eventDescription}>{event.description || event.descripcion}</Text>
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
@@ -377,6 +433,9 @@ const styles = StyleSheet.create({
   joinBtnUnido: {
     backgroundColor: '#38C172',
   },
+  joinBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
   joinBtnText: {
     color: '#fff',
     fontWeight: 'bold',
@@ -386,6 +445,43 @@ const styles = StyleSheet.create({
   },
   joinBtnTextUnido: {
     color: '#fff',
+  },
+  price: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#642684',
+    marginBottom: 4,
+  },
+  capacity: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  duration: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  tagsContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  tagsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  tag: {
+    backgroundColor: '#e6e1f7',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  tagText: {
+    color: '#642684',
+    fontSize: 12,
+    fontWeight: '500',
   },
   detailRow: {
     flexDirection: 'row',
