@@ -15,6 +15,7 @@ export const ENDPOINTS = {
   REGISTER: '/register',
   HOME: '/',
   TICKETS: '/tickets',
+  CATEGORIES: '/categorias',
   MOVIMIENTOS: '/tickets/transacciones',
   TRANSFERIR: '/tickets/transferir',
   EVENTOS: '/eventos',

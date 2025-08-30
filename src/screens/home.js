@@ -14,7 +14,7 @@ import {
 import Header from '../components/header.js';
 import TicketCard from '../components/TicketCard.js';
 import PremiumBanner from '../components/premiumBanner';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import AgendaIcon from '../components/agenda.js';
 import EventCard from '../components/EventCard.js';
@@ -41,25 +41,39 @@ export default function Home() {
   const { execute: loadTickets } = useApi(ApiService.getTickets);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const data = await loadHomeData();
-        if (data) {
-          setUserData(data.user);
-          if (data.eventosRecientes) {
+  useFocusEffect(
+    React.useCallback(() => {
+      const refreshData = async () => {
+        try {
+          // Load tickets data
+          const ticketsData = await loadTickets();
+          console.log('Refreshed tickets data:', ticketsData);
+          if (ticketsData) {
+            setUserData(prevData => ({
+              ...prevData,
+              tickets: ticketsData.tickets
+            }));
+          }
+          
+          // Load other home data
+          const data = await loadHomeData();
+          if (data) {
+            setUserData(prevData => ({
+              ...prevData,
+              ...data.user
+            }));
             setEventosRecientes(data.eventosRecientes || []);
+            setEventosUser(data.eventosUser || []);
           }
-          if (data.eventosUsuario) {
-            setEventosUser(data.eventosUsuario || []);
-          }
+        } catch (error) {
+          console.error('Error refreshing home data:', error);
         }
-      } catch (error) {
-        // Error is already handled by the ApiService
-      }
-    };
-    loadUserData();
-  }, [userDataCache, clearUserDataCache]);
+      };
+      
+      refreshData();
+      return () => {};
+    }, [loadTickets, loadHomeData])
+  );
 
   // Handler for tickets press
   const handleTicketsPress = async () => {

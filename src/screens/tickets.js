@@ -3,21 +3,40 @@ import { StyleSheet, View, Text, Image, Dimensions, Pressable, TouchableOpacity,
 import Header from '../components/header.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import MovCard from '../components/MovCard.js';
-import GradientBarChart from '../components/GradientBarChart.js';
+import PieChart from '../components/PieChart.js';
 import React, { useState, useCallback } from 'react';
 import ApiService from '../services/api';
 import { LoadingSpinner } from '../components/common';
+import TransferList from '../components/TransferList';
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
 
+// Define colors globally for the component
+const CATEGORY_COLORS = {
+  'Transferencia': '#FF6384',
+  'Eventos': '#36A2EB',
+  'Entretenimiento': '#FFCE56',
+  'Otros': '#4BC0C0'
+};
+
 export default function Tickets() {
-  const [ticketsData, setTicketsData] = useState([]);
+  const [ticketsData, setTicketsData] = useState(0);
   const [ticketsMonth, setTicketsMonth] = useState(0);
+  const [ticketCategories, setTicketCategories] = useState([]);
+  const [movements, setMovements] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
+
+  // Define colors outside the effect to avoid redeclaration
+  const colors = {
+    'Eventos': '#FF6384',
+    'Restaurantes': '#36A2EB',
+    'Entretenimiento': '#FFCE56',
+    'Otros': '#4BC0C0'
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -25,27 +44,56 @@ export default function Tickets() {
       setLoading(true);
       setError(null);
 
-      ApiService.getTickets()
-        .then(data => {
-          console.log('API response:', data);
-          if (isActive && data) {
-            // Check if we have the new data structure
-            if (data.tickets && data.ticketsMonth !== undefined) {
-              setTicketsData(data.tickets[0] || null);
-              setTicketsMonth(data.ticketsMonth);
-            } else {
-              // Fallback to old structure
-              setTicketsData(data[0] || null);
-            }
+      const fetchData = async () => {
+        try {
+          // Get tickets data which includes movements
+          const response = await ApiService.getTickets();
+          console.log('Full tickets response:', JSON.stringify(response, null, 2));
+          
+          if (isActive) {
+            // Process tickets data
+            setTicketsData(response.tickets || 0);
+            setTicketsMonth(response.ticketsMonth || 0);
+            
+            // Process movements data
+            const movimientos = response.movimientos || [];
+            setMovements(movimientos);
+            
+            // Calculate categories from movements
+            const categoryTotals = new Map();
+            
+            // Count tickets by category from movements
+            movimientos.forEach(mov => {
+              const categoria = mov.categoria_nombre || 'Transferencia';
+              const currentTotal = categoryTotals.get(categoria) || 0;
+              categoryTotals.set(categoria, currentTotal + Math.abs(mov.monto));
+            });
+            
+            // Create categories array for pie chart
+            const categories = Array.from(categoryTotals.entries())
+              .filter(([_, total]) => total > 0)
+              .map(([name, total]) => ({
+                name,
+                tickets: total,
+                color: '#FF6384' // Use a consistent color for transfers
+              }));
+            
+            console.log('Setting categories with real data:', categories);
+            setTicketCategories(categories);
           }
-        })
-        .catch(err => {
-          if (isActive) setError('No se pudieron cargar los tickets.');
-          console.error('Error loading tickets:', err);
-        })
-        .finally(() => {
-          if (isActive) setLoading(false);
-        });
+        } catch (err) {
+          if (isActive) {
+            setError('No se pudieron cargar los tickets.');
+            console.error('Error loading tickets:', err);
+          }
+        } finally {
+          if (isActive) {
+            setLoading(false);
+          }
+        }
+      };
+
+      fetchData();
       return () => { isActive = false; };
     }, [])
   );
@@ -68,38 +116,42 @@ export default function Tickets() {
   }
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image style={styles.arrow} source={arrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerText}> Tus tickets</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image style={styles.arrow} source={arrow} />
+        </TouchableOpacity>
+        <Text style={styles.headerText}> Tus tickets</Text>
+      </View>
+
+      <ScrollView style={styles.container}>
+        <View style={styles.ticketWrapper}>
+          <MovCard
+            tickets={Number(ticketsData) || 0}
+            onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
+            onTransfer={() => navigation.navigate('Transferir')}
+            onRedeem={() => navigation.navigate('Cupones')}
+          />
         </View>
 
-        <Pressable style={{ marginTop: 10 }}>
-          <View style={styles.ticketWrapper}>
-            <MovCard
-              tickets={ticketsData?.tickets || 0}
-              onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-              onTransfer={() => navigation.navigate('Transferir')}
-              onRedeem={() => navigation.navigate('Cupones')}
-            />
-          </View>
-        </Pressable>
-
-        <Text style={styles.trans}>Movimientos</Text>
-        <Text style={styles.monthlyUsage}>Tickets usados este mes: {ticketsMonth}</Text>
-        <GradientBarChart monthlyUsage={ticketsMonth} />
-        <StatusBar style="light" />
+        <View style={styles.categoriesSection}>
+          <Text style={styles.trans}>Categorías de Tickets</Text>
+          <Text style={styles.monthlyUsage}>Total de tickets usados este mes: {ticketsMonth}</Text>
+          {ticketCategories.length > 0 && <PieChart categories={ticketCategories} />}
+        </View>
+        
+        {/* Transfer History */}
+        <View style={styles.transferListContainer}>
+          <TransferList movimientos={movements} />
+        </View>
       </ScrollView>
+      <StatusBar style="light" />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    flex: 1,
     marginTop: 30,
     marginLeft: 20,
     flexDirection: 'row',
@@ -133,5 +185,13 @@ const styles = StyleSheet.create({
   },
   ticketWrapper: {
     marginVertical: 10,
+  },
+  transferListContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  categoriesSection: {
+    backgroundColor: '#fff',
+    paddingBottom: 10,
   },
 });
