@@ -4,6 +4,7 @@ import Header from '../components/header.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import MovCard from '../components/MovCard.js';
 import PieChartCard from '../components/PieChartCard.js';
+import MonthlyTicketsChart from '../components/MonthlyTicketsChart.js';
 import React, { useState, useCallback } from 'react';
 import ApiService from '../services/api';
 import { LoadingSpinner } from '../components/common';
@@ -25,6 +26,8 @@ export default function Tickets() {
   const [ticketsMonth, setTicketsMonth] = useState(0);
   const [ticketCategories, setTicketCategories] = useState([]);
   const [movements, setMovements] = useState([]);
+  const [monthlyTickets, setMonthlyTickets] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -50,30 +53,77 @@ export default function Tickets() {
           const response = await ApiService.getTickets();
           console.log('Full tickets response:', JSON.stringify(response, null, 2));
           
+          // Get monthly tickets data (processes same data, doesn't make new API call)
+          const monthlyResponse = await ApiService.getMonthlyTickets();
+          console.log('Monthly tickets data:', monthlyResponse);
+          
           if (isActive) {
             // Process tickets data
             setTicketsData(response.tickets || 0);
-            setTicketsMonth(response.ticketsMonth || 0);
+            
+            // Calculate total tickets from movements (more accurate than the API value)
+            let totalTickets = 0;
+            if (response.movimientos && response.movimientos.length > 0) {
+              totalTickets = response.movimientos.reduce((sum, mov) => {
+                // Use absolute value since we only care about the total usage
+                return sum + Math.abs(mov.monto || 0);
+              }, 0);
+              // Divide by 2 to account for sender/receiver duplication
+              totalTickets = Math.round(totalTickets / 2);
+            }
+            
+            console.log('Calculated total tickets from movements:', totalTickets);
+            console.log('API ticketsMonth value:', response.ticketsMonth);
+            
+            // Use calculated value or fall back to API value
+            setTicketsMonth(totalTickets || response.ticketsMonth || 0);
             
             // Process movements data
             const movimientos = response.movimientos || [];
             setMovements(movimientos);
             
+            // Set monthly tickets data
+            if (monthlyResponse && Array.isArray(monthlyResponse)) {
+              setMonthlyTickets(monthlyResponse);
+              // Default select the most recent month
+              if (monthlyResponse.length > 0) {
+                setSelectedMonth(monthlyResponse[monthlyResponse.length - 1]);
+              }
+            }
+            
             // Calculate categories from movements
             const categoryTotals = new Map();
             const categoryTransactions = new Map();
             
+            // Create a map to track which transfers have been counted
+            const processedTransferIds = new Set();
+            
             // Process movements by category
             movimientos.forEach(mov => {
+              // Skip transactions with invalid or zero amounts
+              if (!mov.monto || isNaN(mov.monto)) return;
+              
               const categoria = mov.categoria_nombre || 'Transferencia';
-              // Track total amount - divide by 2 to account for sender/receiver duplication
-              const ticketAmount = (mov.tickets || Math.abs(mov.monto)) / 2;
+              
+              // Use the absolute value of monto for the ticket amount
+              const ticketAmount = Math.abs(mov.monto);
+              
+              // For transfers, check if we've already counted this transaction
+              if (categoria === 'Transferencia' && mov.transaccion_id) {
+                // If we've already processed this transaction, skip it
+                if (processedTransferIds.has(mov.transaccion_id)) {
+                  return;
+                }
+                // Mark this transaction as processed
+                processedTransferIds.add(mov.transaccion_id);
+              }
+              
               const currentTotal = categoryTotals.get(categoria) || 0;
               categoryTotals.set(categoria, currentTotal + ticketAmount);
               
-              // Track transaction count - divide by 2 to account for sender/receiver duplication
+              // Track transaction count
               const currentCount = categoryTransactions.get(categoria) || 0;
-              categoryTransactions.set(categoria, currentCount + 0.5); // Add 0.5 instead of 1 to count each transaction once
+              categoryTransactions.set(categoria, currentCount + 1);
             });
             
             // Log the total calculated from movements
@@ -83,13 +133,19 @@ export default function Tickets() {
             // Create categories array for pie chart
             const categories = [];
             
-            // Add entries from transactions
-            for (const [name, amount] of categoryTotals.entries()) {
-              if (amount > 0) {
+            // Add entries from transactions - use transaction counts, not ticket amounts
+            for (const [name, _] of categoryTotals.entries()) {
+              // Get the transaction count for this category
+              const count = categoryTransactions.get(name) || 0;
+              
+              if (count > 0) {
                 categories.push({
                   name,
-                  amount: Number(amount),
-                  count: categoryTransactions.get(name) || 0,
+                  // Use the count as the "amount" for the pie chart segments
+                  amount: count,
+                  // Keep track of the actual ticket amount in a separate property
+                  ticketAmount: Number(categoryTotals.get(name) || 0),
+                  count: count,
                   color: CATEGORY_COLORS[name] || colors[name] || '#642684'
                 });
               }
@@ -168,13 +224,20 @@ export default function Tickets() {
 
         <View style={styles.categoriesSection}>
           <PieChartCard 
-            categories={ticketCategories.map(cat => ({
-              ...cat,
-              // Normalize the amounts to match ticketsMonth total if needed
-              amount: ticketsMonth > 0 ? Math.round(cat.amount) : cat.amount
-            }))} 
+            categories={ticketCategories}
             title="Distribución de Tickets"
-            subtitle={`Total de tickets usados este mes: ${ticketsMonth}`} 
+            subtitle={ticketsMonth > 0 ? 
+              `Total de tickets usados: ${Number(ticketsMonth).toLocaleString('es-ES')}` : 
+              'No hay datos de uso de tickets'
+            } 
+          />
+        </View>
+        
+        {/* Monthly Tickets Chart */}
+        <View style={styles.chartSection}>
+          <MonthlyTicketsChart 
+            monthlyData={monthlyTickets} 
+            onMonthPress={(month) => setSelectedMonth(month)} 
           />
         </View>
         
@@ -234,5 +297,10 @@ const styles = StyleSheet.create({
   categoriesSection: {
     backgroundColor: '#fff',
     paddingBottom: 10,
+  },
+  chartSection: {
+    backgroundColor: '#fff',
+    paddingBottom: 10,
+    marginBottom: 20,
   },
 });

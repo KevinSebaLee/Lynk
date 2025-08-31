@@ -142,6 +142,7 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
 
             // Format the value with locale and no decimal places
             // Round to whole number since we've already divided by 2 in tickets.js
+            // For counts, display without decimal places
             const formattedValue = Math.round(Number(category.amount)).toLocaleString('es-ES', {
                 maximumFractionDigits: 0
             });
@@ -152,12 +153,27 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
                 (filteredChartData.length === 2 && filteredChartData[1].name === 'Otros')
                 ? 100
                 : Math.round(category.amount / total * 100);
+                
+            // Format the display based on the category
+            let displayText;
+            
+            // If we have a count (for transactions), display that
+            if (category.count !== undefined) {
+                const txCount = category.name === 'Transferencia' ? 
+                    `${category.count} transfer${category.count === 1 ? '' : 's'}` : 
+                    `${category.count} transac${category.count === 1 ? 'ción' : 'ciones'}`;
+                    
+                displayText = `${category.name}: ${txCount} (${percentage}%)`;
+            } else {
+                // Otherwise just display the amount
+                displayText = `${category.name}: ${formattedValue} (${percentage}%)`;
+            }
 
             return (
                 <View key={index} style={styles.legendItem}>
                     <View style={[styles.legendColor, { backgroundColor: category.color }]} />
                     <Text style={styles.legendText}>
-                        {category.name}: {formattedValue} ({percentage}%)
+                        {displayText}
                     </Text>
                 </View>
             );

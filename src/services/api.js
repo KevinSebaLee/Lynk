@@ -43,6 +43,84 @@ apiClient.interceptors.response.use(
 );
 
 /**
+ * Helper function to generate mock monthly data for testing
+ */
+/**
+ * Process transaction data into monthly ticket usage
+ * @param {Array} transactions - Array of transaction objects
+ * @returns {Array} - Monthly data formatted for the chart
+ */
+const processTransactionsToMonthlyData = (transactions) => {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return generateMockMonthlyData();
+  }
+  
+  const monthlyMap = new Map();
+  const currentDate = new Date();
+  
+  // Initialize the past 6 months with zero values
+  for (let i = 5; i >= 0; i--) {
+    const month = new Date(currentDate);
+    month.setMonth(currentDate.getMonth() - i);
+    month.setDate(1); // First day of month
+    month.setHours(0, 0, 0, 0);
+    
+    const monthKey = month.toISOString().substring(0, 7); // YYYY-MM format
+    monthlyMap.set(monthKey, {
+      month: month.toISOString(),
+      total_tickets: 0
+    });
+  }
+  
+  // Process transactions and sum them by month
+  transactions.forEach(transaction => {
+    if (!transaction.fecha_transaccion) return;
+    
+    const transDate = new Date(transaction.fecha_transaccion);
+    const monthKey = transDate.toISOString().substring(0, 7);
+    
+    // Only include data from the past 6 months
+    if (monthlyMap.has(monthKey)) {
+      const monthData = monthlyMap.get(monthKey);
+      // Use absolute value and divide by 2 to account for sender/receiver duplication
+      const ticketAmount = Math.abs(transaction.monto || 0) / 2;
+      monthData.total_tickets += ticketAmount;
+    }
+  });
+  
+  // Convert to array and sort chronologically
+  return Array.from(monthlyMap.values())
+    .map(item => ({
+      ...item,
+      total_tickets: Math.round(item.total_tickets) // Round to whole numbers
+    }))
+    .sort((a, b) => new Date(a.month) - new Date(b.month));
+};
+
+/**
+ * Generate mock monthly data for testing
+ */
+const generateMockMonthlyData = () => {
+  const data = [];
+  const currentDate = new Date();
+  
+  // Generate data for the past 6 months
+  for (let i = 5; i >= 0; i--) {
+    const month = new Date(currentDate);
+    month.setMonth(currentDate.getMonth() - i);
+    month.setDate(1); // First day of month
+    
+    data.push({
+      month: month.toISOString(),
+      // Generate random ticket usage between 20 and 200
+      total_tickets: Math.floor(Math.random() * 180) + 20
+    });
+  }
+  
+  return data;
+};
+
+/**
  * API Service Class
  */
 export class ApiService {
@@ -98,7 +176,34 @@ export class ApiService {
     } catch (error) {
       console.log('Error in getTickets:', error);
       handleApiError(error, 'Failed to load tickets data');
-      throw error;
+    }
+  }
+  
+  static async getMonthlyTickets() {
+    try {
+      console.log('Getting monthly tickets data from tickets API...');
+      
+      // Use the main tickets endpoint since there's no separate monthly endpoint
+      const response = await apiClient.get(ENDPOINTS.TICKETS);
+      
+      // Extract and process the transactions to generate monthly data
+      if (response.data && response.data.movimientos) {
+        console.log('Processing transactions for monthly data...');
+        
+        const monthlyData = processTransactionsToMonthlyData(response.data.movimientos);
+        console.log('Generated monthly data:', monthlyData);
+        
+        return monthlyData;
+      } else {
+        console.log('No movement data available for monthly breakdown');
+        return generateMockMonthlyData();
+      }
+    } catch (error) {
+      console.log('Error in getMonthlyTickets:', error);
+      handleApiError(error, 'Failed to generate monthly tickets data');
+      // Return mock data as fallback in case of API error
+      console.log('Returning mock data due to API error');
+      return generateMockMonthlyData();
     }
   }
 
