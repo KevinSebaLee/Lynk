@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Image, Dimensions, Pressable, TouchableOpacity,
 import Header from '../components/header.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import MovCard from '../components/MovCard.js';
-import PieChart from '../components/PieChart.js';
+import PieChartCard from '../components/PieChartCard.js';
 import React, { useState, useCallback } from 'react';
 import ApiService from '../services/api';
 import { LoadingSpinner } from '../components/common';
@@ -61,22 +61,50 @@ export default function Tickets() {
             
             // Calculate categories from movements
             const categoryTotals = new Map();
+            const categoryTransactions = new Map();
             
-            // Count tickets by category from movements
+            // Process movements by category
             movimientos.forEach(mov => {
               const categoria = mov.categoria_nombre || 'Transferencia';
+              // Track total amount - divide by 2 to account for sender/receiver duplication
+              const ticketAmount = (mov.tickets || Math.abs(mov.monto)) / 2;
               const currentTotal = categoryTotals.get(categoria) || 0;
-              categoryTotals.set(categoria, currentTotal + Math.abs(mov.monto));
+              categoryTotals.set(categoria, currentTotal + ticketAmount);
+              
+              // Track transaction count - divide by 2 to account for sender/receiver duplication
+              const currentCount = categoryTransactions.get(categoria) || 0;
+              categoryTransactions.set(categoria, currentCount + 0.5); // Add 0.5 instead of 1 to count each transaction once
             });
             
+            // Log the total calculated from movements
+            const calculatedTotal = Array.from(categoryTotals.values()).reduce((sum, val) => sum + val, 0);
+            console.log('Total tickets from movements:', calculatedTotal, 'ticketsMonth from API:', response.ticketsMonth);
+            
             // Create categories array for pie chart
-            const categories = Array.from(categoryTotals.entries())
-              .filter(([_, total]) => total > 0)
-              .map(([name, total]) => ({
-                name,
-                tickets: total,
-                color: '#FF6384' // Use a consistent color for transfers
-              }));
+            const categories = [];
+            
+            // Add entries from transactions
+            for (const [name, amount] of categoryTotals.entries()) {
+              if (amount > 0) {
+                categories.push({
+                  name,
+                  amount: Number(amount),
+                  count: categoryTransactions.get(name) || 0,
+                  color: CATEGORY_COLORS[name] || colors[name] || '#642684'
+                });
+              }
+            }
+            
+            // If we have multiple transaction types, add them
+            if (categories.length === 0) {
+              // Fallback - add a dummy category if nothing else
+              categories.push({
+                name: 'Sin movimientos',
+                amount: 100,
+                count: 0,
+                color: '#CCCCCC'
+              });
+            }
             
             console.log('Setting categories with real data:', categories);
             setTicketCategories(categories);
@@ -124,7 +152,11 @@ export default function Tickets() {
         <Text style={styles.headerText}> Tus tickets</Text>
       </View>
 
-      <ScrollView style={styles.container}>
+      <ScrollView 
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContentContainer}
+        showsVerticalScrollIndicator={true}
+      >
         <View style={styles.ticketWrapper}>
           <MovCard
             tickets={Number(ticketsData) || 0}
@@ -135,15 +167,24 @@ export default function Tickets() {
         </View>
 
         <View style={styles.categoriesSection}>
-          <Text style={styles.trans}>Categorías de Tickets</Text>
-          <Text style={styles.monthlyUsage}>Total de tickets usados este mes: {ticketsMonth}</Text>
-          {ticketCategories.length > 0 && <PieChart categories={ticketCategories} />}
+          <PieChartCard 
+            categories={ticketCategories.map(cat => ({
+              ...cat,
+              // Normalize the amounts to match ticketsMonth total if needed
+              amount: ticketsMonth > 0 ? Math.round(cat.amount) : cat.amount
+            }))} 
+            title="Distribución de Tickets"
+            subtitle={`Total de tickets usados este mes: ${ticketsMonth}`} 
+          />
         </View>
         
         {/* Transfer History */}
         <View style={styles.transferListContainer}>
           <TransferList movimientos={movements} />
         </View>
+        
+        {/* Extra padding to ensure scrolling works */}
+        <View style={styles.bottomPadding} />
       </ScrollView>
       <StatusBar style="light" />
     </SafeAreaView>
@@ -151,6 +192,19 @@ export default function Tickets() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContentContainer: {
+    paddingBottom: 50,
+  },
+  bottomPadding: {
+    height: 80,
+  },
   header: {
     marginTop: 30,
     marginLeft: 20,
@@ -169,20 +223,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#151C2A',
   },
-  trans: {
-    fontSize: 21,
-    fontWeight: '500',
-    paddingLeft: 16,
-    color: '#151C2A',
-    marginVertical: 15,
-  },
-  monthlyUsage: {
-    fontSize: 16,
-    fontWeight: '500',
-    paddingLeft: 16,
-    color: '#642684',
-    marginBottom: 10,
-  },
+
   ticketWrapper: {
     marginVertical: 10,
   },

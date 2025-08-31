@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
 
 const TransferList = ({ movimientos = [], showAll = false }) => {
   const navigation = useNavigation();
-  const displayedMovimientos = showAll ? movimientos : movimientos.slice(0, 5);
-  
+  const displayedMovimientos = showAll ? movimientos : movimientos.slice(0, 4);
+
   const formatDate = (dateString) => {
     try {
       if (!dateString) return '';
@@ -21,7 +21,7 @@ const TransferList = ({ movimientos = [], showAll = false }) => {
       } else if (date.toDateString() === yesterday.toDateString()) {
         return 'Ayer';
       }
-      
+
       return date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'short',
@@ -35,7 +35,7 @@ const TransferList = ({ movimientos = [], showAll = false }) => {
 
   const renderTransfer = ({ item }) => {
     if (!item) return null;
-    
+
     const isReceived = item.monto > 0;
     const amount = isReceived ? `+${Math.abs(item.monto)}` : `-${Math.abs(item.monto)}`;
     const amountColor = isReceived ? '#4CAF50' : '#FF5252';
@@ -65,33 +65,56 @@ const TransferList = ({ movimientos = [], showAll = false }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, !showAll && { maxHeight: 'auto' }]}>
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Historial de Transferencias</Text>
+        <Text style={styles.title}>{showAll ? 'Todas las Transferencias' : 'Últimas Transferencias'}</Text>
         <View style={styles.headerLine} />
       </View>
-      <FlatList
-        data={displayedMovimientos}
-        renderItem={renderTransfer}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No hay transferencias registradas</Text>
-            <Text style={styles.emptySubText}>Tus transferencias aparecerán aquí</Text>
-          </View>
-        )}
-        ListFooterComponent={() => !showAll && movimientos.length > 5 ? (
-          <TouchableOpacity 
-            style={styles.viewMoreButton}
-            onPress={() => navigation.navigate('AllTransfers', { movimientos })}
-          >
-            <Text style={styles.viewMoreText}>Ver todas las transferencias</Text>
-          </TouchableOpacity>
-        ) : null}
-      />
+
+      {showAll ? (
+        // Use FlatList in full screen mode
+        <FlatList
+          data={displayedMovimientos}
+          renderItem={renderTransfer}
+          keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No hay transferencias registradas</Text>
+              <Text style={styles.emptySubText}>Tus transferencias aparecerán aquí</Text>
+            </View>
+          )}
+        />
+      ) : (
+        // Use direct rendering in scrollable parent mode
+        <View style={styles.staticListContent}>
+          {displayedMovimientos.length > 0 ? (
+            displayedMovimientos.map((item, index) => (
+              <React.Fragment key={item.id?.toString() || index.toString()}>
+                {index > 0 && <View style={styles.separator} />}
+                {renderTransfer({ item })}
+              </React.Fragment>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No hay transferencias registradas</Text>
+              <Text style={styles.emptySubText}>Tus transferencias aparecerán aquí</Text>
+            </View>
+          )}
+
+          {/* Always show the button to ensure it's visible */}
+          {movimientos.length > 0 && (
+            <TouchableOpacity
+              style={styles.viewMoreButton}
+              onPress={() => navigation.navigate('AllTransfers', { movimientos })}
+            >
+              <Text style={styles.viewMoreText}>Ver todas las transferencias</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -120,6 +143,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   listContent: {
+    paddingVertical: 8,
+  },
+  staticListContent: {
     paddingVertical: 8,
   },
   transferItem: {
@@ -215,17 +241,26 @@ const styles = StyleSheet.create({
   },
   viewMoreButton: {
     backgroundColor: '#642684',
-    padding: 12,
-    borderRadius: 12,
-    marginTop: 16,
-    marginHorizontal: 16,
+    padding: 14,
+    borderRadius: 16,
+    marginTop: 24,
+    marginBottom: 20,
+    marginHorizontal: 8,
     alignItems: 'center',
+    shadowColor: '#642684',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 5,
   },
   viewMoreText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
 });
 

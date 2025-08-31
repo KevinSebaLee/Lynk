@@ -26,17 +26,20 @@ export default function AllTransfers({ route, navigation }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F9FF',
   },
   container: {
     flex: 1,
+    paddingTop: 10,
+    backgroundColor: '#F8F9FF',
   },
   header: {
     marginTop: 30,
     marginLeft: 20,
     flexDirection: 'row',
     marginBottom: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F9FF',
+    alignItems: 'center',
   },
   arrow: {
     resizeMode: 'contain',
@@ -44,6 +47,7 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
     marginRight: 10,
+    tintColor: '#151C2A',
   },
   headerText: {
     fontSize: 21,
