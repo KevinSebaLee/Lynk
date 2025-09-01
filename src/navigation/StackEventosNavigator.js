@@ -5,6 +5,15 @@ import EventoElegido from '../screens/eventoElegido'; // This should be your det
 const Stack = createNativeStackNavigator();
 
 export default function StackEventosNavigator() {
+  const { esEmpresa, authInitialized } = useAuth();
+
+  if (!authInitialized) {
+    return <LoadingSpinner />;
+  }
+
+  console.log('StackEventosNavigator - esEmpresa:', esEmpresa); // Debug log
+
+
   return (
     <Stack.Navigator initialRouteName="eventos" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="eventos" component={Eventos} />
