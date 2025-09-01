@@ -10,6 +10,7 @@ import StackCreateNavigator from './screens/create';
 import StackGestionNavigator from './screens/gestion';
 import StackAgendaNavigator from './screens/agenda';
 import CreateEventModal from './components/eventCreate.js';
+import { LoadingSpinner } from './components/common';
 
 function ocultarTab(route) {
   const screen = getFocusedRouteNameFromRoute(route) ?? 'inicioScreen';
@@ -22,7 +23,7 @@ function ocultarTab(route) {
 const Tab = createBottomTabNavigator();
 
 export default function MyTabs() {
-  const { isAuthenticated, userDataCache } = useAuth();
+  const { isAuthenticated, userDataCache, authInitialized } = useAuth();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [tickets, setTickets] = useState(0);
 
@@ -35,6 +36,11 @@ export default function MyTabs() {
   const handleCloseModal = useCallback(() => {
     setShowCreateModal(false);
   }, []);
+
+  // Wait for auth to be initialized to prevent flash of wrong content
+  if (!authInitialized) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>
@@ -111,11 +117,13 @@ export default function MyTabs() {
         )}
       </Tab.Navigator>
 
-      <CreateEventModal
-        visible={showCreateModal}
-        onClose={handleCloseModal}
-        tickets={tickets || 0}
-      />
+      {isAuthenticated && (
+        <CreateEventModal
+          visible={showCreateModal}
+          onClose={handleCloseModal}
+          tickets={tickets || 0}
+        />
+      )}
     </>
   );
 }
