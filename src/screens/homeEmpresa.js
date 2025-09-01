@@ -102,22 +102,21 @@ export default function Home() {
   // Safely access array
   const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
 
-  if (loading && !userData) {
-    return <LoadingSpinner />;
-  }
+  const isLoading = loading && !userData;
 
   return (
     <View style={styles.container}>
-      {/* Fixed gradient background */}
-
-
-      {/* Scrollable content */}
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar style="light" />
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner />
+        </View>
+      ) : (
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar style="light" />
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
                 <LinearGradient
         colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
         style={StyleSheet.absoluteFill}
@@ -179,6 +178,7 @@ export default function Home() {
           )}
         </ScrollView>
       </SafeAreaView>
+      )}
     </View>
   );
 }
@@ -227,5 +227,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     width: width * 0.9,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

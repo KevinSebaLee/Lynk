@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { View, StyleSheet } from 'react-native';
 import { useAuth } from './context/AuthContext';
 import StackInicioNavigator from './navigation/StackInicioNavigator.js';
 import StackHomeNavigator from './navigation/StackHomeNavigator.js';
@@ -37,11 +38,17 @@ export default function MyTabs() {
     setShowCreateModal(false);
   }, []);
 
-  // Wait for auth to be initialized to prevent flash of wrong content
-  if (!authInitialized) {
-    return <LoadingSpinner />;
-  }
+  // Store auth initialized state to handle conditionally in the return
+  const isInitialized = authInitialized;
 
+  if (!isInitialized) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LoadingSpinner />
+      </View>
+    );
+  }
+  
   return (
     <>
       <Tab.Navigator
@@ -127,3 +134,11 @@ export default function MyTabs() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/home';
@@ -16,16 +16,18 @@ const Stack = createNativeStackNavigator();
 
 export default function StackHomeNavigator() {
   const { esEmpresa, authInitialized } = useAuth();
-
-  const navigatorKey = `home-stack-${authInitialized ? (esEmpresa ? 'empresa' : 'personal') : 'initial'}`;
+  
+  // Use useMemo to determine the initial route based on authentication state
+  const initialRoute = useMemo(() => {
+    return authInitialized && esEmpresa ? 'homeEmpresa' : 'home';
+  }, [authInitialized, esEmpresa]);
 
   console.log('[StackHomeNavigator] authInitialized:', authInitialized, 'esEmpresa:', esEmpresa);
 
   return (
     <View style={styles.root}>
       <Stack.Navigator
-        key={navigatorKey}
-        initialRouteName={authInitialized ? (esEmpresa ? 'homeEmpresa' : 'home') : 'home'}
+        initialRouteName={initialRoute}
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name='home' component={Home} />

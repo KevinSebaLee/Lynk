@@ -119,10 +119,8 @@ export default function Home() {
     await logout();
   }, [logout]);
 
-  // Show loading spinner when initializing
-  if (loading && !userData) {
-    return <LoadingSpinner />;
-  }
+  // Store loading state to display spinner conditionally in the return
+  const isLoading = loading && !userData;
 
   /**
    * Validate and normalize image URI from different formats
@@ -148,16 +146,17 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      {/* Fixed gradient background */}
-
-
-      {/* Scrollable content */}
-      <SafeAreaView style={styles.safeArea}>
-        <StatusBar style="light" />
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner />
+        </View>
+      ) : (
+        <SafeAreaView style={styles.safeArea}>
+          <StatusBar style="light" />
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
           <LinearGradient
             colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
             style={StyleSheet.absoluteFill}
@@ -236,6 +235,7 @@ export default function Home() {
           )}
         </ScrollView>
       </SafeAreaView>
+      )}
     </View>
   );
 }
@@ -284,5 +284,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     width: width * 0.9,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
