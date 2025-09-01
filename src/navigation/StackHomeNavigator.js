@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/home';
 import Tickets from '../screens/tickets';
@@ -16,26 +17,48 @@ const Stack = createNativeStackNavigator();
 export default function StackHomeNavigator() {
   const { esEmpresa, authInitialized } = useAuth();
 
-  if (!authInitialized) {
-    return <LoadingSpinner />;
-  }
+  const navigatorKey = `home-stack-${authInitialized ? (esEmpresa ? 'empresa' : 'personal') : 'initial'}`;
 
-  console.log('StackHomeNavigator - esEmpresa:', esEmpresa); // Debug log
+  console.log('[StackHomeNavigator] authInitialized:', authInitialized, 'esEmpresa:', esEmpresa);
 
   return (
-    <Stack.Navigator
-      initialRouteName={esEmpresa ? "homeEmpresa" : "home"}
-      screenOptions={{ headerShown: false }}
-      key={`navigation-${esEmpresa ? "empresa" : "personal"}`}
-    >
-      <Stack.Screen name="home" component={Home} />
-      <Stack.Screen name="tickets" component={Tickets} />
-      <Stack.Screen name="premiumGeneral" component={PremiumGeneral} />
-      <Stack.Screen name="Transferir" component={Transferir} /> 
-      <Stack.Screen name="TransferirMonto" component={TransferirMonto} options={{ title: 'Transferir Monto' }} />
-      <Stack.Screen name="homeEmpresa" component={HomeEmpresa} /> 
-      <Stack.Screen name="Cupones" component={Cupones} />
-      <Stack.Screen name="AllTransfers" component={AllTransfers} />
-    </Stack.Navigator>
+    <View style={styles.root}>
+      <Stack.Navigator
+        key={navigatorKey}
+        initialRouteName={authInitialized ? (esEmpresa ? 'homeEmpresa' : 'home') : 'home'}
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name='home' component={Home} />
+        <Stack.Screen name='tickets' component={Tickets} />
+        <Stack.Screen name='premiumGeneral' component={PremiumGeneral} />
+        <Stack.Screen name='Transferir' component={Transferir} />
+        <Stack.Screen
+          name='TransferirMonto'
+          component={TransferirMonto}
+          options={{ title: 'Transferir Monto' }}
+        />
+        <Stack.Screen name='homeEmpresa' component={HomeEmpresa} />
+        <Stack.Screen name='Cupones' component={Cupones} />
+        <Stack.Screen name='AllTransfers' component={AllTransfers} />
+      </Stack.Navigator>
+
+      {!authInitialized && (
+        <View style={styles.loadingOverlay} pointerEvents='auto'>
+          <LoadingSpinner />
+        </View>
+      )}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
