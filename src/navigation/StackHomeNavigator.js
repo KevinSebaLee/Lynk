@@ -7,7 +7,7 @@ import Transferir from '../screens/Transferir';
 import TransferirMonto from '../screens/TransferirMonto'; 
 import HomeEmpresa from '../screens/homeEmpresa';
 import Cupones from '../screens/cupones';
-import EventoElegidoEmpresa from '../screens/eventoElegidoEmpresa'
+import AllTransfers from '../screens/allTransfers';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common';
 
@@ -35,8 +35,7 @@ export default function StackHomeNavigator() {
       <Stack.Screen name="TransferirMonto" component={TransferirMonto} options={{ title: 'Transferir Monto' }} />
       <Stack.Screen name="homeEmpresa" component={HomeEmpresa} /> 
       <Stack.Screen name="Cupones" component={Cupones} />
-      <Stack.Screen name="eventoElegidoEmpresa" component={EventoElegidoEmpresa} /> 
-
+      <Stack.Screen name="AllTransfers" component={AllTransfers} />
     </Stack.Navigator>
   );
 }

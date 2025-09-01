@@ -1,31 +1,47 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
 
+// Pre-calculate dimensions for better performance
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
-const TicketCard = ({ tickets, onGetMore, style }) => (
+/**
+ * TicketCard component displays available tickets and provides an action to get more
+ * 
+ * @param {Object} props - Component props
+ * @param {number} props.tickets - Number of available tickets
+ * @param {Function} props.onGetMore - Callback function when "Get more tickets" is pressed
+ * @param {Object} props.style - Additional styles for the card container
+ * @returns {React.ReactElement} Rendered component
+ */
+const TicketCard = memo(({ tickets, onGetMore, style }) => (
   <LinearGradient
     colors={['#735BF2', '#642684']}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={[styles.card, style]}
   >
-    {/* QR Icon arriba a la derecha */}
+    {/* QR Icon in the top right corner */}
     <View style={styles.qrIcon}>
       <Ionicons name="qr-code-outline" size={40} color="#F5F5F5" />
     </View>
-    {/* Subtítulo */}
+    {/* Subtitle */}
     <Text style={styles.subtitle}>Tickets disponibles</Text>
-    {/* Número principal con ícono */}
+    {/* Main number with icon */}
     <View style={styles.ticketsRow}>
       <FontAwesome5 name="ticket-alt" size={28} color="#fff" style={{marginRight: 8}} />
       <Text style={styles.ticketsNumber}>{tickets}</Text>
     </View>
-    {/* Botón con gradiente y estilo nuevo */}
-    <TouchableOpacity style={styles.buttonWrapper} activeOpacity={0.90} onPress={onGetMore}>
+    {/* Gradient button with new style */}
+    <TouchableOpacity 
+      style={styles.buttonWrapper} 
+      activeOpacity={0.90} 
+      onPress={onGetMore}
+      accessibilityLabel="Consigue más tickets"
+      accessibilityRole="button"
+    >
       <LinearGradient
         colors={['#A990F9', '#735BF2']}
         start={{ x: 0, y: 0 }}
@@ -37,7 +53,7 @@ const TicketCard = ({ tickets, onGetMore, style }) => (
       </LinearGradient>
     </TouchableOpacity>
   </LinearGradient>
-);
+));
 
 const styles = StyleSheet.create({
   card: {
