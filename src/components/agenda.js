@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import Header from './header.js';
 import { useApi } from "../hooks/useApi";
@@ -6,8 +6,10 @@ import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 
+// Pre-calculate dimensions for better performance
 const { width } = Dimensions.get('window');
 
+// Constants for localization
 const MONTHS_ES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
@@ -15,40 +17,71 @@ const MONTHS_ES = [
 
 const WEEKDAYS_ES = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
+/**
+ * Get the number of days in a specific month
+ * 
+ * @param {number} year - The year
+ * @param {number} month - The month (0-11)
+ * @returns {number} Number of days in the month
+ */
 function getDaysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
 }
 
+/**
+ * Get the first day of the week for a month (0=Monday, 6=Sunday)
+ * 
+ * @param {number} year - The year
+ * @param {number} month - The month (0-11)
+ * @returns {number} The first day of the week (0-6)
+ */
 function getFirstDayOfWeek(year, month) {
   let d = new Date(year, month, 1).getDay();
   return d === 0 ? 6 : d - 1;
 }
 
+/**
+ * Agenda component displays a calendar with events
+ * 
+ * @returns {React.ReactElement} Rendered component
+ */
 export default function Agenda() {
+  // Initialize with current date
   const now = new Date();
   const initialYear = now.getFullYear();
   const initialMonth = now.getMonth();
   const initialDay = now.getDate();
 
+  // State management
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const [selectedDay, setSelectedDay] = useState(initialDay);
   const [events, setEvents] = useState([]);
   const navigation = useNavigation();
 
-  const numDays = getDaysInMonth(year, month);
-  const firstDayOfWeek = getFirstDayOfWeek(year, month);
-
+  // API hook for loading events
   const { execute: loadEvents } = useApi(ApiService.getEventosAgendados);
 
-  // Filtra los eventos para un día concreto
-  function getEventsForDay(year, month, day) {
+  // Memoized calendar calculations
+  const numDays = useMemo(() => getDaysInMonth(year, month), [year, month]);
+  const firstDayOfWeek = useMemo(() => getFirstDayOfWeek(year, month), [year, month]);
+
+  /**
+   * Filter events for a specific day
+   * 
+   * @param {number} year - The year
+   * @param {number} month - The month (0-11)
+   * @param {number} day - The day of the month
+   * @returns {Array} Filtered events
+   */
+  const getEventsForDay = useCallback((year, month, day) => {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return events.filter(e => e.fecha.split("T")[0] === dateStr);
-  }
+  }, [events]);
 
+  // Load events when screen gains focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       let isActive = true;
 
       const getEventosAgendados = async () => {
@@ -69,111 +102,186 @@ export default function Agenda() {
     }, [loadEvents])
   );
 
-  // Navegación de meses
-  const goToPrevMonth = () => {
-    if (month === 0) {
-      setMonth(11); setYear(year - 1);
-    } else {
-      setMonth(month - 1);
-    }
+  // Month navigation handlers
+  const goToPrevMonth = useCallback(() => {
+    setYear(prevYear => {
+      setMonth(prevMonth => {
+        if (prevMonth === 0) {
+          return 11;
+        } else {
+          return prevMonth - 1;
+        }
+      });
+      return prevMonth => prevMonth === 0 ? prevYear - 1 : prevYear;
+    });
     setSelectedDay(1);
-  };
-  const goToNextMonth = () => {
-    if (month === 11) {
-      setMonth(0); setYear(year + 1);
-    } else {
-      setMonth(month + 1);
-    }
+  }, []);
+
+  const goToNextMonth = useCallback(() => {
+    setYear(prevYear => {
+      setMonth(prevMonth => {
+        if (prevMonth === 11) {
+          return 0;
+        } else {
+          return prevMonth + 1;
+        }
+      });
+      return prevMonth => prevMonth === 11 ? prevYear + 1 : prevYear;
+    });
     setSelectedDay(1);
-  };
+  }, []);
 
-  let daysArray = [];
-  let prevMonthDays = [];
-  if (firstDayOfWeek > 0) {
-    let prevMonth = month === 0 ? 11 : month - 1;
-    let prevMonthYear = month === 0 ? year - 1 : year;
-    let prevMonthNumDays = getDaysInMonth(prevMonthYear, prevMonth);
-    for (let i = prevMonthNumDays - firstDayOfWeek + 1; i <= prevMonthNumDays; i++) {
-      prevMonthDays.push({ day: i, isOtherMonth: true });
+  // Calculate calendar days (memoized to prevent unnecessary recalculations)
+  const fullCalendar = useMemo(() => {
+    let daysArray = [];
+    let prevMonthDays = [];
+    
+    // Calculate previous month days to show
+    if (firstDayOfWeek > 0) {
+      let prevMonth = month === 0 ? 11 : month - 1;
+      let prevMonthYear = month === 0 ? year - 1 : year;
+      let prevMonthNumDays = getDaysInMonth(prevMonthYear, prevMonth);
+      for (let i = prevMonthNumDays - firstDayOfWeek + 1; i <= prevMonthNumDays; i++) {
+        prevMonthDays.push({ day: i, isOtherMonth: true });
+      }
     }
-  }
 
-  for (let i = 1; i <= numDays; i++) {
-    daysArray.push({ day: i, isOtherMonth: false });
-  }
-
-  let totalCells = prevMonthDays.length + daysArray.length;
-  let nextMonthDays = [];
-  if (totalCells % 7 !== 0) {
-    let needed = 7 - (totalCells % 7);
-    for (let i = 1; i <= needed; i++) {
-      nextMonthDays.push({ day: i, isOtherMonth: true });
+    // Current month days
+    for (let i = 1; i <= numDays; i++) {
+      daysArray.push({ day: i, isOtherMonth: false });
     }
-  }
-  const fullCalendar = [...prevMonthDays, ...daysArray, ...nextMonthDays];
 
-  // Eventos del día seleccionado
-  const selectedDayEvents = getEventsForDay(year, month, selectedDay);
+    // Next month days to fill the calendar grid
+    let totalCells = prevMonthDays.length + daysArray.length;
+    let nextMonthDays = [];
+    if (totalCells % 7 !== 0) {
+      let needed = 7 - (totalCells % 7);
+      for (let i = 1; i <= needed; i++) {
+        nextMonthDays.push({ day: i, isOtherMonth: true });
+      }
+    }
+
+    return [...prevMonthDays, ...daysArray, ...nextMonthDays];
+  }, [firstDayOfWeek, month, numDays, year]);
+
+  // Memoized selected day events to prevent recalculation on each render
+  const selectedDayEvents = useMemo(() => 
+    getEventsForDay(year, month, selectedDay),
+    [getEventsForDay, year, month, selectedDay]
+  );
+
+  // Memoized calendar header
+  const renderCalendarHeader = useMemo(() => (
+    <View style={styles.headerRow}>
+      <TouchableOpacity 
+        onPress={goToPrevMonth} 
+        style={styles.chevronBtn}
+        accessibilityLabel="Previous month"
+        accessibilityRole="button"
+      >
+        <Text style={styles.chevron}>{'<'}</Text>
+      </TouchableOpacity>
+      <View>
+        <Text style={styles.monthText}>{MONTHS_ES[month]}</Text>
+        <Text style={styles.yearText}>{year}</Text>
+      </View>
+      <TouchableOpacity 
+        onPress={goToNextMonth} 
+        style={styles.chevronBtn}
+        accessibilityLabel="Next month"
+        accessibilityRole="button"
+      >
+        <Text style={styles.chevron}>{'>'}</Text>
+      </TouchableOpacity>
+    </View>
+  ), [month, year, goToPrevMonth, goToNextMonth]);
+
+  // Memoized weekday headers
+  const renderWeekdays = useMemo(() => (
+    <View style={styles.weekdaysRow}>
+      {WEEKDAYS_ES.map((w, idx) => (
+        <Text key={w + idx} style={styles.weekdayText}>{w}</Text>
+      ))}
+    </View>
+  ), []);
+
+  // Day selection handler
+  const handleDaySelect = useCallback((day) => {
+    setSelectedDay(day);
+  }, []);
+
+  // Memoized event day indicator
+  const DayCell = useCallback(({ item, idx }) => {
+    const isSelected = !item.isOtherMonth && item.day === selectedDay;
+    const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
+
+    return (
+      <TouchableOpacity
+        key={idx}
+        style={[
+          styles.dayCell,
+          item.isOtherMonth && styles.dayCellOtherMonth,
+          isSelected && styles.dayCellSelected
+        ]}
+        disabled={item.isOtherMonth}
+        onPress={() => handleDaySelect(item.day)}
+        activeOpacity={0.8}
+        accessibilityLabel={`${item.day} de ${MONTHS_ES[month]} de ${year}`}
+        accessibilityRole="button"
+      >
+        <Text style={[
+          styles.dayText,
+          item.isOtherMonth ? styles.dayTextOtherMonth : null,
+          isSelected ? styles.dayTextSelected : null
+        ]}>
+          {item.day}
+        </Text>
+        <View style={styles.dotsRow}>
+          {dayEvents.map((ev, j) => (
+            <View 
+              key={j} 
+              style={[styles.dot, { backgroundColor: '#642684' }]} 
+              accessibilityLabel="Evento"
+            />
+          ))}
+        </View>
+      </TouchableOpacity>
+    );
+  }, [selectedDay, getEventsForDay, year, month, handleDaySelect]);
+
   return (
     <View style={styles.container}>
       <View style={styles.calendarContainer}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={goToPrevMonth} style={styles.chevronBtn}>
-            <Text style={styles.chevron}>{'<'}</Text>
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.monthText}>{MONTHS_ES[month]}</Text>
-            <Text style={styles.yearText}>{year}</Text>
-          </View>
-          <TouchableOpacity onPress={goToNextMonth} style={styles.chevronBtn}>
-            <Text style={styles.chevron}>{'>'}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.weekdaysRow}>
-          {WEEKDAYS_ES.map((w, idx) => (
-            <Text key={w + idx} style={styles.weekdayText}>{w}</Text>
+        {/* Calendar header with month/year and navigation */}
+        {renderCalendarHeader}
+        
+        {/* Weekdays header row */}
+        {renderWeekdays}
+        
+        {/* Calendar days grid */}
+        <View style={styles.daysGrid}>
+          {fullCalendar.map((item, idx) => (
+            <DayCell key={idx} item={item} idx={idx} />
           ))}
         </View>
-        <View style={styles.daysGrid}>
-          {fullCalendar.map((item, idx) => {
-            const isSelected = !item.isOtherMonth && item.day === selectedDay;
-            const dayEvents = !item.isOtherMonth ? getEventsForDay(year, month, item.day) : [];
-
-            return (
-              <TouchableOpacity
-                key={idx}
-                style={[
-                  styles.dayCell,
-                  item.isOtherMonth && styles.dayCellOtherMonth,
-                  isSelected && styles.dayCellSelected
-                ]}
-                disabled={item.isOtherMonth}
-                onPress={() => setSelectedDay(item.day)}
-                activeOpacity={0.8}
-              >
-                <Text style={[
-                  styles.dayText,
-                  item.isOtherMonth ? styles.dayTextOtherMonth : null,
-                  isSelected ? styles.dayTextSelected : null
-                ]}>
-                  {item.day}
-                </Text>
-                <View style={styles.dotsRow}>
-                  {dayEvents.map((ev, j) => (
-                    <View key={j} style={[styles.dot, { backgroundColor: '#642684' }]} />
-                  ))}
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-        <ScrollView style={styles.eventList}>
+        
+        {/* Events list for selected day */}
+        <ScrollView 
+          style={styles.eventList}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 10 }}
+        >
           {selectedDayEvents.length > 0 ? (
             selectedDayEvents.map((ev, idx) => (
-              <View key={idx} style={styles.eventCard}>
-                <Text style={{ fontWeight: 'bold', color: '#642684' }}>{ev.nombre}</Text>
-                <Text>{ev.descripcion}</Text>
-                <Text>Ubicación: {ev.ubicacion}</Text>
+              <View 
+                key={idx} 
+                style={styles.eventCard}
+                accessibilityLabel={`Evento: ${ev.nombre}`}
+                accessibilityRole="summary"
+              >
+                <Text style={styles.eventTitle}>{ev.nombre}</Text>
+                <Text style={styles.eventDescription}>{ev.descripcion}</Text>
+                <Text style={styles.eventLocation}>Ubicación: {ev.ubicacion}</Text>
               </View>
             ))
           ) : (
@@ -185,10 +293,15 @@ export default function Agenda() {
   );
 }
 
+// Pre-calculate cell size for the calendar grid
 const CELL_SIZE = Math.floor((width - 32) / 7);
 
+// Use StyleSheet for better performance
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { 
+    flex: 1, 
+    backgroundColor: '#fff' 
+  },
   calendarContainer: {
     margin: 4,
     marginLeft: 10,
@@ -196,8 +309,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 0,
-
-    flex: 1
+    flex: 1,
+    shadowColor: '#642684',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -209,6 +326,9 @@ const styles = StyleSheet.create({
   },
   chevronBtn: {
     padding: 8,
+    minWidth: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   chevron: {
     fontSize: 25,
@@ -296,10 +416,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f7fa',
     borderRadius: 10,
     marginVertical: 4,
-    padding: 8,
+    padding: 10,
     shadowColor: '#642684',
     shadowOpacity: 0.04,
     shadowRadius: 8,
+    elevation: 1,
+  },
+  eventTitle: {
+    fontWeight: 'bold', 
+    color: '#642684',
+    fontSize: 15,
+    marginBottom: 2,
+  },
+  eventDescription: {
+    color: '#333',
+    marginBottom: 2,
+  },
+  eventLocation: {
+    color: '#555',
+    fontSize: 13,
   },
   noEventsText: {
     color: '#888',

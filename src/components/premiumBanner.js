@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+// Import image statically for better performance and caching
 const illustration = require('../../assets/img/banner.png');
 
+// Pre-calculate dimensions for responsive layout
 const { width } = Dimensions.get('window');
 const BANNER_PADDING = width * 0.05;
 const BANNER_MARGIN = width * 0.028;
@@ -12,7 +15,12 @@ const SUBTITLE_FONT_SIZE = Math.max(12, width * 0.03);
 const ILLUSTRATION_HEIGHT = Math.max(80, width * 0.25);
 const ILLUSTRATION_MAX_WIDTH = Math.max(90, width * 0.30);
 
-const PremiumBanner = () => (
+/**
+ * PremiumBanner component displays a promotional banner for premium plan
+ * 
+ * @returns {React.ReactElement} Rendered component
+ */
+const PremiumBanner = memo(() => (
   <LinearGradient
     colors={['#642684', '#411956']}
     start={{ x: 0, y: 0 }}
@@ -30,9 +38,11 @@ const PremiumBanner = () => (
       resizeMode="contain"
       accessible
       accessibilityLabel="Ilustración de gráficos y herramientas"
+      // Adding priority loading for better UX
+      fadeDuration={0}
     />
   </LinearGradient>
-);
+));
 
 const styles = StyleSheet.create({
   banner: {

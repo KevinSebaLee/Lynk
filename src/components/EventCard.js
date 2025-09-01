@@ -1,55 +1,90 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useMemo, memo } from 'react';
 import {
   View,
   Text,
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Alert
+  Dimensions
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-const EventCard = ({ 
+/**
+ * EventCard - Displays an event with image, date, and details
+ * 
+ * @param {string} imageUri - URI for the event image
+ * @param {string} eventName - Name of the event
+ * @param {string|Date} eventFullDate - Full date of the event
+ * @param {string} venue - Event venue/location
+ * @param {string} priceRange - Price range for the event
+ * @param {string} eventTime - Time of the event
+ * @param {function} onPress - Function to call when card is pressed
+ */
+const EventCard = memo(({ 
   imageUri, 
   eventName, 
   eventFullDate, 
   venue, 
   priceRange, 
-  eventTime 
+  eventTime,
+  onPress
 }) => {
-  // Process date information
-  const dateObj = eventFullDate ? new Date(eventFullDate) : new Date();
-  const day = dateObj.getDate();
-  const monthShort = new Intl.DateTimeFormat('en-AR', { month: 'short' })
-    .format(dateObj)
-    .charAt(0)
-    .toUpperCase() + 
-    new Intl.DateTimeFormat('en-AR', { month: 'short' })
-    .format(dateObj)
-    .slice(1);
+  // Process and format date information with memoization to prevent recalculation
+  const dateInfo = useMemo(() => {
+    const dateObj = eventFullDate ? new Date(eventFullDate) : new Date();
+    
+    // Get day number (1-31)
+    const day = dateObj.getDate();
+    
+    // Format month name with first letter capitalized
+    const formatter = new Intl.DateTimeFormat('es-ES', { month: 'short' });
+    const monthStr = formatter.format(dateObj);
+    const monthShort = monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
+    
+    return { day, monthShort };
+  }, [eventFullDate]);
+
+  // Default handler if no onPress is provided
+  const handlePress = onPress || (() => {});
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => Alert.alert('Evento', eventName)}>
+    <TouchableOpacity 
+      style={styles.container} 
+      onPress={handlePress}
+      activeOpacity={0.7}
+    >
       <ImageBackground
         source={{ uri: imageUri || 'https://via.placeholder.com/400x220' }}
         style={[styles.image, styles.imageRadius]}
+        // Add performance optimizations for image loading
+        fadeDuration={300}
       >
+        {/* Date display box */}
         <View style={styles.dateBox}>
-          <Text style={styles.dateDay}>{day}</Text>
-          <Text style={styles.dateMonth}>{monthShort}</Text>
+          <Text style={styles.dateDay}>{dateInfo.day}</Text>
+          <Text style={styles.dateMonth}>{dateInfo.monthShort}</Text>
         </View>
+        
+        {/* Event details overlay */}
         <View style={styles.detailsOverlay}>
-          <Text style={styles.eventName}>{eventName}</Text>
-          <Text style={styles.eventInfo}>{venue}</Text>
-          <Text style={styles.eventInfo}>{eventTime}</Text>
-          {priceRange && <Text style={styles.price}>{priceRange}</Text>}
+          <Text style={styles.eventName} numberOfLines={1} ellipsizeMode="tail">
+            {eventName}
+          </Text>
+          <Text style={styles.eventInfo} numberOfLines={1} ellipsizeMode="tail">
+            {venue}
+          </Text>
+          {eventTime && (
+            <Text style={styles.eventInfo}>{eventTime}</Text>
+          )}
+          {priceRange && (
+            <Text style={styles.price}>{priceRange}</Text>
+          )}
         </View>
       </ImageBackground>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

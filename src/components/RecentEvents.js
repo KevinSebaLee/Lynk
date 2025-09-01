@@ -1,22 +1,31 @@
-import React from 'react';
-import { View, Text, ImageBackground, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { memo } from 'react';
+import { View, Text, ImageBackground, StyleSheet } from 'react-native';
 
-
-const RecentEvents = ({ imageUri, eventName, venue }) => (
+/**
+ * RecentEvents component displays a card with an event image, name, and venue
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.imageUri - URI of the event image
+ * @param {string} props.eventName - Name of the event
+ * @param {string} props.venue - Venue where the event takes place
+ * @returns {React.ReactElement} Rendered component
+ */
+const RecentEvents = memo(({ imageUri, eventName, venue }) => (
   <View style={styles.card}>
-   
-          <ImageBackground
-            source={{ uri: imageUri }}
-            style={styles.image}
-            imageStyle={styles.imageRadius}
-          >
-            <View style={styles.infoOverlay}>
-              <Text style={styles.title}>{eventName}</Text>
-              <Text style={styles.venue}>{venue}</Text>
-            </View>
-          </ImageBackground>
+    <ImageBackground
+      source={{ uri: imageUri }}
+      style={styles.image}
+      imageStyle={styles.imageRadius}
+      // Adding resizeMode to improve image loading performance
+      resizeMode="cover"
+    >
+      <View style={styles.infoOverlay}>
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{eventName}</Text>
+        <Text style={styles.venue} numberOfLines={1} ellipsizeMode="tail">{venue}</Text>
+      </View>
+    </ImageBackground>
   </View>
-);
+));
 
 
 const styles = StyleSheet.create({

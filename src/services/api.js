@@ -11,15 +11,24 @@ const apiClient = axios.create({
 
 let globalAuthErrorHandler = null;
 
+/**
+ * Set the global authentication error handler
+ * 
+ * @param {Function} handler - Function to call when auth errors occur
+ */
 export const setAuthErrorHandler = (handler) => {
   globalAuthErrorHandler = handler;
 };
 
 apiClient.interceptors.request.use(
   async (config) => {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const token = await getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Error setting auth token:', error);
     }
     return config;
   },
@@ -43,10 +52,8 @@ apiClient.interceptors.response.use(
 );
 
 /**
- * Helper function to generate mock monthly data for testing
- */
-/**
  * Process transaction data into monthly ticket usage
+ * 
  * @param {Array} transactions - Array of transaction objects
  * @returns {Array} - Monthly data formatted for the chart
  */
@@ -58,61 +65,65 @@ const processTransactionsToMonthlyData = (transactions) => {
   const monthlyMap = new Map();
   const currentDate = new Date();
   
-  // Initialize the past 6 months with zero values
-  for (let i = 5; i >= 0; i--) {
-    const month = new Date(currentDate);
-    month.setMonth(currentDate.getMonth() - i);
-    month.setDate(1); // First day of month
-    month.setHours(0, 0, 0, 0);
+  const sixMonthsAgo = new Date(currentDate);
+  sixMonthsAgo.setMonth(currentDate.getMonth() - 5);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
+  
+  for (let i = 0; i < 6; i++) {
+    const month = new Date(sixMonthsAgo);
+    month.setMonth(sixMonthsAgo.getMonth() + i);
     
-    const monthKey = month.toISOString().substring(0, 7); // YYYY-MM format
+    const monthKey = month.toISOString().substring(0, 7);
     monthlyMap.set(monthKey, {
       month: month.toISOString(),
       total_tickets: 0
     });
   }
   
-  // Process transactions and sum them by month
-  transactions.forEach(transaction => {
-    if (!transaction.fecha_transaccion) return;
-    
+  const relevantTransactions = transactions.filter(t => 
+    t.fecha_transaccion && new Date(t.fecha_transaccion) >= sixMonthsAgo
+  );
+  
+  relevantTransactions.forEach(transaction => {
     const transDate = new Date(transaction.fecha_transaccion);
     const monthKey = transDate.toISOString().substring(0, 7);
     
-    // Only include data from the past 6 months
     if (monthlyMap.has(monthKey)) {
       const monthData = monthlyMap.get(monthKey);
-      // Use absolute value and divide by 2 to account for sender/receiver duplication
       const ticketAmount = Math.abs(transaction.monto || 0) / 2;
       monthData.total_tickets += ticketAmount;
     }
   });
   
-  // Convert to array and sort chronologically
   return Array.from(monthlyMap.values())
     .map(item => ({
       ...item,
-      total_tickets: Math.round(item.total_tickets) // Round to whole numbers
+      total_tickets: Math.round(item.total_tickets)
     }))
     .sort((a, b) => new Date(a.month) - new Date(b.month));
 };
 
 /**
- * Generate mock monthly data for testing
+ * Generate mock monthly data
+ * 
+ * @returns {Array} Mock monthly data for charts
  */
 const generateMockMonthlyData = () => {
   const data = [];
   const currentDate = new Date();
   
-  // Generate data for the past 6 months
-  for (let i = 5; i >= 0; i--) {
-    const month = new Date(currentDate);
-    month.setMonth(currentDate.getMonth() - i);
-    month.setDate(1); // First day of month
+  const baseDate = new Date(currentDate);
+  baseDate.setMonth(currentDate.getMonth() - 5);
+  baseDate.setDate(1);
+  baseDate.setHours(0, 0, 0, 0);
+  
+  for (let i = 0; i < 6; i++) {
+    const month = new Date(baseDate);
+    month.setMonth(baseDate.getMonth() + i);
     
     data.push({
       month: month.toISOString(),
-      // Generate random ticket usage between 20 and 200
       total_tickets: Math.floor(Math.random() * 180) + 20
     });
   }
@@ -120,10 +131,15 @@ const generateMockMonthlyData = () => {
   return data;
 };
 
-/**
- * API Service Class
- */
 export class ApiService {
+  /**
+   * Authenticate user with email and password
+   * 
+   * @param {string} email - User email
+   * @param {string} password - User password
+   * @returns {Promise<Object>} User data and authentication token
+   * @throws {Error} If authentication fails
+   */
   static async login(email, password) {
     try {
       const response = await apiClient.post(ENDPOINTS.LOGIN, {
@@ -137,6 +153,13 @@ export class ApiService {
     }
   }
 
+  /**
+   * Register a new user
+   * 
+   * @param {Object} userData - User registration data
+   * @returns {Promise<Object>} New user data
+   * @throws {Error} If registration fails
+   */
   static async register(userData) {
     try {
       const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
@@ -147,6 +170,12 @@ export class ApiService {
     }
   }
 
+  /**
+   * Get home screen data
+   * 
+   * @returns {Promise<Object>} Home data including user info and overview stats
+   * @throws {Error} If data fetch fails
+   */
   static async getHomeData() {
     try {
       const response = await apiClient.get(ENDPOINTS.HOME);
@@ -157,155 +186,129 @@ export class ApiService {
     }
   }
 
+  /**
+   * Get user's ticket information including available tickets and transactions
+   * 
+   * @returns {Promise<Object>} Formatted ticket data
+   * @throws {Error} If data fetch fails
+   */
   static async getTickets() {
     try {
-      console.log('Calling tickets API...');
       const response = await apiClient.get(ENDPOINTS.TICKETS);
       const data = response.data;
-      console.log('Raw tickets response data:', data);
-
-      // Format the response data
-      const formattedData = {
-        tickets: data.tickets,
-        ticketsMonth: data.ticketsMonth,
-        movimientos: data.movimientos
-      };
-
-      console.log('Formatted tickets data:', formattedData);
-      return formattedData;
+      
+      const { tickets, ticketsMonth, movimientos } = data;
+      
+      return { tickets, ticketsMonth, movimientos };
     } catch (error) {
-      console.log('Error in getTickets:', error);
+      console.error('Error in getTickets:', error);
       handleApiError(error, 'Failed to load tickets data');
+      throw error;
     }
   }
   
+  /**
+   * Get monthly ticket usage data for charts
+   * Processes transaction history into a monthly format
+   * 
+   * @returns {Promise<Array>} Monthly ticket usage data
+   * @throws {Error} If data fetch fails
+   */
   static async getMonthlyTickets() {
     try {
-      console.log('Getting monthly tickets data from tickets API...');
-      
-      // Use the main tickets endpoint since there's no separate monthly endpoint
       const response = await apiClient.get(ENDPOINTS.TICKETS);
       
-      // Extract and process the transactions to generate monthly data
-      if (response.data && response.data.movimientos) {
-        console.log('Processing transactions for monthly data...');
-        
-        const monthlyData = processTransactionsToMonthlyData(response.data.movimientos);
-        console.log('Generated monthly data:', monthlyData);
-        
-        return monthlyData;
+      const movimientos = response.data?.movimientos;
+      
+      if (Array.isArray(movimientos) && movimientos.length > 0) {
+        return processTransactionsToMonthlyData(movimientos);
       } else {
-        console.log('No movement data available for monthly breakdown');
         return generateMockMonthlyData();
       }
     } catch (error) {
-      console.log('Error in getMonthlyTickets:', error);
-      handleApiError(error, 'Failed to generate monthly tickets data');
-      // Return mock data as fallback in case of API error
-      console.log('Returning mock data due to API error');
+      console.error('Error fetching monthly tickets:', error);
+      handleApiError(error, 'Failed to load monthly ticket data');
       return generateMockMonthlyData();
     }
   }
 
+  /**
+   * Get categories for events and filtering
+   * 
+   * @returns {Promise<Array>} List of available categories
+   * @throws {Error} If data fetch fails
+   */
   static async getCategories() {
     try {
-      console.log('Fetching categories from:', ENDPOINTS.CATEGORIES);
       const response = await apiClient.get(ENDPOINTS.CATEGORIES);
 
-      // Log successful response
-      console.log('Categories response:', {
-        status: response.status,
-        data: response.data
-      });
-
-      // Validate response data structure
       if (!response.data) {
-        console.error('Empty response from categories endpoint');
         throw new Error('No data received from categories endpoint');
       }
-
-      // Log the data structure
-      console.log('Categories data structure:', {
-        isArray: Array.isArray(response.data),
-        length: Array.isArray(response.data) ? response.data.length : 'not an array',
-        sample: Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null
-      });
-
+      
       return response.data;
     } catch (error) {
-      // Log backend error details
-      console.log('Backend error:', error.response?.data?.error || error.message);
-
-      // Log detailed error for debugging
-      console.error('Categories API error details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: ENDPOINTS.CATEGORIES
-      });
-
-      // Check if it's a database connection error
-      if (error.response?.data?.error?.includes('database')) {
-        console.error('Database connection error detected');
-      }
-
+      console.error('Categories fetch error:', error);
       handleApiError(error, 'Failed to load categories');
       throw error;
     }
   }
 
+  /**
+   * Get user's transaction history
+   * 
+   * @returns {Promise<Array>} List of transactions
+   * @throws {Error} If data fetch fails
+   */
   static async getMovimientos() {
     try {
-      console.log('Fetching movements from:', ENDPOINTS.MOVIMIENTOS);
       const response = await apiClient.get(ENDPOINTS.MOVIMIENTOS);
-      
-      console.log('Raw movements response:', response.data);
-      
-      // Validate and format the data
-      let movements = [];
-      if (response.data && Array.isArray(response.data)) {
-        movements = response.data.map(mov => ({
-          id: mov.id || String(Math.random()),
-          tipo: mov.tipo || 'enviado',
-          cantidad: Number(mov.cantidad) || 0,
-          usuario: mov.usuario || 'Usuario',
-          fecha: mov.fecha ? new Date(mov.fecha).toISOString() : new Date().toISOString(),
-          categoria: mov.categoria || 'Transferencias'
-        }));
-      }
-
-      console.log('Formatted movements:', movements);
-      return movements;
+      return response.data;
     } catch (error) {
-      console.error('Error fetching movements:', error);
-      handleApiError(error, 'Failed to load movements data');
+      handleApiError(error, 'Failed to load transaction history');
       throw error;
     }
   }
 
+  /**
+   * Get list of users for ticket transfers
+   * 
+   * @returns {Promise<Array>} List of users
+   * @throws {Error} If data fetch fails
+   */
   static async getUsers() {
     try {
-      const response = await apiClient.get(ENDPOINTS.TRANSFERIR);
+      const response = await apiClient.get(ENDPOINTS.USERS);
       return response.data;
     } catch (error) {
-      handleApiError(error, 'Failed to load users data');
+      handleApiError(error, 'Failed to load users');
       throw error;
     }
   }
 
-  // Added the missing transferTickets function
+  /**
+   * Transfer tickets to another user
+   * 
+   * @param {Object} transferData - Transfer details
+   * @returns {Promise<Object>} Transfer confirmation
+   * @throws {Error} If transfer fails
+   */
   static async transferTickets(transferData) {
     try {
-      const response = await apiClient.post(ENDPOINTS.TRANSFERIR, transferData);
+      const response = await apiClient.post(ENDPOINTS.TRANSFER, transferData);
       return response.data;
     } catch (error) {
-      console.error('Transfer tickets error:', error);
       handleApiError(error, 'Failed to transfer tickets');
       throw error;
     }
   }
 
+  /**
+   * Get all available events
+   * 
+   * @returns {Promise<Array>} List of events
+   * @throws {Error} If data fetch fails
+   */
   static async getEventos() {
     try {
       const response = await apiClient.get(ENDPOINTS.EVENTOS);
@@ -316,6 +319,13 @@ export class ApiService {
     }
   }
 
+  /**
+   * Get details for a specific event
+   * 
+   * @param {string} id - Event ID
+   * @returns {Promise<Object>} Event details
+   * @throws {Error} If data fetch fails
+   */
   static async getEventoById(id) {
     try {
       const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${id}`);
@@ -326,6 +336,13 @@ export class ApiService {
     }
   }
 
+  /**
+   * Schedule an event
+   * 
+   * @param {string} id - Event ID to schedule
+   * @returns {Promise<Object>} Scheduling confirmation
+   * @throws {Error} If scheduling fails
+   */
   static async agendarEventos(id) {
     try {
       const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
@@ -336,6 +353,12 @@ export class ApiService {
     }
   }
 
+  /**
+   * Get user's scheduled events
+   * 
+   * @returns {Promise<Array>} List of scheduled events
+   * @throws {Error} If data fetch fails
+   */
   static async getEventosAgendados() {
     try {
       const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
@@ -346,6 +369,13 @@ export class ApiService {
     }
   }
 
+  /**
+   * Remove an event from user's schedule
+   * 
+   * @param {string} id - Event ID to remove
+   * @returns {Promise<Object>} Deletion confirmation
+   * @throws {Error} If deletion fails
+   */
   static async deleteEventoAgendado(id) {
     try {
       const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
@@ -356,23 +386,15 @@ export class ApiService {
     }
   }
 
+  /**
+   * Create a new event
+   * 
+   * @param {FormData} formData - Event data including image
+   * @returns {Promise<Object>} Created event data
+   * @throws {Error} If creation fails
+   */
   static async createEvento(formData) {
     try {
-      console.log('Sending event creation request...');
-
-      const formEntries = {};
-      for (let [key, value] of formData._parts) {
-        if (key === 'imagen' && value && typeof value === 'object') {
-          formEntries[key] = {
-            name: value.name,
-            type: value.type,
-            uri: value.uri ? 'binary data (uri exists)' : 'missing uri'
-          };
-        } else {
-          formEntries[key] = value;
-        }
-      }
-
       const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -393,20 +415,16 @@ export class ApiService {
     } catch (error) {
       if (error.response && typeof error.response.data === 'string' &&
         error.response.data.includes('Current Date and Time')) {
-        console.warn('Error response intercepted by proxy or firewall');
         return {
           error: 'Request intercepted by network system',
           interceptedResponse: true
         };
       }
 
-      console.error('Create event error:', error.message);
-
       handleApiError(error, 'Failed to create event');
       throw error;
     }
   }
-
 }
 
 export default ApiService;

@@ -21,6 +21,73 @@ function ocultarTab(route) {
 
 const Tab = createBottomTabNavigator();
 
+// Separate components for authenticated and non-authenticated tabs
+const AuthenticatedTabs = ({ showCreateModal, setShowCreateModal }) => (
+  <>
+    <Tab.Screen
+      name="Home"
+      component={StackHomeNavigator}
+      options={{
+        tabBarIcon: ({ color }) => (
+          <Ionicons name="home" size={24} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Eventos"
+      component={StackEventosNavigator}
+      options={{
+        tabBarIcon: ({ color }) => (
+          <Ionicons name="search" size={24} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Create"
+      component={StackCreateNavigator}
+      listeners={{
+        tabPress: e => {
+          e.preventDefault();
+          setShowCreateModal(true);
+        }
+      }}
+      options={{
+        tabBarIcon: ({ color }) => (
+          <Ionicons name="add-circle" size={24} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Gestion"
+      component={StackGestionNavigator}
+      options={{
+        tabBarIcon: ({ color }) => (
+          <Ionicons name="card-outline" size={24} color={color} />
+        ),
+      }}
+    />
+    <Tab.Screen
+      name="Agenda"
+      component={StackAgendaNavigator}
+      options={{
+        tabBarIcon: ({ color }) => (
+          <Ionicons name="calendar" size={24} color={color} />
+        ),
+      }}
+    />
+  </>
+);
+
+const NonAuthenticatedTabs = () => (
+  <Tab.Screen
+    name="Inicio"
+    component={StackInicioNavigator}
+    options={({ route }) => ({
+      tabBarStyle: ocultarTab(route),
+    })}
+  />
+);
+
 export default function MyTabs() {
   const { isAuthenticated, userDataCache } = useAuth();
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -41,72 +108,17 @@ export default function MyTabs() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#642684', // <--- Color morado para el icono activo
+          tabBarActiveTintColor: '#642684',
         }}
         initialRouteName={isAuthenticated ? 'Home' : 'Inicio'}
       >
-        {!isAuthenticated ? (
-          <Tab.Screen
-            name="Inicio"
-            component={StackInicioNavigator}
-            options={({ route }) => ({
-              tabBarStyle: ocultarTab(route),
-            })}
+        {isAuthenticated ? (
+          <AuthenticatedTabs 
+            showCreateModal={showCreateModal} 
+            setShowCreateModal={setShowCreateModal} 
           />
         ) : (
-          <>
-            <Tab.Screen
-              name="Home"
-              component={StackHomeNavigator}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Ionicons name="home" size={24} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Eventos"
-              component={StackEventosNavigator}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Ionicons name="search" size={24} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Create"
-              component={StackCreateNavigator}
-              listeners={{
-                tabPress: e => {
-                  e.preventDefault();
-                  setShowCreateModal(true);
-                }
-              }}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Ionicons name="add-circle" size={24} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Gestion"
-              component={StackGestionNavigator}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Ionicons name="card-outline" size={24} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Agenda"
-              component={StackAgendaNavigator}
-              options={{
-                tabBarIcon: ({ color }) => (
-                  <Ionicons name="calendar" size={24} color={color} />
-                ),
-              }}
-            />
-          </>
+          <NonAuthenticatedTabs />
         )}
       </Tab.Navigator>
       

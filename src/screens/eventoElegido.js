@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { API_CONFIG } from '../constants/config';
 import {
   View,
@@ -35,42 +35,50 @@ export default function EventoElegido() {
   const { execute: loadScheduledEvents } = useApi(ApiService.getEventosAgendados);
   const { execute: deleteScheduledEvent } = useApi(ApiService.deleteEventoAgendado);
 
+  // Load event details and check if the user has scheduled it
   useEffect(() => {
     const loadEvent = async () => {
       try {
         const eventFromParams = route?.params?.event;
-        if (eventFromParams) {
-          if (eventFromParams.id) {
-            try {
-              const eventData = await loadEventDetails(eventFromParams.id);
-              const scheduled = await loadScheduledEvents();
-              setEventosAgendados(scheduled);
+        if (!eventFromParams) return;
+        
+        // If we have an event ID, fetch detailed info from API
+        if (eventFromParams.id) {
+          try {
+            // Load event details and user's scheduled events in parallel
+            const [eventData, scheduled] = await Promise.all([
+              loadEventDetails(eventFromParams.id),
+              loadScheduledEvents()
+            ]);
+            
+            setEventosAgendados(scheduled);
 
-              let found = false;
-              for (let i = 0; i < scheduled.length; i++) {
-                if (String(scheduled[i].id) === String(eventFromParams.id)) {
-                  found = true;
-                  break;
-                }
-              }
-              setAgendado(found);
+            // Check if this event is in the user's scheduled events
+            const found = scheduled.some(item => 
+              String(item.id) === String(eventFromParams.id)
+            );
+            setAgendado(found);
 
-              setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
-            } catch (error) {
-              setEvent(eventFromParams);
-            }
-          } else {
+            // Handle both array and object responses from API
+            setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
+          } catch (error) {
+            // Fallback to event data from params if API fails
             setEvent(eventFromParams);
           }
+        } else {
+          // Use event data directly from navigation params
+          setEvent(eventFromParams);
         }
       } catch (error) {
+        // Log error but don't crash the app
         console.error('Error loading event:', error);
       } finally {
         setLoading(false);
       }
     };
+    
     loadEvent();
-  }, [route?.params?.event]);
+  }, [route?.params?.event, loadEventDetails, loadScheduledEvents]);
 
   const handleAgendarEvento = useCallback(async () => {
     if (!event?.id) return;
@@ -94,18 +102,23 @@ export default function EventoElegido() {
     }
   }, [event, agendado, agendarEvento, deleteScheduledEvent]);
 
-  const getImageSource = (imagen) => {
+  // Convert different image formats to a standard image source object
+  const getImageSource = useCallback((imagen) => {
+    // Server-uploaded images start with "/uploads/"
     if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
       return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
     }
+    // Data URLs (base64)
     if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
       return { uri: imagen };
     }
+    // Regular URLs
     if (typeof imagen === 'string' && imagen.trim() !== '') {
       return { uri: imagen };
     }
+    // Fallback image when no valid image is provided
     return require('../../assets/img/fallback_image.jpg');
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -132,32 +145,61 @@ export default function EventoElegido() {
   const dayOfWeek = dateObj.toLocaleDateString('es-AR', { weekday: 'long' });
   const fullDate = `${dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1)}, ${dateStr}`;
 
-  // Handle both old and new API response formats
-  const getEventName = () => event.name || event.nombre || 'Evento';
-  const getEventDescription = () => event.description || event.descripcion || '';
-  const getEventPrice = () => event.price || event.precio || null;
-  const getEventCapacity = () => event.max_assistance || event.capacidad || null;
-  const getEventDuration = () => event.duration_in_minutes || null;
-  const getEventLocation = () => event.event_location || null;
-  const getEventCreator = () => event.creator_user || null;
-  const getEventTags = () => event.tags || [];
-  const isEnrollmentEnabled = () => event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true;
-
-  // Generate map URL from event location if available
-  const getMapUrl = () => {
-    const location = getEventLocation();
-    if (location && location.latitude && location.longitude) {
-      return `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${location.latitude},${location.longitude}&key=YOUR_API_KEY`;
-    }
-    return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
-  };
+  // Handle both old and new API response formats with memoization for performance
+  const eventDetails = useMemo(() => ({
+    // Extract event name, falling back to defaults if needed
+    name: event.name || event.nombre || 'Evento',
+    
+    // Extract event description
+    description: event.description || event.descripcion || '',
+    
+    // Extract price info
+    price: event.price || event.precio || null,
+    
+    // Extract capacity info
+    capacity: event.max_assistance || event.capacidad || null,
+    
+    // Extract duration in minutes
+    duration: event.duration_in_minutes || null,
+    
+    // Extract location info
+    location: event.event_location || null,
+    
+    // Extract creator info
+    creator: event.creator_user || null,
+    
+    // Extract event tags
+    tags: event.tags || [],
+    
+    // Check if enrollment is enabled
+    enrollmentEnabled: event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true,
+    
+    // Generate map URL from event location
+    mapUrl: (() => {
+      const location = event.event_location;
+      if (location && location.latitude && location.longitude) {
+        return `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${location.latitude},${location.longitude}&key=YOUR_API_KEY`;
+      }
+      // Default map location if none provided
+      return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+    })()
+  }), [event]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+      {/* Header section with gradient background */}
       <LinearGradient colors={['#aeea00', '#ffffff']} style={styles.headerGradient}>
+        {/* Back button */}
         <View style={styles.headerRow}>
-          <Ionicons name="arrow-back" size={28} color="#fff" onPress={() => navigation.goBack()} />
+          <Ionicons 
+            name="arrow-back" 
+            size={28} 
+            color="#fff" 
+            onPress={() => navigation.goBack()} 
+          />
         </View>
+        
+        {/* Event image and map section */}
         <View style={styles.topRow}>
           <View style={styles.leftCircleWrapper}>
             <ImageBackground
@@ -165,15 +207,18 @@ export default function EventoElegido() {
               style={styles.eventImageCircle}
               imageStyle={{ borderRadius: CIRCLE_SIZE / 2 }}
             >
+              {/* Map overlay */}
               <View style={styles.mapCircleOverlay}>
                 <Image
-                  source={{ uri: getMapUrl() }}
+                  source={{ uri: eventDetails.mapUrl }}
                   style={styles.mapCircle}
                   resizeMode="cover"
                 />
               </View>
             </ImageBackground>
           </View>
+          
+          {/* Feature icons */}
           <View style={styles.iconStack}>
             <View style={styles.iconCircle}><MaterialCommunityIcons name="leaf" size={26} color="#38C172" /></View>
             <View style={styles.iconCircle}><MaterialCommunityIcons name="earth" size={26} color="#6a2a8c" /></View>
@@ -181,31 +226,41 @@ export default function EventoElegido() {
           </View>
         </View>
       </LinearGradient>
+      
+      {/* Event details card */}
       <View style={styles.detailsCard}>
-        <Text style={styles.title}>{getEventName()} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
+        <Text style={styles.title}>
+          {eventDetails.name} <Ionicons name="heart-outline" size={16} color="#9F4B97" />
+        </Text>
         <Text style={styles.subtitle}>{event.categoria_nombre || 'Evento'}</Text>
         
-        {getEventPrice() && (
-          <Text style={styles.price}>Precio: ${getEventPrice()}</Text>
-        )}
-        {getEventCapacity() && (
-          <Text style={styles.capacity}>Capacidad: {getEventCapacity()} personas</Text>
-        )}
-        {getEventDuration() && (
-          <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
+        {/* Price information (if available) */}
+        {eventDetails.price && (
+          <Text style={styles.price}>Precio: ${eventDetails.price}</Text>
         )}
         
+        {/* Capacity information (if available) */}
+        {eventDetails.capacity && (
+          <Text style={styles.capacity}>Capacidad: {eventDetails.capacity} personas</Text>
+        )}
+        
+        {/* Duration information (if available) */}
+        {eventDetails.duration && (
+          <Text style={styles.duration}>Duración: {eventDetails.duration} minutos</Text>
+        )}
+        
+        {/* Join/Leave event button */}
         <TouchableOpacity
           style={[
             styles.joinBtn,
             agendado && styles.joinBtnUnido,
-            !isEnrollmentEnabled() && styles.joinBtnDisabled
+            !eventDetails.enrollmentEnabled && styles.joinBtnDisabled
           ]}
           onPress={handleAgendarEvento}
-          disabled={loadingAgendar || !isEnrollmentEnabled()}
+          disabled={loadingAgendar || !eventDetails.enrollmentEnabled}
         >
           <Text style={[styles.joinBtnText, agendado && styles.joinBtnTextUnido]}>
-            {!isEnrollmentEnabled() 
+            {!eventDetails.enrollmentEnabled 
               ? 'INSCRIPCIÓN CERRADA' 
               : (agendado ? 'UNIDO' : (loadingAgendar ? 'Uniendo...' : 'UNIRME'))
             }

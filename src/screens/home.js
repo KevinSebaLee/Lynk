@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
@@ -27,95 +27,124 @@ import OverlayMenu from '../components/overlayMenu';
 
 const { width } = Dimensions.get('window');
 
+/**
+ * Home Screen - Main dashboard displaying user tickets and events
+ * Handles data loading and navigation to other screens
+ */
 export default function Home() {
+  // Hooks
   const navigation = useNavigation();
-  const { logout, userDataCache, clearUserDataCache } = useAuth();
+  const { logout } = useAuth();
 
-  // State for user and events
+  // State for user and events data
   const [userData, setUserData] = useState(null);
   const [eventosRecientes, setEventosRecientes] = useState([]);
   const [eventosUser, setEventosUser] = useState([]);
-
-  // Use the API hook for loading home data
-  const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
-  const { execute: loadTickets } = useApi(ApiService.getTickets);
   const [menuVisible, setMenuVisible] = useState(false);
 
+  // API loading hooks with optimized execution
+  const { loading, execute: loadHomeData } = useApi(ApiService.getHomeData);
+  const { execute: loadTickets } = useApi(ApiService.getTickets);
+
+  // Refresh all data when screen comes into focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
+      /**
+       * Load all user data and events in parallel for better performance
+       */
       const refreshData = async () => {
         try {
-          // Load tickets data
-          const ticketsData = await loadTickets();
-          console.log('Refreshed tickets data:', ticketsData);
-          if (ticketsData) {
-            setUserData(prevData => ({
-              ...prevData,
-              tickets: ticketsData.tickets
-            }));
-          }
+          // Load tickets and home data in parallel using Promise.all
+          const [ticketsData, homeData] = await Promise.all([
+            loadTickets(),
+            loadHomeData()
+          ]);
           
-          // Load other home data
-          const data = await loadHomeData();
-          if (data) {
-            setUserData(prevData => ({
-              ...prevData,
-              ...data.user
-            }));
-            setEventosRecientes(data.eventosRecientes || []);
-            setEventosUser(data.eventosUser || []);
+          // Update user data by combining tickets and user info
+          setUserData(prevData => ({
+            ...prevData,
+            ...(homeData?.user || {}),
+            tickets: ticketsData?.tickets || 0
+          }));
+          
+          // Update events lists with fallbacks to empty arrays
+          if (homeData) {
+            setEventosRecientes(homeData.eventosRecientes || []);
+            setEventosUser(homeData.eventosUser || []);
           }
         } catch (error) {
-          console.error('Error refreshing home data:', error);
+          // Error already handled by useApi hook
         }
       };
       
+      // Start data loading
       refreshData();
+      
+      // Cleanup function (no cleanup needed in this case)
       return () => {};
     }, [loadTickets, loadHomeData])
   );
 
-  // Handler for tickets press
-  const handleTicketsPress = async () => {
+  /**
+   * Navigate to tickets screen with loaded tickets data
+   */
+  const handleTicketsPress = useCallback(async () => {
     try {
       const data = await loadTickets();
       navigation.navigate('tickets', data);
     } catch (error) {
-      // Error is already handled by the ApiService
+      // Error already handled by useApi hook
     }
-  };
+  }, [loadTickets, navigation]);
 
-  const handleOverlayNavigate = (screen) => {
+  /**
+   * Handle navigation from overlay menu
+   */
+  const handleOverlayNavigate = useCallback((screen) => {
     setMenuVisible(false);
-    if (screen === 'Home') navigation.navigate('Home');
-    else navigation.navigate(screen);
-  };
+    navigation.navigate(screen);
+  }, [navigation]);
 
-  const handleHomeEmpresa = () => {
+  /**
+   * Navigate to company home screen
+   */
+  const handleHomeEmpresa = useCallback(() => {
     navigation.navigate('homeEmpresa');
-  };
+  }, [navigation]);
 
-  const handleLogout = async () => {
+  /**
+   * Handle user logout
+   */
+  const handleLogout = useCallback(async () => {
     await logout();
-  };
+  }, [logout]);
 
+  // Show loading spinner when initializing
   if (loading && !userData) {
     return <LoadingSpinner />;
   }
 
-  // Function to validate image URIs
-  const validateImageUri = (uri) => {
+  /**
+   * Validate and normalize image URI from different formats
+   * Memoized to prevent unnecessary recalculations
+   */
+  const validateImageUri = useCallback((uri) => {
     if (typeof uri === 'string' && uri.trim() !== '') {
       return uri;
     } else if (uri && typeof uri === 'object' && uri.uri && typeof uri.uri === 'string') {
       return uri.uri;
     }
     return null; // Let the component handle the fallback
-  };
+  }, []);
 
-  // Safely access arrays
-  const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
-  const safeEventosUser = Array.isArray(eventosUser) ? eventosUser : [];
+  // Safely access arrays with memoization to prevent recreating on each render
+  const safeEventosRecientes = useMemo(() => 
+    Array.isArray(eventosRecientes) ? eventosRecientes : []
+  , [eventosRecientes]);
+  
+  const safeEventosUser = useMemo(() => 
+    Array.isArray(eventosUser) ? eventosUser : []
+  , [eventosUser]);
 
   return (
     <View style={styles.container}>

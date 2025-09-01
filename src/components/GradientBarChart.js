@@ -1,48 +1,57 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo, memo } from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated, Platform } from 'react-native';
 import Svg, { Rect, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Chart constants
-const BAR_WIDTH = 61;
-const BAR_SPACING = 10;
-const BAR_RADIUS = 5;
-const CHART_HEIGHT = 180;
-const ANIMATION_DURATION = 400;
+// Chart constants - defined outside component to prevent recreation
+const BAR_WIDTH = 61;          // Width of each bar
+const BAR_SPACING = 10;        // Space between bars
+const BAR_RADIUS = 5;          // Rounded corners radius
+const CHART_HEIGHT = 180;      // Height of chart area
+const ANIMATION_DURATION = 400; // Animation speed in ms
+const DAYS_TO_SHOW = 5;        // Number of bars to display
 
-function GradientBarChart({ monthlyUsage = 0 }) {
-  // Generate chart data based on the current month
-  const generateChartData = () => {
+/**
+ * GradientBarChart - Animated bar chart with gradient styling
+ * @param {number} monthlyUsage - Total usage value for the month
+ */
+const GradientBarChart = memo(({ monthlyUsage = 0 }) => {
+  /**
+   * Generate evenly distributed data points across the current month
+   * Each point represents usage at that point in time
+   */
+  const generateChartData = useMemo(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    // Get the number of days in the current month
+    // Calculate days in current month
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     
-    // Create array of 5 evenly distributed data points across the month
+    // Create array of evenly distributed data points
     const data = [];
-    const daysToShow = 5; // We want 5 bars
     
-    for (let i = 0; i < daysToShow; i++) {
+    for (let i = 0; i < DAYS_TO_SHOW; i++) {
       // Calculate day number (distributed evenly across the month)
-      const dayNum = Math.round((i / (daysToShow - 1)) * (daysInMonth - 1)) + 1;
+      const dayNum = Math.round((i / (DAYS_TO_SHOW - 1)) * (daysInMonth - 1)) + 1;
       const date = new Date(currentYear, currentMonth, dayNum);
       const dayOfMonth = date.getDate();
       const monthName = date.toLocaleString('default', { month: 'long' });
       
       // Calculate a portion of monthly usage for each bar
-      // More tickets used as the month progresses
+      // More tickets used as the month progresses with slight randomization
       const ratio = dayNum / daysInMonth;
-      const value = Math.round(monthlyUsage * ratio * (0.8 + Math.random() * 0.4));
+      // Use a deterministic formula based on the day number to ensure consistent renders
+      const randomFactor = 0.8 + (((dayNum * 13) % 20) / 50); 
+      const value = Math.round(monthlyUsage * ratio * randomFactor);
       
       const entry = {
         date: `${dayOfMonth} ${monthName}`,
         value: value
       };
       
-      // Add the label to the middle bar
-      if (i === Math.floor(daysToShow / 2)) {
+      // Add the total label to the middle bar
+      if (i === Math.floor(DAYS_TO_SHOW / 2)) {
         entry.label = `${monthlyUsage}`;
       }
       
@@ -50,10 +59,11 @@ function GradientBarChart({ monthlyUsage = 0 }) {
     }
     
     return data;
-  };
+  }, [monthlyUsage]);
 
-  const [chartData, setChartData] = useState(generateChartData());
-  const [selected, setSelected] = useState(Math.floor(5 / 2)); // Default to middle day
+  // Chart state
+  const [chartData, setChartData] = useState(generateChartData);
+  const [selected, setSelected] = useState(Math.floor(DAYS_TO_SHOW / 2)); // Default to middle day
   
   // Update chart data when monthlyUsage changes
   useEffect(() => {
@@ -196,7 +206,7 @@ function GradientBarChart({ monthlyUsage = 0 }) {
       </View>
     </View>
   );
-}
+});
 
 // Styles - Fixed container to center properly
 const styles = StyleSheet.create({
@@ -275,3 +285,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default GradientBarChart;

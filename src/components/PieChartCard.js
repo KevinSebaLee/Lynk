@@ -17,10 +17,7 @@ const getCategoryColor = (categoryName) => {
 };
 
 const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', subtitle = '' }) => {
-    console.log('PieChartCard received:', JSON.stringify(categories));
-
     if (!categories || categories.length === 0) {
-        console.log('No categories provided to PieChartCard');
         return (
             <View style={styles.container}>
                 <Text style={styles.title}>{title}</Text>
@@ -32,10 +29,9 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
         );
     }
 
-  // We'll handle single category specially when rendering
-  // No need for a dummy spacer anymore
-  let chartCategories = [...categories];
-  console.log('Processing chart categories:', chartCategories.length, 'categories');    // Process and normalize the chart data
+    // We'll handle single category specially when rendering
+    let chartCategories = [...categories];
+    // Process and normalize the chart data
     const chartData = chartCategories.map(category => ({
         name: category.name || 'Sin nombre',
         amount: typeof category.amount === 'number' ? category.amount : 0,
@@ -71,8 +67,6 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
         const strokeWidth = 40; // Thickness of the donut
         const innerRadius = radius - strokeWidth;
 
-        console.log('Chart dimensions:', { width, height, radius, innerRadius });
-
         // Calculate total for percentages
         let total = 0;
         filteredChartData.forEach(category => {
@@ -81,7 +75,6 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
 
         // Make sure we have a valid total
         if (total <= 0) {
-            console.error('PieChartCard: Invalid total value', total);
             total = 1; // Prevent division by zero
         }
 
@@ -94,19 +87,14 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
             // Create SVG arc path
             const x1 = centerX + radius * Math.cos(startAngle);
             const y1 = centerY + radius * Math.sin(startAngle);
-            const x2 = centerX + radius * Math.cos(endAngle);
-            const y2 = centerY + radius * Math.sin(endAngle);
 
-            const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
-
-            // For single category that represents 100%, make it a full circle
-            // but with a tiny gap to ensure visual distinction
+            // For single category that represents 100%, make it a nearly full circle with a small gap
             let actualEndAngle = endAngle;
             if (Math.abs(endAngle - startAngle) > 1.99 * Math.PI) {
-                // Use nearly a full circle (359.9 degrees instead of 360)
-                actualEndAngle = startAngle + 1.999 * Math.PI; 
-                console.log('Rendering nearly full circle segment');
+                actualEndAngle = startAngle + 1.999 * Math.PI;
             }
+
+            const largeArcFlag = actualEndAngle - startAngle > Math.PI ? 1 : 0;
 
             const x2Adjusted = centerX + radius * Math.cos(actualEndAngle);
             const y2Adjusted = centerY + radius * Math.sin(actualEndAngle);
@@ -135,34 +123,28 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
 
         // Create legend items
         const legendItems = filteredChartData.map((category, index) => {
-            // For dummy/spacer categories, don't display in the legend
+            // Skip small "Otros" categories in legend
             if (category.name === 'Otros' && category.amount < total * 0.1) {
                 return null;
             }
 
-            // Format the value with locale and no decimal places
-            // Round to whole number since we've already divided by 2 in tickets.js
-            // For counts, display without decimal places
             const formattedValue = Math.round(Number(category.amount)).toLocaleString('es-ES', {
                 maximumFractionDigits: 0
             });
 
-            // Calculate percentage based on actual data (not including spacers)
-            // For UI clarity, if there's only one real category, show 100%
             const percentage = filteredChartData.length === 1 ||
                 (filteredChartData.length === 2 && filteredChartData[1].name === 'Otros')
                 ? 100
                 : Math.round(category.amount / total * 100);
-                
-            // Format the display based on the category
+
             let displayText;
-            
+
             // If we have a count (for transactions), display that
             if (category.count !== undefined) {
-                const txCount = category.name === 'Transferencia' ? 
-                    `${category.count} transfer${category.count === 1 ? '' : 's'}` : 
+                const txCount = category.name === 'Transferencia' ?
+                    `${category.count} transfer${category.count === 1 ? '' : 's'}` :
                     `${category.count} transac${category.count === 1 ? 'ción' : 'ciones'}`;
-                    
+
                 displayText = `${category.name}: ${txCount} (${percentage}%)`;
             } else {
                 // Otherwise just display the amount
@@ -183,22 +165,14 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
             <View style={styles.chartContainer}>
                 <Svg width={width} height={height}>
                     <G x="0" y="0">
-                        {/* Background circle for reference */}
+                        {/* Background circles */}
                         <Circle
                             cx={centerX}
                             cy={centerY}
                             r={radius}
                             fill="transparent"
-                        />
-
-                        {/* Draw outer ring as reference - this ensures something is visible */}
-                        <Circle
-                            cx={centerX}
-                            cy={centerY}
-                            r={radius}
                             stroke="#E0E0E0"
                             strokeWidth={1}
-                            fill="transparent"
                         />
 
                         {/* For a single category that's 100%, show a special full circle */}
@@ -213,18 +187,15 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
                             />
                         ) : (
                             /* Draw arcs normally for multiple categories */
-                            arcs.map((arc, index) => {
-                                console.log(`Drawing arc ${index}: ${arc.category} - ${arc.value}`);
-                                return (
-                                    <Path
-                                        key={index}
-                                        d={arc.path}
-                                        fill={arc.color}
-                                        stroke="#FFFFFF"
-                                        strokeWidth={2}
-                                    />
-                                );
-                            })
+                            arcs.map((arc, index) => (
+                                <Path
+                                    key={index}
+                                    d={arc.path}
+                                    fill={arc.color}
+                                    stroke="#FFFFFF"
+                                    strokeWidth={2}
+                                />
+                            ))
                         )}
 
                         {/* Center hole */}

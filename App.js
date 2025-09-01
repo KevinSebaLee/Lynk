@@ -2,7 +2,6 @@
 // ngrok config add-authtoken 2z5ZeoOPiGhX0wL8cWaxlAs0sbV_2VmpqmaJCgJw5FMUnhR6M
 // ngrok http --url=stirring-intense-sheep.ngrok-free.app 3000
 
-
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider } from './src/context/AuthContext';
