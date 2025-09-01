@@ -113,19 +113,25 @@ export default function MyTabs() {
         initialRouteName={isAuthenticated ? 'Home' : 'Inicio'}
       >
         {isAuthenticated ? (
-          <AuthenticatedTabs 
-            showCreateModal={showCreateModal} 
-            setShowCreateModal={setShowCreateModal} 
+          <AuthenticatedTabs
+            showCreateModal={showCreateModal}
+            setShowCreateModal={setShowCreateModal}
           />
         ) : (
-          <NonAuthenticatedTabs />
+          <Tab.Screen
+            name="Inicio"
+            component={StackInicioNavigator}
+            options={({ route }) => ({
+              tabBarStyle: ocultarTab(route),
+            })}
+          />
         )}
       </Tab.Navigator>
-      
-      <CreateEventModal 
-        visible={showCreateModal} 
-        onClose={handleCloseModal} 
-        tickets={tickets || 0} 
+
+      <CreateEventModal
+        visible={showCreateModal}
+        onClose={handleCloseModal}
+        tickets={tickets || 0}
       />
     </>
   );
