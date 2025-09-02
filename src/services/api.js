@@ -91,7 +91,7 @@ const processTransactionsToMonthlyData = (transactions) => {
     
     if (monthlyMap.has(monthKey)) {
       const monthData = monthlyMap.get(monthKey);
-      const ticketAmount = Math.abs(transaction.monto || 0) / 2;
+      const ticketAmount = Math.abs(transaction.monto || 0); // Division by 2 removed
       monthData.total_tickets += ticketAmount;
     }
   });
@@ -278,7 +278,7 @@ export class ApiService {
    */
   static async getUsers() {
     try {
-      const response = await apiClient.get(ENDPOINTS.USERS);
+      const response = await apiClient.get(ENDPOINTS.USUARIOS);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load users');
@@ -295,7 +295,7 @@ export class ApiService {
    */
   static async transferTickets(transferData) {
     try {
-      const response = await apiClient.post(ENDPOINTS.TRANSFER, transferData);
+      const response = await apiClient.post(ENDPOINTS.TRANSFERIR, transferData);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to transfer tickets');

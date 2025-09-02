@@ -52,15 +52,15 @@ export default function Tickets() {
           // Get tickets data which includes movements
           const response = await ApiService.getTickets();
           console.log('Full tickets response:', JSON.stringify(response, null, 2));
-          
+
           // Get monthly tickets data (processes same data, doesn't make new API call)
           const monthlyResponse = await ApiService.getMonthlyTickets();
           console.log('Monthly tickets data:', monthlyResponse);
-          
+
           if (isActive) {
             // Process tickets data
             setTicketsData(response.tickets || 0);
-            
+
             // Calculate total tickets from movements (more accurate than the API value)
             let totalTickets = 0;
             if (response.movimientos && response.movimientos.length > 0) {
@@ -68,20 +68,21 @@ export default function Tickets() {
                 // Use absolute value since we only care about the total usage
                 return sum + Math.abs(mov.monto || 0);
               }, 0);
-              // Divide by 2 to account for sender/receiver duplication
-              totalTickets = Math.round(totalTickets / 2);
+              // Removed division by 2
             }
-            
+
             console.log('Calculated total tickets from movements:', totalTickets);
             console.log('API ticketsMonth value:', response.ticketsMonth);
-            
+
             // Use calculated value or fall back to API value
             setTicketsMonth(totalTickets || response.ticketsMonth || 0);
-            
+
             // Process movements data
             const movimientos = response.movimientos || [];
             setMovements(movimientos);
-            
+
+            console.log(movimientos)
+
             // Set monthly tickets data
             if (monthlyResponse && Array.isArray(monthlyResponse)) {
               setMonthlyTickets(monthlyResponse);
@@ -90,24 +91,24 @@ export default function Tickets() {
                 setSelectedMonth(monthlyResponse[monthlyResponse.length - 1]);
               }
             }
-            
+
             // Calculate categories from movements
             const categoryTotals = new Map();
             const categoryTransactions = new Map();
-            
+
             // Create a map to track which transfers have been counted
             const processedTransferIds = new Set();
-            
+
             // Process movements by category
             movimientos.forEach(mov => {
               // Skip transactions with invalid or zero amounts
               if (!mov.monto || isNaN(mov.monto)) return;
-              
+
               const categoria = mov.categoria_nombre || 'Transferencia';
-              
+
               // Use the absolute value of monto for the ticket amount
               const ticketAmount = Math.abs(mov.monto);
-              
+
               // For transfers, check if we've already counted this transaction
               if (categoria === 'Transferencia' && mov.transaccion_id) {
                 // If we've already processed this transaction, skip it
@@ -117,27 +118,27 @@ export default function Tickets() {
                 // Mark this transaction as processed
                 processedTransferIds.add(mov.transaccion_id);
               }
-              
+
               const currentTotal = categoryTotals.get(categoria) || 0;
               categoryTotals.set(categoria, currentTotal + ticketAmount);
-              
+
               // Track transaction count
               const currentCount = categoryTransactions.get(categoria) || 0;
               categoryTransactions.set(categoria, currentCount + 1);
             });
-            
+
             // Log the total calculated from movements
             const calculatedTotal = Array.from(categoryTotals.values()).reduce((sum, val) => sum + val, 0);
             console.log('Total tickets from movements:', calculatedTotal, 'ticketsMonth from API:', response.ticketsMonth);
-            
+
             // Create categories array for pie chart
             const categories = [];
-            
+
             // Add entries from transactions - use transaction counts, not ticket amounts
             for (const [name, _] of categoryTotals.entries()) {
               // Get the transaction count for this category
               const count = categoryTransactions.get(name) || 0;
-              
+
               if (count > 0) {
                 categories.push({
                   name,
@@ -150,7 +151,7 @@ export default function Tickets() {
                 });
               }
             }
-            
+
             // If we have multiple transaction types, add them
             if (categories.length === 0) {
               // Fallback - add a dummy category if nothing else
@@ -161,7 +162,7 @@ export default function Tickets() {
                 color: '#CCCCCC'
               });
             }
-            
+
             console.log('Setting categories with real data:', categories);
             setTicketCategories(categories);
           }
@@ -203,57 +204,57 @@ export default function Tickets() {
         </View>
       </SafeAreaView>
     ) : (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image style={styles.arrow} source={arrow} />
-        </TouchableOpacity>
-        <Text style={styles.headerText}> Tus tickets</Text>
-      </View>
-
-      <ScrollView 
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContentContainer}
-        showsVerticalScrollIndicator={true}
-      >
-        <View style={styles.ticketWrapper}>
-          <MovCard
-            tickets={Number(ticketsData) || 0}
-            onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-            onTransfer={() => navigation.navigate('Transferir')}
-            onRedeem={() => navigation.navigate('Cupones')}
-          />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image style={styles.arrow} source={arrow} />
+          </TouchableOpacity>
+          <Text style={styles.headerText}> Tus tickets</Text>
         </View>
 
-        <View style={styles.categoriesSection}>
-          <PieChartCard 
-            categories={ticketCategories}
-            title="Distribución de Tickets"
-            subtitle={ticketsMonth > 0 ? 
-              `Total de tickets usados: ${Number(ticketsMonth).toLocaleString('es-ES')}` : 
-              'No hay datos de uso de tickets'
-            } 
-          />
-        </View>
-        
-        {/* Monthly Tickets Chart */}
-        <View style={styles.chartSection}>
-          <MonthlyTicketsChart 
-            monthlyData={monthlyTickets} 
-            onMonthPress={(month) => setSelectedMonth(month)} 
-          />
-        </View>
-        
-        {/* Transfer History */}
-        <View style={styles.transferListContainer}>
-          <TransferList movimientos={movements} />
-        </View>
-        
-        {/* Extra padding to ensure scrolling works */}
-        <View style={styles.bottomPadding} />
-      </ScrollView>
-      <StatusBar style="light" />
-    </SafeAreaView>
+        <ScrollView
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContentContainer}
+          showsVerticalScrollIndicator={true}
+        >
+          <View style={styles.ticketWrapper}>
+            <MovCard
+              tickets={Number(ticketsData) || 0}
+              onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
+              onTransfer={() => navigation.navigate('Transferir')}
+              onRedeem={() => navigation.navigate('Cupones')}
+            />
+          </View>
+
+          <View style={styles.categoriesSection}>
+            <PieChartCard
+              categories={ticketCategories}
+              title="Distribución de Tickets"
+              subtitle={ticketsMonth > 0 ?
+                `Total de tickets usados: ${Number(ticketsMonth).toLocaleString('es-ES')}` :
+                'No hay datos de uso de tickets'
+              }
+            />
+          </View>
+
+          {/* Monthly Tickets Chart */}
+          <View style={styles.chartSection}>
+            <MonthlyTicketsChart
+              monthlyData={monthlyTickets}
+              onMonthPress={(month) => setSelectedMonth(month)}
+            />
+          </View>
+
+          {/* Transfer History */}
+          <View style={styles.transferListContainer}>
+            <TransferList movimientos={movements} />
+          </View>
+
+          {/* Extra padding to ensure scrolling works */}
+          <View style={styles.bottomPadding} />
+        </ScrollView>
+        <StatusBar style="light" />
+      </SafeAreaView>
     )
   );
 }

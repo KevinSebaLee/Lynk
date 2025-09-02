@@ -20,6 +20,7 @@ export const ENDPOINTS = {
   TRANSFERIR: '/tickets/transferir',
   EVENTOS: '/eventos',
   AGENDA: '/agenda',
+  USUARIOS: '/usuarios',
 };
 
 // App Constants
