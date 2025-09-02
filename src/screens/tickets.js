@@ -182,13 +182,19 @@ export default function Tickets() {
     }, [])
   );
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  // Store loading and error states to handle conditionally in the return
+  const isLoading = loading;
+  const hasError = error;
 
-  if (error) {
-    return (
-      <SafeAreaView>
+  return (
+    isLoading ? (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner />
+        </View>
+      </SafeAreaView>
+    ) : hasError ? (
+      <SafeAreaView style={styles.safeArea}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
           <Text style={{ color: 'red', fontSize: 18, marginBottom: 12 }}>{error}</Text>
           <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 10, backgroundColor: '#eee', borderRadius: 5 }}>
@@ -196,10 +202,7 @@ export default function Tickets() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    );
-  }
-
-  return (
+    ) : (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -251,10 +254,16 @@ export default function Tickets() {
       </ScrollView>
       <StatusBar style="light" />
     </SafeAreaView>
+    )
   );
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
