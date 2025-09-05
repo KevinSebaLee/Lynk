@@ -22,8 +22,6 @@ export default function StackHomeNavigator() {
     return authInitialized && esEmpresa ? 'homeEmpresa' : 'home';
   }, [authInitialized, esEmpresa]);
 
-  console.log('[StackHomeNavigator] authInitialized:', authInitialized, 'esEmpresa:', esEmpresa);
-
   return (
     <View style={styles.root}>
       <Stack.Navigator
