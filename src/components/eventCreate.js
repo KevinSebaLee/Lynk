@@ -85,17 +85,29 @@ const EventCreateModal = ({ visible, onClose }) => {
     }
   }, [localVisible]);
 
-  // Animation effect - Run separately to avoid the useInsertionEffect warning
+  // Split animation logic into two separate effects to avoid scheduling issues
+  
+  // Initialize animation when component mounts
   useEffect(() => {
+    // Set initial position
+    translateY.setValue(height);
+  }, []);
+  
+  // Handle animation changes based on visibility
+  useEffect(() => {
+    // Don't animate during first render
+    if (!localVisible && !isAnimating) {
+      return;
+    }
+    
     let animationTimer;
 
     if (localVisible) {
-      // Prepare animation
-      translateY.setValue(height);
+      // Start opening animation
       setIsAnimating(true);
       
-      // Delay animation slightly to prevent React scheduling issues
-      animationTimer = setTimeout(() => {
+      // Use requestAnimationFrame instead of setTimeout to better sync with the render cycle
+      animationTimer = requestAnimationFrame(() => {
         Animated.timing(translateY, {
           toValue: 0,
           duration: 420,
@@ -103,24 +115,29 @@ const EventCreateModal = ({ visible, onClose }) => {
         }).start(() => {
           setIsAnimating(false);
         });
-      }, 10);
+      });
     } else if (isAnimating) {
-      // Animation for closing
-      animationTimer = setTimeout(() => {
+      // Start closing animation
+      animationTimer = requestAnimationFrame(() => {
         Animated.timing(translateY, {
           toValue: height,
           duration: 320,
           useNativeDriver: true,
         }).start(() => {
           setIsAnimating(false);
+          // Only notify parent after animation completes
+          if (onClose && isClosing.current) {
+            isClosing.current = false;
+            onClose();
+          }
         });
-      }, 10);
+      });
     }
 
     return () => {
-      if (animationTimer) clearTimeout(animationTimer);
+      if (animationTimer) cancelAnimationFrame(animationTimer);
     };
-  }, [localVisible]);
+  }, [localVisible, isAnimating, onClose]);
 
   // Reset the form
   const resetForm = () => {
@@ -144,10 +161,11 @@ const EventCreateModal = ({ visible, onClose }) => {
 
   // Close modal with animation
   const handleCloseModal = () => {
-    if (isClosing.current || isAnimating) return;
+    if (isClosing.current || (isAnimating && !localVisible)) return;
     
     isClosing.current = true;
     setLocalVisible(false);
+    // onClose will be called after animation completes
     
     Animated.timing(translateY, {
       toValue: height,
@@ -353,20 +371,16 @@ const EventCreateModal = ({ visible, onClose }) => {
       const startDateTime = new Date(`${fecha} ${horaInicio}`);
       
       const eventData = {
-        name: nombre,
-        description: descripcion,
-        start_date: startDateTime.toISOString(),
-        duration_in_minutes: durationInMinutes > 0 ? durationInMinutes : 60, // Default to 60 minutes
-        price: presupuesto || '0',
-        enabled_for_enrollment: visibilidad ? '1' : '0',
-        max_assistance: parseInt(objetivo) || 100, // Default capacity
-        id_event_location: 1, // You'll need to implement location selection
-        // Additional fields for backwards compatibility
+        nombre: nombre,
+        descripcion: descripcion,
+        fecha: startDateTime.toISOString(),
+        presupuesto: presupuesto || '0',
+        max_assistance: parseInt(objetivo) || 100, 
         ubicacion: ubicacion,
         visibilidad: visibilidad,
+        objetivo: objetivo,
       };
       
-      console.log('Submitting event data:', eventData);
       const response = await ApiService.createEvent(eventData);
       
       // Check for special server interception response
@@ -392,14 +406,14 @@ const EventCreateModal = ({ visible, onClose }) => {
     }
   };
 
-  if (!visible) return null;
-
+  // We always render the component now but control visibility internally
   return (
     <Modal
       transparent={true}
       visible={localVisible}
       onRequestClose={handleCloseModal}
       animationType="none"
+      statusBarTranslucent={true}
     >
       <View style={styles.overlay}>
         <Animated.View 

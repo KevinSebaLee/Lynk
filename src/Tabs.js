@@ -124,13 +124,12 @@ export default function MyTabs() {
         )}
       </Tab.Navigator>
 
-      {isAuthenticated && (
-        <CreateEventModal
-          visible={showCreateModal}
-          onClose={handleCloseModal}
-          tickets={tickets || 0}
-        />
-      )}
+      {/* Always render the modal but control visibility with props */}
+      <CreateEventModal
+        visible={isAuthenticated && showCreateModal}
+        onClose={handleCloseModal}
+        tickets={tickets || 0}
+      />
     </>
   );
 }

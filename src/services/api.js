@@ -393,7 +393,7 @@ export class ApiService {
    * @returns {Promise<Object>} Created event data
    * @throws {Error} If creation fails
    */
-  static async createEvento(formData) {
+  static async createEvent(formData) {
     try {
       const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
         headers: {

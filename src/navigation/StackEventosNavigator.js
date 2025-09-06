@@ -11,8 +11,6 @@ const Stack = createNativeStackNavigator();
 export default function StackEventosNavigator() {
   const { esEmpresa, authInitialized } = useAuth();
 
-  console.log('StackEventosNavigator - esEmpresa:', esEmpresa); // Debug log
-
   return (
     <View style={styles.container}>
       <Stack.Navigator initialRouteName='eventos' screenOptions={{ headerShown: false }}>

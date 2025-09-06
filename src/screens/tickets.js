@@ -51,11 +51,9 @@ export default function Tickets() {
         try {
           // Get tickets data which includes movements
           const response = await ApiService.getTickets();
-          console.log('Full tickets response:', JSON.stringify(response, null, 2));
 
           // Get monthly tickets data (processes same data, doesn't make new API call)
           const monthlyResponse = await ApiService.getMonthlyTickets();
-          console.log('Monthly tickets data:', monthlyResponse);
 
           if (isActive) {
             // Process tickets data
@@ -70,9 +68,6 @@ export default function Tickets() {
               }, 0);
               // Removed division by 2
             }
-
-            console.log('Calculated total tickets from movements:', totalTickets);
-            console.log('API ticketsMonth value:', response.ticketsMonth);
 
             // Use calculated value or fall back to API value
             setTicketsMonth(totalTickets || response.ticketsMonth || 0);
@@ -129,7 +124,6 @@ export default function Tickets() {
 
             // Log the total calculated from movements
             const calculatedTotal = Array.from(categoryTotals.values()).reduce((sum, val) => sum + val, 0);
-            console.log('Total tickets from movements:', calculatedTotal, 'ticketsMonth from API:', response.ticketsMonth);
 
             // Create categories array for pie chart
             const categories = [];
@@ -163,7 +157,6 @@ export default function Tickets() {
               });
             }
 
-            console.log('Setting categories with real data:', categories);
             setTicketCategories(categories);
           }
         } catch (err) {

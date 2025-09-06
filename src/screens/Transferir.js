@@ -40,10 +40,7 @@ const Transferir = ({ navigation }) => {
         }
   
         const data = await ApiService.getUsers();
-  
-        // Log the actual response for debugging
-        console.log('ApiService.getUsers() returned:', data);
-  
+    
         let usersArray = [];
         if (Array.isArray(data)) {
           usersArray = data;
