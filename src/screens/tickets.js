@@ -76,7 +76,6 @@ export default function Tickets() {
             const movimientos = response.movimientos || [];
             setMovements(movimientos);
 
-            console.log(movimientos)
 
             // Set monthly tickets data
             if (monthlyResponse && Array.isArray(monthlyResponse)) {

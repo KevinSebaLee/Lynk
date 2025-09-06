@@ -106,8 +106,8 @@ const EventCreateModal = ({ visible, onClose }) => {
       // Start opening animation
       setIsAnimating(true);
       
-      // Use requestAnimationFrame instead of setTimeout to better sync with the render cycle
-      animationTimer = requestAnimationFrame(() => {
+      // Delay animation slightly to prevent React scheduling issues
+      animationTimer = setTimeout(() => {
         Animated.timing(translateY, {
           toValue: 0,
           duration: 420,
@@ -161,11 +161,10 @@ const EventCreateModal = ({ visible, onClose }) => {
 
   // Close modal with animation
   const handleCloseModal = () => {
-    if (isClosing.current || (isAnimating && !localVisible)) return;
+    if (isClosing.current || isAnimating) return;
     
     isClosing.current = true;
     setLocalVisible(false);
-    // onClose will be called after animation completes
     
     Animated.timing(translateY, {
       toValue: height,
@@ -294,17 +293,17 @@ const EventCreateModal = ({ visible, onClose }) => {
 
       if (result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-        
+
         if (typeof asset.uri !== 'string' || !asset.uri) {
           throw new Error('URI inválido de imagen');
         }
 
         setImageUri(asset.uri);
-        
+
         // Get file extension from URI
         const uriParts = asset.uri.split('.');
         const fileExtension = uriParts[uriParts.length - 1];
-        
+
         // Create correct mimetype based on file extension
         let mimeType;
         if (fileExtension.toLowerCase() === 'jpg' || fileExtension.toLowerCase() === 'jpeg') {
@@ -314,7 +313,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         } else {
           mimeType = 'image/jpeg'; // Default to JPEG if unknown
         }
-        
+
         // Create file object with proper type
         setImageFile({
           uri: Platform.OS === 'android' ? asset.uri : asset.uri.replace('file://', ''),
@@ -323,11 +322,11 @@ const EventCreateModal = ({ visible, onClose }) => {
         });
       } else if (result.uri && typeof result.uri === 'string') {
         setImageUri(result.uri);
-        
+
         // Get file extension from URI
         const uriParts = result.uri.split('.');
         const fileExtension = uriParts[uriParts.length - 1];
-        
+
         // Create correct mimetype based on file extension
         let mimeType;
         if (fileExtension.toLowerCase() === 'jpg' || fileExtension.toLowerCase() === 'jpeg') {
@@ -337,7 +336,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         } else {
           mimeType = 'image/jpeg'; // Default to JPEG if unknown
         }
-        
+
         setImageFile({
           uri: Platform.OS === 'android' ? result.uri : result.uri.replace('file://', ''),
           name: `photo-${Date.now()}.${fileExtension}`,
@@ -358,7 +357,7 @@ const EventCreateModal = ({ visible, onClose }) => {
       setFormError('Por favor completa todos los campos requeridos.');
       return;
     }
-    
+
     try {
       setIsLoading(true);
 
@@ -369,7 +368,7 @@ const EventCreateModal = ({ visible, onClose }) => {
 
       // Format start_date as ISO string
       const startDateTime = new Date(`${fecha} ${horaInicio}`);
-      
+
       const eventData = {
         nombre: nombre,
         descripcion: descripcion,
@@ -381,6 +380,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         objetivo: objetivo,
       };
       
+      console.log('Submitting event data:', eventData);
       const response = await ApiService.createEvent(eventData);
       
       // Check for special server interception response
@@ -389,7 +389,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         console.error('Server response intercepted');
         return;
       }
-      
+
       if (response && (response.message || response.id)) {
         handleCloseModal();
         Alert.alert('Éxito', 'Evento creado correctamente');
@@ -416,7 +416,7 @@ const EventCreateModal = ({ visible, onClose }) => {
       statusBarTranslucent={true}
     >
       <View style={styles.overlay}>
-        <Animated.View 
+        <Animated.View
           style={[
             styles.animatedCard,
             { transform: [{ translateY: translateY }] }
@@ -531,7 +531,7 @@ const EventCreateModal = ({ visible, onClose }) => {
                 <Text style={styles.privadoLabel}>Inscripción habilitada</Text>
                 <Switch
                   value={visibilidad}
-                  onValueChange={setVisiblidad}
+                  onValueChange={value => setVisiblidad(value)}
                   thumbColor={visibilidad ? '#642684' : '#f4f3f4'}
                   trackColor={{ false: '#e6e1f7', true: '#c9b3f5' }}
                 />
