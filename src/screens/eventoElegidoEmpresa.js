@@ -17,6 +17,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
+import { EventActionButton, EventDetailRow } from '../components';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.84;
@@ -178,54 +179,32 @@ export default function EventoElegidoEmpresa() {
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
         
-        <TouchableOpacity
-          style={[
-            styles.joinBtn,
-            styles.joinBtnUnido,
-          ]}
+        <EventActionButton
+          agendado={false}
+          loadingAgendar={loadingBorrar}
+          enrollmentEnabled={isEnrollmentEnabled()}
           onPress={handleBorrarEvento}
-          disabled={loadingBorrar || !isEnrollmentEnabled()}
-        >
-          <Text style={[styles.joinBtnText && styles.joinBtnTextUnido]}>
-              {loadingBorrar ? 'Borrando...' : 'Borrar'}
-            
-          </Text>
-        </TouchableOpacity>
+          variant="delete"
+        />
         
-        <View style={styles.detailRow}>
-          <View style={styles.detailIconBox}><Ionicons name="calendar-outline" size={22} color="#9F4B97" /></View>
-          <View>
-            <Text style={styles.detailTitle}>{fullDate}</Text>
-            <Text style={styles.detailDescription}>
-              {event.hora || (event.start_date ? new Date(event.start_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '')}
-            </Text>
-          </View>
-        </View>
+        <EventDetailRow
+          icon="calendar-outline"
+          title={fullDate}
+          description={event.hora || (event.start_date ? new Date(event.start_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '')}
+        />
         
-        <View style={styles.detailRow}>
-          <View style={styles.detailIconBox}><Ionicons name="location-outline" size={22} color="#9F4B97" /></View>
-          <View>
-            <Text style={styles.detailTitle}>
-              {getEventLocation()?.name || event.ubicacion || 'Ubicación'}
-            </Text>
-            <Text style={styles.detailDescription}>
-              {getEventLocation()?.full_address || event.direccion || ''}
-              {getEventLocation()?.location?.name && `, ${getEventLocation().location.name}`}
-              {getEventLocation()?.location?.province?.name && `, ${getEventLocation().location.province.name}`}
-            </Text>
-          </View>
-        </View>
+        <EventDetailRow
+          icon="location-outline"
+          title={getEventLocation()?.name || event.ubicacion || 'Ubicación'}
+          description={`${getEventLocation()?.full_address || event.direccion || ''}${getEventLocation()?.location?.name ? `, ${getEventLocation().location.name}` : ''}${getEventLocation()?.location?.province?.name ? `, ${getEventLocation().location.province.name}` : ''}`}
+        />
 
         {getEventCreator() && (
-          <View style={styles.detailRow}>
-            <View style={styles.detailIconBox}><Ionicons name="person-outline" size={22} color="#9F4B97" /></View>
-            <View>
-              <Text style={styles.detailTitle}>Organizador</Text>
-              <Text style={styles.detailDescription}>
-                {getEventCreator().first_name} {getEventCreator().last_name}
-              </Text>
-            </View>
-          </View>
+          <EventDetailRow
+            icon="person-outline"
+            title="Organizador"
+            description={`${getEventCreator().first_name} ${getEventCreator().last_name}`}
+          />
         )}
 
         {getEventTags().length > 0 && (

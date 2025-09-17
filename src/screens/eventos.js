@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { useNavigation } from '@react-navigation/native';
-import { API_CONFIG } from '../constants/config';
 import { useFocusEffect } from '@react-navigation/native';
-
-const { width } = Dimensions.get('window');
+import { SearchBar, CategoryFilter, EventGrid } from '../components';
 
 const CATEGORIES = ['Musica', 'Exposiciones', 'Stand Up Show', 'Theater', 'Más'];
 
@@ -36,11 +34,6 @@ export default function Eventos() {
     }, [])
   );
 
-  // Responsive card sizes (Pinterest-style)
-  const CARD_WIDTH = (width - 36) / 2;
-  const CARD_HEIGHT_BIG = CARD_WIDTH * 1.53; // first card
-  const CARD_HEIGHT_SMALL = CARD_WIDTH * 1.08; // others
-
   // Filtering logic
   const filteredEvents = events.filter(ev => {
     const nameMatch = (ev.nombre || '').toLowerCase().includes(search.toLowerCase());
@@ -48,44 +41,13 @@ export default function Eventos() {
     return nameMatch && categoryMatch;
   });
 
-  // Arrange events in Pinterest-style columns
-  // First event bigger, others alternate
-  const leftEvents = [];
-  const rightEvents = [];
-  filteredEvents.forEach((ev, idx) => {
-    if (idx === 0) {
-      leftEvents.push({ ...ev, big: true });
-    } else if (idx % 2 === 1) {
-      rightEvents.push(ev);
-    } else {
-      leftEvents.push(ev);
-    }
-  });
-
-  // Dummy icons (replace with your own or based on category)
-  const iconForCategory = cat => {
-    switch (cat?.toLowerCase()) {
-      case 'musica': return require('../../assets/img/icons/comprar.png');
-      case 'exposiciones': return require('../../assets/img/icons/comprar.png');
-      case 'stand up show': return require('../../assets/img/icons/comprar.png');
-      case 'theater': return require('../../assets/img/icons/comprar.png');
-      default: return require('../../assets/img/icons/comprar.png');
-    }
-  };
-
-  const getImageSource = (imagen) => {
-    if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
-      return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
-    }
-    if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
-      return { uri: imagen };
-    }
-    return require('../../assets/img/fallback_image.jpg');
-  };
-
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
     navigation.navigate('eventoElegido', { event });
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(selectedCategory === category ? null : category);
   };
 
   return (
@@ -93,38 +55,16 @@ export default function Eventos() {
       <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
         <Header nombre="Kevin" />
         <View style={styles.topBar}>
-          <View style={styles.searchBar}>
-            <TextInput
-              style={styles.searchInput}
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Buscar evento..."
-              placeholderTextColor="#4d3769"
-            />
-            <Image
-              source={require('../../assets/img/icons/comprar.png')}
-              style={styles.searchIcon}
-            />
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
-            {CATEGORIES.map(cat => (
-              <TouchableOpacity
-                key={cat}
-                onPress={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-                style={[
-                  styles.categoryChip,
-                  selectedCategory === cat && styles.categoryChipSelected
-                ]}
-              >
-                <Text style={[
-                  styles.categoryText,
-                  selectedCategory === cat && styles.categoryTextSelected
-                ]}>
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <SearchBar
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Buscar eventos..."
+          />
+          <CategoryFilter
+            categories={CATEGORIES}
+            selectedCategory={selectedCategory}
+            onCategorySelect={handleCategorySelect}
+          />
         </View>
         <ScrollView
           style={styles.eventsScroll}

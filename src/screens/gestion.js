@@ -4,6 +4,7 @@ import { StyleSheet, View, Text, Image, Dimensions } from 'react-native';
 import Header from '../components/header.js';
 import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
+import { TicketDisplay } from '../components';
 
 const width = Dimensions.get('window').width;
 
@@ -14,23 +15,16 @@ export default function Gestion() {
         <StatusBar style="light" />
         <Header nombre='Kevin' />
         <Container>
-          <View style={styles.tickets}>
-            <View style={styles.textoTicket}>
-              <Text>Tickets Disponibles</Text>
-              <Text style={styles.movimientosText}>Movimientos</Text>
-            </View>
-            <View style={styles.ticketTotal}>
-              <View style={styles.cantidadTickets}>
-                <Image source={require('../../assets/img/icons/tickets.png')} style={styles.iconTicket} />
-                <Text style={styles.numeroTickets}>50.000</Text>
-              </View>
-              <Image source={require('../../assets/img/icons/comprar.png')} style={styles.iconCart} />
-            </View>
-            <View style={styles.metodoPagoWrapper}>
-              <View style={styles.metodoPago}>
-                <Image source={require('../../assets/img/icons/mercadoPago.png')} style={styles.iconLarge} />
-                <Image source={require('../../assets/img/icons/qr.png')} style={styles.iconSmall} />
-              </View>
+          <TicketDisplay
+            ticketAmount="50.000"
+            title="Tickets Disponibles"
+            subtitle="Movimientos"
+            showPurchaseIcon={true}
+          />
+          <View style={styles.metodoPagoWrapper}>
+            <View style={styles.metodoPago}>
+              <Image source={require('../../assets/img/icons/mercadoPago.png')} style={styles.iconLarge} />
+              <Image source={require('../../assets/img/icons/qr.png')} style={styles.iconSmall} />
             </View>
           </View>
         </Container>
@@ -41,16 +35,8 @@ export default function Gestion() {
 
 const styles = StyleSheet.create({
   container: { flex: 0.6 },
-  tickets: { backgroundColor: '#fff', borderRadius: 10, paddingVertical: 25, paddingHorizontal: 20 },
-  textoTicket: { flexDirection: 'row', justifyContent: 'space-between', paddingRight: 10, paddingLeft: 5, marginBottom: 10 },
-  ticketTotal: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
-  cantidadTickets: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
-  numeroTickets: { fontSize: 40, fontWeight: '600' },
-  iconTicket: { width: 40, height: 40, marginRight: 10 },
-  iconCart: { width: 30, height: 30 },
   metodoPagoWrapper: { marginHorizontal: 5, marginTop: 15 },
   metodoPago: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#000', borderRadius: 5, paddingHorizontal: 18, paddingVertical: 12 },
   iconLarge: { width: 32, height: 32 },
   iconSmall: { width: 24, height: 24 },
-  movimientosText: { color: '#9F4B97', fontWeight: '500' },
 });

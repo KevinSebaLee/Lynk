@@ -4,14 +4,19 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Header from '../components/header.js';
 import CalendarAgenda from '../components/agenda.js';
 import { StatusBar } from 'expo-status-bar';
+import { ScreenHeader } from '../components';
 
 export default function Agenda() {
   return (
     <View style={styles.container}>
-        <View style={styles.calendarWrapper}>
-          <CalendarAgenda />
-        </View>
-        <StatusBar></StatusBar>
+      <ScreenHeader 
+        title="Agenda"
+        showBackButton={true}
+      />
+      <View style={styles.calendarWrapper}>
+        <CalendarAgenda />
+      </View>
+      <StatusBar />
     </View>
   );
 }

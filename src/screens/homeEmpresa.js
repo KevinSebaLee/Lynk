@@ -19,7 +19,7 @@ import EventCard from '../components/EventCard.js';
 import RecentEvents from '../components/RecentEvents.js';
 import ApiService from '../services/api.js';
 import { useApi } from '../hooks/useApi.js';
-import { LoadingSpinner, Button } from '../components/common/index.js';
+import { LoadingSpinner, Button, AgendaSection, SectionHeader } from '../components/common/index.js';
 import { LinearGradient } from 'expo-linear-gradient';
 const { width } = Dimensions.get('window');
 
@@ -131,38 +131,18 @@ export default function Home() {
           <View style={styles.bannerWrapper}>
             <PremiumBanner plan={userData?.plan_titulo} />
           </View>
-          <View style={styles.agendaWrapper}>
-            <AgendaIcon />
-            <View style={{ paddingRight: 250 }}>
-              <View style={styles.headerRow}>
-                <Text style={styles.header}>Mis eventos</Text>
-              </View>
-            </View>
-            {safeEventosRecientes.length > 0 && (
-              <ScrollView horizontal>
-                {safeEventosRecientes.map((evento, idx) => (
-                  <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                    <EventCard
-                      imageUri={validateImageUri(evento?.imagen)}
-                      eventName={evento?.nombre}
-                      eventFullDate={evento?.fecha}
-                      venue={evento?.ubicacion}
-                      priceRange={'$12.000 - $15.000'}
-                    />
-                  </View>
-                ))}
-              </ScrollView>
-            )}
-            <View style={{ marginTop: 20 }}>
-              <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
-            </View>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.header}>Eventos mas recientes</Text>
-            <TouchableOpacity>
-              <Text style={{ color: '#642684' }}>Ver más</Text>
-            </TouchableOpacity>
-          </View>
+          
+          <AgendaSection 
+            eventosRecientes={safeEventosRecientes}
+            validateImageUri={validateImageUri}
+            onLogout={handleLogout}
+          />
+          
+          <SectionHeader 
+            title="Eventos mas recientes"
+            showSeeMore={true}
+            onSeeMore={() => navigation.navigate('Eventos')}
+          />
           {safeEventosRecientes.length > 0 && (
             <ScrollView horizontal>
               {safeEventosRecientes.map((evento, idx) => (
@@ -198,35 +178,8 @@ const styles = StyleSheet.create({
   bannerWrapper: {
     width: width - 5,
   },
-  agendaWrapper: {
-    alignItems: 'center',
-    marginTop: 18,
-  },
-  agendaImage: {
-    width: width * 0.32,
-    height: width * 0.32,
-  },
   ticketWrapper: {
     marginVertical: 10,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    margin: 9,
-    marginTop: 25,
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#222',
-  },
-  logOut: {
-    marginTop: 20,
-    backgroundColor: '#9a0606',
-    borderRadius: 8,
-    alignItems: 'center',
-    width: width * 0.9,
   },
   loadingContainer: {
     flex: 1,

@@ -21,6 +21,7 @@ import ApiService from '../services/api';
 import { APP_CONSTANTS } from '../constants/config';
 import { useApi } from '../hooks/useApi';
 import { Button } from '../components/common';
+import { UserTypeSelector, FormField, AuthButton } from '../components';
 
 export default function SignUpScreen() {
   const [userType, setUserType] = useState('personal');
@@ -119,38 +120,33 @@ export default function SignUpScreen() {
     if (userType === 'personal') {
       return (
         <>
-          <TextInput
-            style={styles.input}
-            onChangeText={setNombre}
-            value={nombre}
+          <FormField
             placeholder="Nombre"
+            value={nombre}
+            onChangeText={setNombre}
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setApellido}
-            value={apellido}
+          <FormField
             placeholder="Apellido"
+            value={apellido}
+            onChangeText={setApellido}
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setMail}
-            value={mail}
+          <FormField
             placeholder="Email"
+            value={mail}
+            onChangeText={setMail}
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setContraseña}
-            value={contraseña}
+          <FormField
             placeholder="Contraseña"
+            value={contraseña}
+            onChangeText={setContraseña}
             secureTextEntry
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setConfirmarContraseña}
-            value={confirmarContraseña}
+          <FormField
             placeholder="Confirmar Contraseña"
+            value={confirmarContraseña}
+            onChangeText={setConfirmarContraseña}
             secureTextEntry
           />
         </>
@@ -158,52 +154,45 @@ export default function SignUpScreen() {
     } else {
       return (
         <>
-          <TextInput
-            style={styles.input}
-            onChangeText={setNombre}
-            value={nombre}
+          <FormField
             placeholder="Nombre empresa"
+            value={nombre}
+            onChangeText={setNombre}
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setTelefono}
-            value={telefono}
+          <FormField
             placeholder="Teléfono"
+            value={telefono}
+            onChangeText={setTelefono}
             keyboardType="phone-pad"
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setMail}
-            value={mail}
+          <FormField
             placeholder="Email"
+            value={mail}
+            onChangeText={setMail}
             autoCapitalize="none"
             keyboardType="email-address"
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setCuil}
-            value={cuil}
+          <FormField
             placeholder="CUIL/CUIT"
+            value={cuil}
+            onChangeText={setCuil}
             keyboardType="numeric"
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setDomicilio}
-            value={domicilio}
+          <FormField
             placeholder="Domicilio"
+            value={domicilio}
+            onChangeText={setDomicilio}
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setContraseña}
-            value={contraseña}
+          <FormField
             placeholder="Contraseña"
+            value={contraseña}
+            onChangeText={setContraseña}
             secureTextEntry
           />
-          <TextInput
-            style={styles.input}
-            onChangeText={setConfirmarContraseña}
-            value={confirmarContraseña}
+          <FormField
             placeholder="Confirmar Contraseña"
+            value={confirmarContraseña}
+            onChangeText={setConfirmarContraseña}
             secureTextEntry
           />
         </>
@@ -233,22 +222,17 @@ export default function SignUpScreen() {
           <View style={styles.picView}>
             <Image style={styles.logPic} source={signUpPic} />
           </View>
-          <View style={styles.tabBar}>
-            <TouchableOpacity onPress={() => setUserType('personal')}>
-              <Text style={[styles.tabText, userType === 'personal' && styles.tabTextActive]}>Personal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setUserType('empresa')}>
-              <Text style={[styles.tabText, userType === 'empresa' && styles.tabTextActive]}>Empresa</Text>
-            </TouchableOpacity>
-          </View>
+          <UserTypeSelector 
+            userType={userType}
+            onUserTypeChange={setUserType}
+          />
           <View style={styles.formSection}>
             {renderFormFields()}
             <StatusBar style='dark' />
-            <Button
+            <AuthButton
               title="Crear cuenta"
               onPress={handleRegister}
               loading={loading}
-              style={styles.btnView}
             />
             <View style={styles.bottomSectionRow}>
               <Text style={{ fontSize: 15 }}>¿Ya tienes cuenta? </Text>
@@ -279,11 +263,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
   bottomSection: {
     display: 'flex',
     alignItems: 'center',    
@@ -313,50 +292,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 20,
   },
-  btnView: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 300,
-    borderRadius: 5,
-    marginBottom: 10,
-    margin:10,
-    backgroundColor: '#642684',
-    height: 45,
-    alignSelf: 'center',
-  },
   formSection: {
     alignItems: 'center',
     width: '100%',
-  },
-  input: {
-    height: 45,
-    width: 300,
-    margin: 10,
-    borderWidth: 1,
-    borderRadius: 5,
-    padding: 10,
-    borderColor: '#642684',
-    backgroundColor: 'white',
   },
   bottomSection: {
     display: 'flex',
     alignItems: 'center',    
     gap: 10,
     marginTop: 10,
-  },
-  tabText: {
-    fontSize: 17,
-    color: '#999',
-    marginHorizontal: 10,
-    fontWeight: '500',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    paddingBottom: 3,
-  },
-  tabTextActive: {
-    color: '#642684',
-    borderBottomColor: '#642684',
-    borderBottomWidth: 2,
   },
   bottomSectionRow: {
     flexDirection: 'row',

@@ -1,14 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image, Dimensions, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
-import Header from '../components/header.js';
+import { StyleSheet, View, Text, Dimensions, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import MovCard from '../components/MovCard.js';
-import PieChartCard from '../components/PieChartCard.js';
-import MonthlyTicketsChart from '../components/MonthlyTicketsChart.js';
 import React, { useState, useCallback } from 'react';
 import ApiService from '../services/api';
 import { LoadingSpinner } from '../components/common';
-import TransferList from '../components/TransferList';
+import { ScreenHeader, TicketDisplay, TransferList, MonthlyTicketsChart } from '../components';
+import MovCard from '../components/MovCard.js';
+import PieChartCard from '../components/PieChartCard.js';
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
@@ -197,12 +195,11 @@ export default function Tickets() {
       </SafeAreaView>
     ) : (
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image style={styles.arrow} source={arrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerText}> Tus tickets</Text>
-        </View>
+        <ScreenHeader
+          title="Tus tickets"
+          onBackPress={() => navigation.goBack()}
+          titleColor="#151C2A"
+        />
 
         <ScrollView
           style={styles.scrollContainer}
@@ -210,11 +207,11 @@ export default function Tickets() {
           showsVerticalScrollIndicator={true}
         >
           <View style={styles.ticketWrapper}>
-            <MovCard
-              tickets={Number(ticketsData) || 0}
-              onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-              onTransfer={() => navigation.navigate('Transferir')}
-              onRedeem={() => navigation.navigate('Cupones')}
+            <TicketDisplay
+              ticketAmount={Number(ticketsData) || 0}
+              title="Tickets Disponibles"
+              subtitle="Movimientos"
+              showPurchaseIcon={true}
             />
           </View>
 
@@ -270,25 +267,6 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 80,
   },
-  header: {
-    marginTop: 30,
-    marginLeft: 20,
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  arrow: {
-    resizeMode: 'contain',
-    marginTop: 5,
-    width: 25,
-    height: 25,
-    marginRight: 10,
-  },
-  headerText: {
-    fontSize: 21,
-    fontWeight: 'bold',
-    color: '#151C2A',
-  },
-
   ticketWrapper: {
     marginVertical: 10,
   },

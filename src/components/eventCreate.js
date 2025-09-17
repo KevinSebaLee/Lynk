@@ -85,25 +85,13 @@ const EventCreateModal = ({ visible, onClose }) => {
     }
   }, [localVisible]);
 
-  // Split animation logic into two separate effects to avoid scheduling issues
-  
-  // Initialize animation when component mounts
+  // Animation effect - Run separately to avoid the useInsertionEffect warning
   useEffect(() => {
-    // Set initial position
-    translateY.setValue(height);
-  }, []);
-  
-  // Handle animation changes based on visibility
-  useEffect(() => {
-    // Don't animate during first render
-    if (!localVisible && !isAnimating) {
-      return;
-    }
-    
     let animationTimer;
 
     if (localVisible) {
-      // Start opening animation
+      // Prepare animation
+      translateY.setValue(height);
       setIsAnimating(true);
       
       // Delay animation slightly to prevent React scheduling issues
@@ -115,29 +103,24 @@ const EventCreateModal = ({ visible, onClose }) => {
         }).start(() => {
           setIsAnimating(false);
         });
-      });
+      }, 10);
     } else if (isAnimating) {
-      // Start closing animation
-      animationTimer = requestAnimationFrame(() => {
+      // Animation for closing
+      animationTimer = setTimeout(() => {
         Animated.timing(translateY, {
           toValue: height,
           duration: 320,
           useNativeDriver: true,
         }).start(() => {
           setIsAnimating(false);
-          // Only notify parent after animation completes
-          if (onClose && isClosing.current) {
-            isClosing.current = false;
-            onClose();
-          }
         });
-      });
+      }, 10);
     }
 
     return () => {
-      if (animationTimer) cancelAnimationFrame(animationTimer);
+      if (animationTimer) clearTimeout(animationTimer);
     };
-  }, [localVisible, isAnimating, onClose]);
+  }, [localVisible]);
 
   // Reset the form
   const resetForm = () => {
@@ -211,8 +194,8 @@ const EventCreateModal = ({ visible, onClose }) => {
     setter(filtered);
   };
 
-  const handlePrivadoChange = value => {
-    setVisiblidad(!value);
+  const handlePublicoChange = value => {
+    setVisiblidad(value);
     if (value) {
       setPresupuesto('');
       setObjetivo('');
@@ -293,17 +276,17 @@ const EventCreateModal = ({ visible, onClose }) => {
 
       if (result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
-
+        
         if (typeof asset.uri !== 'string' || !asset.uri) {
           throw new Error('URI inválido de imagen');
         }
 
         setImageUri(asset.uri);
-
+        
         // Get file extension from URI
         const uriParts = asset.uri.split('.');
         const fileExtension = uriParts[uriParts.length - 1];
-
+        
         // Create correct mimetype based on file extension
         let mimeType;
         if (fileExtension.toLowerCase() === 'jpg' || fileExtension.toLowerCase() === 'jpeg') {
@@ -313,7 +296,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         } else {
           mimeType = 'image/jpeg'; // Default to JPEG if unknown
         }
-
+        
         // Create file object with proper type
         setImageFile({
           uri: Platform.OS === 'android' ? asset.uri : asset.uri.replace('file://', ''),
@@ -322,11 +305,11 @@ const EventCreateModal = ({ visible, onClose }) => {
         });
       } else if (result.uri && typeof result.uri === 'string') {
         setImageUri(result.uri);
-
+        
         // Get file extension from URI
         const uriParts = result.uri.split('.');
         const fileExtension = uriParts[uriParts.length - 1];
-
+        
         // Create correct mimetype based on file extension
         let mimeType;
         if (fileExtension.toLowerCase() === 'jpg' || fileExtension.toLowerCase() === 'jpeg') {
@@ -336,7 +319,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         } else {
           mimeType = 'image/jpeg'; // Default to JPEG if unknown
         }
-
+        
         setImageFile({
           uri: Platform.OS === 'android' ? result.uri : result.uri.replace('file://', ''),
           name: `photo-${Date.now()}.${fileExtension}`,
@@ -357,31 +340,48 @@ const EventCreateModal = ({ visible, onClose }) => {
       setFormError('Por favor completa todos los campos requeridos.');
       return;
     }
-
+    
+    if (!imageFile) {
+      setFormError('Por favor selecciona una imagen para el evento.');
+      return;
+    }
+    
     try {
       setIsLoading(true);
-
-      // Calculate duration in minutes
-      const startTime = horaInicioDate || new Date(`${fecha} ${horaInicio}`);
-      const endTime = horaFinDate || new Date(`${fecha} ${horaFin}`);
-      const durationInMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-
-      // Format start_date as ISO string
-      const startDateTime = new Date(`${fecha} ${horaInicio}`);
-
-      const eventData = {
-        nombre: nombre,
-        descripcion: descripcion,
-        fecha: startDateTime.toISOString(),
-        presupuesto: presupuesto || '0',
-        max_assistance: parseInt(objetivo) || 100, 
-        ubicacion: ubicacion,
-        visibilidad: visibilidad,
-        objetivo: objetivo,
-      };
+  
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('descripcion', descripcion);
+      formData.append('fecha', fecha);
+      formData.append('horaInicio', horaInicio);
+      formData.append('horaFin', horaFin);
+      formData.append('visibilidad', visibilidad ? '1' : '0');
+      formData.append('ubicacion', ubicacion);
+      formData.append('presupuesto', visibilidad ? '0' : (presupuesto || '0'));
+      formData.append('objetivo', visibilidad ? '0' : (objetivo || '0'));
+      formData.append('color', '#642684'); // Default color
       
-      console.log('Submitting event data:', eventData);
-      const response = await ApiService.createEvent(eventData);
+      // Default category (1 = Deportes)
+      formData.append('id_categoria', JSON.stringify([1]));
+      
+      // Add image with proper type
+      if (imageFile) {
+        console.log('Adding image to FormData:', {
+          uri: imageFile.uri,
+          name: imageFile.name,
+          type: imageFile.type
+        });
+        
+        // Ensure the image has the proper structure
+        formData.append('imagen', {
+          uri: imageFile.uri,
+          name: imageFile.name,
+          type: imageFile.type
+        });
+      }
+      
+      console.log('Submitting form data...');
+      const response = await ApiService.createEvento(formData);
       
       // Check for special server interception response
       if (response && response.interceptedResponse) {
@@ -389,8 +389,8 @@ const EventCreateModal = ({ visible, onClose }) => {
         console.error('Server response intercepted');
         return;
       }
-
-      if (response && (response.message || response.id)) {
+      
+      if (response && (response.message || response.eventId)) {
         handleCloseModal();
         Alert.alert('Éxito', 'Evento creado correctamente');
       } else if (response && response.error) {
@@ -406,17 +406,17 @@ const EventCreateModal = ({ visible, onClose }) => {
     }
   };
 
-  // We always render the component now but control visibility internally
+  if (!visible) return null;
+
   return (
     <Modal
       transparent={true}
       visible={localVisible}
       onRequestClose={handleCloseModal}
       animationType="none"
-      statusBarTranslucent={true}
     >
       <View style={styles.overlay}>
-        <Animated.View
+        <Animated.View 
           style={[
             styles.animatedCard,
             { transform: [{ translateY: translateY }] }
@@ -526,32 +526,36 @@ const EventCreateModal = ({ visible, onClose }) => {
                 onChangeText={setUbicacion}
               />
 
-              {/* Inscripción habilitada Switch */}
+              {/* Privado Switch */}
               <View style={styles.privadoRow}>
-                <Text style={styles.privadoLabel}>Inscripción habilitada</Text>
+                <Text style={styles.privadoLabel}>Evento publico</Text>
                 <Switch
-                  value={visibilidad}
-                  onValueChange={value => setVisiblidad(value)}
-                  thumbColor={visibilidad ? '#642684' : '#f4f3f4'}
+                  value={!visibilidad}
+                  onValueChange={handlePublicoChange}
+                  thumbColor={!visibilidad ? '#642684' : '#f4f3f4'}
                   trackColor={{ false: '#e6e1f7', true: '#c9b3f5' }}
                 />
               </View>
 
-              {/* Precio and Capacidad máxima */}
-              <TextInput
-                style={styles.input}
-                placeholder="Precio de la entrada"
-                value={presupuesto}
-                onChangeText={handleNumericChange(setPresupuesto)}
-                keyboardType="numeric"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Capacidad máxima"
-                value={objetivo}
-                onChangeText={handleNumericChange(setObjetivo)}
-                keyboardType="numeric"
-              />
+              {/* Presupuesto and Objetivo (only shown for public events) */}
+              {!visibilidad && (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Presupuesto"
+                    value={presupuesto}
+                    onChangeText={handleNumericChange(setPresupuesto)}
+                    keyboardType="numeric"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Objetivo"
+                    value={objetivo}
+                    onChangeText={handleNumericChange(setObjetivo)}
+                    keyboardType="numeric"
+                  />
+                </>
+              )}
 
               {/* Error display */}
               {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
