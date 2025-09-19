@@ -2,7 +2,7 @@ import { API } from '@env';
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: API || 'https://stirring-intense-sheep.ngrok-free.app',
+  BASE_URL: API || 'https://subtle-bull-trusting.ngrok-free.app',
   TIMEOUT: 5000,
   HEADERS: {
     'Content-Type': 'application/json',
@@ -15,11 +15,13 @@ export const ENDPOINTS = {
   REGISTER: '/register',
   HOME: '/',
   TICKETS: '/tickets',
+  CUPONES: '/tickets/cupones',
   CATEGORIES: '/categorias',
   MOVIMIENTOS: '/tickets/transacciones',
   TRANSFERIR: '/tickets/transferir',
   EVENTOS: '/eventos',
   AGENDA: '/agenda',
+  USUARIOS: '/usuarios',
 };
 
 // App Constants

@@ -8,6 +8,8 @@ import Transferir from '../screens/Transferir';
 import TransferirMonto from '../screens/TransferirMonto'; 
 import HomeEmpresa from '../screens/homeEmpresa';
 import Cupones from '../screens/cupones';
+import CouponSelected from '../screens/couponSelected';
+import CouponCreate from '../screens/couponCreate';
 import AllTransfers from '../screens/allTransfers';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common';
@@ -21,8 +23,6 @@ export default function StackHomeNavigator() {
   const initialRoute = useMemo(() => {
     return authInitialized && esEmpresa ? 'homeEmpresa' : 'home';
   }, [authInitialized, esEmpresa]);
-
-  console.log('[StackHomeNavigator] authInitialized:', authInitialized, 'esEmpresa:', esEmpresa);
 
   return (
     <View style={styles.root}>
@@ -41,6 +41,8 @@ export default function StackHomeNavigator() {
         />
         <Stack.Screen name='homeEmpresa' component={HomeEmpresa} />
         <Stack.Screen name='Cupones' component={Cupones} />
+        <Stack.Screen name='CouponSelected' component={CouponSelected} />
+        <Stack.Screen name='CouponCreate' component={CouponCreate} />
         <Stack.Screen name='AllTransfers' component={AllTransfers} />
       </Stack.Navigator>
 

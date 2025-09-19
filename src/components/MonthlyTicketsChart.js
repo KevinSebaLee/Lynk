@@ -26,7 +26,7 @@ const MonthlyTicketsChart = ({ monthlyData = [], onMonthPress }) => {
         .charAt(0).toUpperCase() + date.toLocaleDateString('es-ES', { month: 'short' }).slice(1);
       
       // Add year
-      return `${monthName} '${date.getFullYear().toString().slice(2)}`;
+      return `${monthName}`;
     } catch (error) {
       console.error('Error formatting date:', error);
       return 'Error';
@@ -42,10 +42,9 @@ const MonthlyTicketsChart = ({ monthlyData = [], onMonthPress }) => {
   // Scroll to the active month when component mounts or activeMonthIndex changes
   const scrollToActiveMonth = () => {
     if (scrollViewRef.current && monthlyData.length > 0) {
-      // Calculate scroll position to center the selected month with correct direction
-      // For right-to-left scrolling (newest months on the left):
-      const reverseIndex = monthlyData.length - 1 - activeMonthIndex;
-      const scrollPosition = Math.max(0, (reverseIndex * MONTH_WIDTH) - (SCREEN_WIDTH - MONTH_WIDTH) / 2);
+      // Calculate scroll position to center the selected month
+      // For left-to-right scrolling (newest months on the right):
+      const scrollPosition = Math.max(0, (activeMonthIndex * MONTH_WIDTH) - (SCREEN_WIDTH - MONTH_WIDTH) / 2);
       scrollViewRef.current.scrollTo({ x: scrollPosition, animated: true });
     }
   };

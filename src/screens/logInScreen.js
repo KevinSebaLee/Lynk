@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, TextInput, View, Image, KeyboardAvoidingView, Pressable, Alert } from 'react-native';
+import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import ApiService from '../services/api';
 import { useApi } from '../hooks/useApi';
-import { Button } from '../components/common';
+import { FormField, AuthButton } from '../components';
 
 export default function LogInScreen() {
   const [mail, setMail] = useState('');
@@ -46,14 +46,24 @@ export default function LogInScreen() {
         </View>
         <View style={{ flex: 4 }}>
           <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <TextInput style={styles.input} onChangeText={setMail} value={mail} placeholder="Ingrese su email" autoCapitalize="none" keyboardType="email-address" />
-            <TextInput style={styles.input} onChangeText={setContraseña} value={contraseña} placeholder="Ingrese su contraseña" secureTextEntry />
+            <FormField
+              value={mail}
+              onChangeText={setMail}
+              placeholder="Ingrese su email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <FormField
+              value={contraseña}
+              onChangeText={setContraseña}
+              placeholder="Ingrese su contraseña"
+              secureTextEntry={true}
+            />
             <StatusBar style='dark' />
-            <Button
+            <AuthButton
               title="Ingresar"
               onPress={handleLogin}
               loading={loading}
-              style={styles.btnView}
             />
           </KeyboardAvoidingView>
           <View style={styles.bottomSectionRow}>

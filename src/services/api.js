@@ -91,7 +91,7 @@ const processTransactionsToMonthlyData = (transactions) => {
     
     if (monthlyMap.has(monthKey)) {
       const monthData = monthlyMap.get(monthKey);
-      const ticketAmount = Math.abs(transaction.monto || 0) / 2;
+      const ticketAmount = Math.abs(transaction.monto || 0); // Division by 2 removed
       monthData.total_tickets += ticketAmount;
     }
   });
@@ -132,14 +132,6 @@ const generateMockMonthlyData = () => {
 };
 
 export class ApiService {
-  /**
-   * Authenticate user with email and password
-   * 
-   * @param {string} email - User email
-   * @param {string} password - User password
-   * @returns {Promise<Object>} User data and authentication token
-   * @throws {Error} If authentication fails
-   */
   static async login(email, password) {
     try {
       const response = await apiClient.post(ENDPOINTS.LOGIN, {
@@ -153,13 +145,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Register a new user
-   * 
-   * @param {Object} userData - User registration data
-   * @returns {Promise<Object>} New user data
-   * @throws {Error} If registration fails
-   */
   static async register(userData) {
     try {
       const response = await apiClient.post(ENDPOINTS.REGISTER, userData);
@@ -170,12 +155,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get home screen data
-   * 
-   * @returns {Promise<Object>} Home data including user info and overview stats
-   * @throws {Error} If data fetch fails
-   */
   static async getHomeData() {
     try {
       const response = await apiClient.get(ENDPOINTS.HOME);
@@ -186,12 +165,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get user's ticket information including available tickets and transactions
-   * 
-   * @returns {Promise<Object>} Formatted ticket data
-   * @throws {Error} If data fetch fails
-   */
   static async getTickets() {
     try {
       const response = await apiClient.get(ENDPOINTS.TICKETS);
@@ -206,14 +179,7 @@ export class ApiService {
       throw error;
     }
   }
-  
-  /**
-   * Get monthly ticket usage data for charts
-   * Processes transaction history into a monthly format
-   * 
-   * @returns {Promise<Array>} Monthly ticket usage data
-   * @throws {Error} If data fetch fails
-   */
+
   static async getMonthlyTickets() {
     try {
       const response = await apiClient.get(ENDPOINTS.TICKETS);
@@ -232,12 +198,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get categories for events and filtering
-   * 
-   * @returns {Promise<Array>} List of available categories
-   * @throws {Error} If data fetch fails
-   */
   static async getCategories() {
     try {
       const response = await apiClient.get(ENDPOINTS.CATEGORIES);
@@ -254,12 +214,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get user's transaction history
-   * 
-   * @returns {Promise<Array>} List of transactions
-   * @throws {Error} If data fetch fails
-   */
   static async getMovimientos() {
     try {
       const response = await apiClient.get(ENDPOINTS.MOVIMIENTOS);
@@ -270,15 +224,9 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get list of users for ticket transfers
-   * 
-   * @returns {Promise<Array>} List of users
-   * @throws {Error} If data fetch fails
-   */
   static async getUsers() {
     try {
-      const response = await apiClient.get(ENDPOINTS.USERS);
+      const response = await apiClient.get(ENDPOINTS.USUARIOS);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load users');
@@ -286,16 +234,9 @@ export class ApiService {
     }
   }
 
-  /**
-   * Transfer tickets to another user
-   * 
-   * @param {Object} transferData - Transfer details
-   * @returns {Promise<Object>} Transfer confirmation
-   * @throws {Error} If transfer fails
-   */
   static async transferTickets(transferData) {
     try {
-      const response = await apiClient.post(ENDPOINTS.TRANSFER, transferData);
+      const response = await apiClient.post(ENDPOINTS.TRANSFERIR, transferData);
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to transfer tickets');
@@ -303,12 +244,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get all available events
-   * 
-   * @returns {Promise<Array>} List of events
-   * @throws {Error} If data fetch fails
-   */
   static async getEventos() {
     try {
       const response = await apiClient.get(ENDPOINTS.EVENTOS);
@@ -319,13 +254,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get details for a specific event
-   * 
-   * @param {string} id - Event ID
-   * @returns {Promise<Object>} Event details
-   * @throws {Error} If data fetch fails
-   */
   static async getEventoById(id) {
     try {
       const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${id}`);
@@ -336,13 +264,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Schedule an event
-   * 
-   * @param {string} id - Event ID to schedule
-   * @returns {Promise<Object>} Scheduling confirmation
-   * @throws {Error} If scheduling fails
-   */
   static async agendarEventos(id) {
     try {
       const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
@@ -353,12 +274,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Get user's scheduled events
-   * 
-   * @returns {Promise<Array>} List of scheduled events
-   * @throws {Error} If data fetch fails
-   */
   static async getEventosAgendados() {
     try {
       const response = await apiClient.get(`${ENDPOINTS.AGENDA}`);
@@ -369,13 +284,6 @@ export class ApiService {
     }
   }
 
-  /**
-   * Remove an event from user's schedule
-   * 
-   * @param {string} id - Event ID to remove
-   * @returns {Promise<Object>} Deletion confirmation
-   * @throws {Error} If deletion fails
-   */
   static async deleteEventoAgendado(id) {
     try {
       const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
@@ -386,14 +294,7 @@ export class ApiService {
     }
   }
 
-  /**
-   * Create a new event
-   * 
-   * @param {FormData} formData - Event data including image
-   * @returns {Promise<Object>} Created event data
-   * @throws {Error} If creation fails
-   */
-  static async createEvento(formData) {
+  static async createEvent(formData) {
     try {
       const response = await apiClient.post(ENDPOINTS.EVENTOS, formData, {
         headers: {
@@ -422,6 +323,26 @@ export class ApiService {
       }
 
       handleApiError(error, 'Failed to create event');
+      throw error;
+    }
+  }
+
+  static async getCoupons(){
+    try {
+      const response = await apiClient.get(ENDPOINTS.CUPONES);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load coupons');
+      throw error;
+    }
+  }
+
+  static async createCoupon(couponData) {
+    try {
+      const response = await apiClient.post(ENDPOINTS.CUPONES, couponData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to create coupon');
       throw error;
     }
   }

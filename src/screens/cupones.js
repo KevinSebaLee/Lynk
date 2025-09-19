@@ -1,157 +1,261 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Pressable, TouchableOpacity, SafeAreaView, ScrollView, Alert, Dimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import MovCard from '../components/MovCard.js';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  SafeAreaView, 
+  ScrollView, 
+  Alert, 
+  Dimensions,
+  RefreshControl,
+  Pressable
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import ApiService from '../services/api';
-import { API_CONFIG } from '../constants/config';
+import { LoadingSpinner } from '../components/common';
+import { useAuth } from '../context/AuthContext';
+import { ScreenHeader, CouponCard } from '../components';
 
-const width = Dimensions.get('window').width;
-const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
-
-// FUNCION PARA OBTENER LA IMAGEN DEL EVENTO
-const getImageSource = (imagen) => {
-  if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
-    return { uri: `${API_CONFIG.BASE_URL}${imagen}` };
-  }
-  if (typeof imagen === 'string' && imagen.startsWith('data:image')) {
-    return { uri: imagen };
-  }
-  return require('../../assets/img/fallback_image.jpg');
-};
-
-function EventoFotoCard({ imagen }) {
-  return (
-    <Pressable style={styles.eventCard} onPress={() => {}}>
-      <Image
-        source={getImageSource(imagen)}
-        style={styles.eventImage}
-        resizeMode="cover"
-      />
-    </Pressable>
-  );
-}
+const { width } = Dimensions.get('window');
 
 export default function Cupones() {
-  const [ticketsData, setTicketsData] = useState({});
-  const [eventos, setEventos] = useState([]);
+  const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
   const navigation = useNavigation();
+  const { esEmpresa } = useAuth();
 
-  useEffect(() => {
-    ApiService.getTickets()
-      .then(data => setTicketsData(data[0] || {}))
-      .catch(() => setTicketsData({}));
+  const fetchCoupons = async (showRefreshLoader = false) => {
+    try {
+      if (showRefreshLoader) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+      setError(null);
 
-    ApiService.getEventosAgendados()
-      .then(data => setEventos(data || []))
-      .catch(() => setEventos([]));
-  }, []);
+      const response = await ApiService.getCoupons();
+      
+      // Handle different response structures
+      let couponData = [];
+      if (Array.isArray(response)) {
+        couponData = response;
+      } else if (response.coupons && Array.isArray(response.coupons)) {
+        couponData = response.coupons;
+      } else if (response.data && Array.isArray(response.data)) {
+        couponData = response.data;
+      }
 
-  // Grid en filas de 2
-  const renderEventosGrid = () => {
-    const rows = [];
-    for (let i = 0; i < eventos.length; i += 2) {
-      rows.push(
-        <View style={styles.eventRow} key={i}>
-          <EventoFotoCard imagen={eventos[i]?.imagen} />
-          {eventos[i + 1] && <EventoFotoCard imagen={eventos[i + 1]?.imagen} />}
-        </View>
-      );
+      setCoupons(couponData);
+    } catch (err) {
+      console.error('Error fetching coupons:', err);
+      setError('Error al cargar los cupones');
+      setCoupons([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-    return rows;
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCoupons();
+    }, [])
+  );
+
+  const handleCouponPress = (coupon) => {
+    navigation.navigate('CouponSelected', { coupon });
+  };
+
+  const onRefresh = () => {
+    fetchCoupons(true);
+  };
+
+  if (loading && !refreshing) {
+    return (
+      <View style={{ flex: 1 }}>
+        <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
+          <SafeAreaView style={styles.container}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.headerText}>Cupones</Text>
+              <View style={{ width: 24 }} />
+            </View>
+            <LoadingSpinner />
+          </SafeAreaView>
+        </LinearGradient>
+      </View>
+    );
+  }
+
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image style={styles.arrow} source={arrow} />
-          </TouchableOpacity>
-          <Text style={styles.headerText}> Cupones</Text>
-        </View>
-
-        <Pressable style={{ marginTop: 10 }}>
-          <View style={styles.ticketWrapper}>
-            <MovCard
-              tickets={ticketsData?.tickets || 0}
-              onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-              onTransfer={() => navigation.navigate('Transferir')}
-              onRedeem={() => navigation.navigate('Cupones')}
-            />
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="white" />
+            </TouchableOpacity>
+            <Text style={styles.headerText}>Cupones</Text>
+            {esEmpresa && (
+              <TouchableOpacity onPress={() => navigation.navigate('CouponCreate')}>
+                <Ionicons name="add" size={24} color="white" />
+              </TouchableOpacity>
+            )}
           </View>
-        </Pressable>
 
-        <View style={styles.eventosSection}>
-          {eventos.length === 0 ? (
-            <Text style={styles.emptyText}>No tienes eventos agendados.</Text>
-          ) : (
-            renderEventosGrid()
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <ScrollView 
+            style={styles.scrollView}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            <View style={styles.content}>
+              <View style={styles.summaryCard}>
+                <View style={styles.summaryContent}>
+                  <Ionicons name="ticket" size={32} color="#642684" />
+                  <View style={styles.summaryText}>
+                    <Text style={styles.summaryTitle}>Mis Cupones</Text>
+                    <Text style={styles.summarySubtitle}>
+                      {coupons.length} cupones disponibles
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {error ? (
+                <View style={styles.errorContainer}>
+                  <Ionicons name="alert-circle-outline" size={48} color="#FF5722" />
+                  <Text style={styles.errorText}>{error}</Text>
+                  <TouchableOpacity style={styles.retryButton} onPress={() => fetchCoupons()}>
+                    <Text style={styles.retryButtonText}>Reintentar</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : coupons.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <Ionicons name="ticket-outline" size={64} color="#ccc" />
+                  <Text style={styles.emptyTitle}>No tienes cupones</Text>
+                  <Text style={styles.emptySubtitle}>
+                    Los cupones que obtengas aparecerán aquí
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.couponsContainer}>
+                  {coupons.map((coupon, index) => (
+                    <CouponCard
+                      key={coupon.id || index}
+                      coupon={coupon}
+                      onPress={handleCouponPress}
+                    />
+                  ))}
+                </View>
+              )}
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </LinearGradient>
+    </View>
   );
 }
 
-const CARD_HEIGHT = 110;
-const CARD_MARGIN = 10;
-
 const styles = StyleSheet.create({
-  header: {
+  container: {
     flex: 1,
-    marginTop: 30,
-    marginLeft: 20,
-    flexDirection: 'row',
-    marginBottom: 20,
   },
-  arrow: {
-    resizeMode: 'contain',
-    marginTop: 5,
-    width: 25,
-    height: 25,
-    marginRight: 10,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 20,
   },
   headerText: {
     fontSize: 21,
     fontWeight: 'bold',
-    color: '#151C2A',
+    color: 'white',
   },
-  ticketWrapper: {
-    marginVertical: 10,
+  scrollView: {
+    flex: 1,
   },
-  eventosSection: {
-    marginTop: 14,
-    paddingBottom: 20,
-    paddingHorizontal: 12,
+  content: {
+    padding: 20,
   },
-  eventRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: CARD_MARGIN,
-  },
-  eventCard: {
-    width: (width - 48) / 2, // 2 cards por fila con margen
-    height: CARD_HEIGHT,
+  summaryCard: {
     backgroundColor: '#fff',
-    borderRadius: 18,
-    overflow: 'hidden',
-    marginRight: CARD_MARGIN,
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
     elevation: 2,
-    shadowColor: '#642684',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  eventImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 18,
-    backgroundColor: '#eee',
+  summaryContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  emptyText: {
+  summaryText: {
+    marginLeft: 15,
+    flex: 1,
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#18193f',
+  },
+  summarySubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  couponsContainer: {
+    gap: 15,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#18193f',
+    marginTop: 16,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#666',
     textAlign: 'center',
-    marginTop: 30,
+    marginTop: 8,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  errorText: {
     fontSize: 16,
-    color: '#aaa',
+    color: '#FF5722',
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  retryButton: {
+    backgroundColor: '#642684',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

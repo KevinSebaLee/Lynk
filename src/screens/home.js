@@ -24,6 +24,7 @@ import { useApi } from '../hooks/useApi';
 import { LoadingSpinner, Button } from '../components/common';
 import { LinearGradient } from 'expo-linear-gradient';
 import OverlayMenu from '../components/overlayMenu';
+import { AgendaSection, SectionHeader } from '../components';
 
 const { width } = Dimensions.get('window');
 

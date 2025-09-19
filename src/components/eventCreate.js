@@ -194,8 +194,8 @@ const EventCreateModal = ({ visible, onClose }) => {
     setter(filtered);
   };
 
-  const handlePrivadoChange = value => {
-    setVisiblidad(!value);
+  const handlePublicoChange = value => {
+    setVisiblidad(value);
     if (value) {
       setPresupuesto('');
       setObjetivo('');
@@ -341,33 +341,47 @@ const EventCreateModal = ({ visible, onClose }) => {
       return;
     }
     
+    if (!imageFile) {
+      setFormError('Por favor selecciona una imagen para el evento.');
+      return;
+    }
+    
     try {
       setIsLoading(true);
-
-      // Calculate duration in minutes
-      const startTime = horaInicioDate || new Date(`${fecha} ${horaInicio}`);
-      const endTime = horaFinDate || new Date(`${fecha} ${horaFin}`);
-      const durationInMinutes = Math.floor((endTime - startTime) / (1000 * 60));
-
-      // Format start_date as ISO string
-      const startDateTime = new Date(`${fecha} ${horaInicio}`);
+  
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('descripcion', descripcion);
+      formData.append('fecha', fecha);
+      formData.append('horaInicio', horaInicio);
+      formData.append('horaFin', horaFin);
+      formData.append('visibilidad', visibilidad ? '1' : '0');
+      formData.append('ubicacion', ubicacion);
+      formData.append('presupuesto', visibilidad ? '0' : (presupuesto || '0'));
+      formData.append('objetivo', visibilidad ? '0' : (objetivo || '0'));
+      formData.append('color', '#642684'); // Default color
       
-      const eventData = {
-        name: nombre,
-        description: descripcion,
-        start_date: startDateTime.toISOString(),
-        duration_in_minutes: durationInMinutes > 0 ? durationInMinutes : 60, // Default to 60 minutes
-        price: presupuesto || '0',
-        enabled_for_enrollment: visibilidad ? '1' : '0',
-        max_assistance: parseInt(objetivo) || 100, // Default capacity
-        id_event_location: 1, // You'll need to implement location selection
-        // Additional fields for backwards compatibility
-        ubicacion: ubicacion,
-        visibilidad: visibilidad,
-      };
+      // Default category (1 = Deportes)
+      formData.append('id_categoria', JSON.stringify([1]));
       
-      console.log('Submitting event data:', eventData);
-      const response = await ApiService.createEvent(eventData);
+      // Add image with proper type
+      if (imageFile) {
+        console.log('Adding image to FormData:', {
+          uri: imageFile.uri,
+          name: imageFile.name,
+          type: imageFile.type
+        });
+        
+        // Ensure the image has the proper structure
+        formData.append('imagen', {
+          uri: imageFile.uri,
+          name: imageFile.name,
+          type: imageFile.type
+        });
+      }
+      
+      console.log('Submitting form data...');
+      const response = await ApiService.createEvento(formData);
       
       // Check for special server interception response
       if (response && response.interceptedResponse) {
@@ -376,7 +390,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         return;
       }
       
-      if (response && (response.message || response.id)) {
+      if (response && (response.message || response.eventId)) {
         handleCloseModal();
         Alert.alert('Éxito', 'Evento creado correctamente');
       } else if (response && response.error) {
@@ -512,32 +526,36 @@ const EventCreateModal = ({ visible, onClose }) => {
                 onChangeText={setUbicacion}
               />
 
-              {/* Inscripción habilitada Switch */}
+              {/* Privado Switch */}
               <View style={styles.privadoRow}>
-                <Text style={styles.privadoLabel}>Inscripción habilitada</Text>
+                <Text style={styles.privadoLabel}>Evento publico</Text>
                 <Switch
-                  value={visibilidad}
-                  onValueChange={setVisiblidad}
-                  thumbColor={visibilidad ? '#642684' : '#f4f3f4'}
+                  value={!visibilidad}
+                  onValueChange={handlePublicoChange}
+                  thumbColor={!visibilidad ? '#642684' : '#f4f3f4'}
                   trackColor={{ false: '#e6e1f7', true: '#c9b3f5' }}
                 />
               </View>
 
-              {/* Precio and Capacidad máxima */}
-              <TextInput
-                style={styles.input}
-                placeholder="Precio de la entrada"
-                value={presupuesto}
-                onChangeText={handleNumericChange(setPresupuesto)}
-                keyboardType="numeric"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Capacidad máxima"
-                value={objetivo}
-                onChangeText={handleNumericChange(setObjetivo)}
-                keyboardType="numeric"
-              />
+              {/* Presupuesto and Objetivo (only shown for public events) */}
+              {!visibilidad && (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Presupuesto"
+                    value={presupuesto}
+                    onChangeText={handleNumericChange(setPresupuesto)}
+                    keyboardType="numeric"
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Objetivo"
+                    value={objetivo}
+                    onChangeText={handleNumericChange(setObjetivo)}
+                    keyboardType="numeric"
+                  />
+                </>
+              )}
 
               {/* Error display */}
               {formError ? <Text style={styles.errorText}>{formError}</Text> : null}

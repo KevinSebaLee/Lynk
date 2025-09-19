@@ -27,7 +27,7 @@ const Transferir = ({ navigation }) => {
   useEffect(() => {
     let isActive = true;
     setLoading(true);
-
+  
     const fetchUsers = async () => {
       try {
         // Get current user ID from token
@@ -38,17 +38,31 @@ const Transferir = ({ navigation }) => {
           userId = decoded.id;
           setCurrentUserId(userId);
         }
-
+  
         const data = await ApiService.getUsers();
-        
+    
+        let usersArray = [];
+        if (Array.isArray(data)) {
+          usersArray = data;
+        } else if (data && Array.isArray(data.users)) {
+          usersArray = data.users;
+        } else {
+          // API did not return array, handle error
+          setUsers({});
+          setAllUsers([]);
+          setLoading(false);
+          return;
+        }
+  
         // Filter out current user
-        const filteredData = data.filter(u => u.id !== userId);
-        
+        const filteredData = usersArray.filter(u => u.id !== userId);
+  
         // Save all filtered users for search functionality
         if (isActive) setAllUsers(filteredData);
-        
+  
         // Group users by first letter of name
         processUsers(filteredData);
+  
       } catch (error) {
         console.error("Error fetching users:", error);
         setUsers({});
@@ -57,11 +71,11 @@ const Transferir = ({ navigation }) => {
         if (isActive) setLoading(false);
       }
     };
-
+  
     fetchUsers();
     return () => { isActive = false; };
   }, []);
-  
+
   // Process users for display, either all or filtered by search
   const processUsers = (userList) => {
     // If search query exists, filter by name
@@ -70,7 +84,7 @@ const Transferir = ({ navigation }) => {
       const fullName = `${u.nombre || ''} ${u.apellido || ''}`.toLowerCase();
       return fullName.includes(searchQuery.toLowerCase());
     });
-    
+
     // Group by first letter
     const grouped = {};
     filtered.forEach(u => {
@@ -78,16 +92,16 @@ const Transferir = ({ navigation }) => {
       if (!grouped[letter]) grouped[letter] = [];
       grouped[letter].push(u);
     });
-    
+
     setUsers(grouped);
   };
-  
+
   // Handle search input changes
   const handleSearch = (text) => {
     setSearchQuery(text);
     processUsers(allUsers);
   };
-  
+
   // Handle user selection
   const handleSelectUser = (user) => {
     navigation.navigate('TransferirMonto', { usuario: user });
@@ -103,7 +117,7 @@ const Transferir = ({ navigation }) => {
   // Generate a random color based on user ID for consistent avatar colors
   const getRandomColor = (id) => {
     const colors = [
-      '#642684', '#735BF2', '#8B64BC', '#996FD6', 
+      '#642684', '#735BF2', '#8B64BC', '#996FD6',
       '#A97BD1', '#B58BBF', '#C092E4', '#D5AAED'
     ];
     // Use the ID to select a color, ensuring the same user always gets the same color
@@ -126,15 +140,15 @@ const Transferir = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Transferir Tickets</Text>
         </View>
-        
+
         {/* Search Bar */}
         <View style={styles.searchContainer}>
           <View style={styles.searchBar}>
@@ -153,7 +167,7 @@ const Transferir = ({ navigation }) => {
             )}
           </View>
         </View>
-        
+
         {/* Favorites section */}
         <View style={styles.favoritesSection}>
           <Text style={styles.favoritesTitle}>Favoritos</Text>
@@ -167,16 +181,16 @@ const Transferir = ({ navigation }) => {
               </LinearGradient>
               <Text style={styles.addButtonText}>Nuevo</Text>
             </TouchableOpacity>
-            
+
             {/* You can add frequent contacts here */}
           </ScrollView>
         </View>
-        
+
         {/* Users List */}
         <ScrollView style={styles.userList}>
           {Object.keys(users).length === 0 && !loading ? (
             <View style={styles.emptyState}>
-              <Ionicons name="people" size={50} color="#642684" style={{opacity: 0.5}} />
+              <Ionicons name="people" size={50} color="#642684" style={{ opacity: 0.5 }} />
               <Text style={styles.emptyStateText}>
                 {searchQuery ? 'No se encontraron contactos' : 'No hay contactos disponibles'}
               </Text>
@@ -185,7 +199,7 @@ const Transferir = ({ navigation }) => {
             Object.keys(users).sort().map((letter) => (
               <View key={letter} style={styles.sectionBox}>
                 <Text style={styles.sectionLetter}>{letter}</Text>
-                
+
                 {users[letter].map(user => (
                   <TouchableOpacity
                     key={user.id}
@@ -193,7 +207,7 @@ const Transferir = ({ navigation }) => {
                     onPress={() => handleSelectUser(user)}
                   >
                     {user.pfp ? (
-                      <Image source={{uri: user.pfp}} style={styles.avatar} />
+                      <Image source={{ uri: user.pfp }} style={styles.avatar} />
                     ) : (
                       <View style={[styles.avatarPlaceholder, { backgroundColor: getRandomColor(user.id) }]}>
                         <Text style={styles.avatarText}>
@@ -201,7 +215,7 @@ const Transferir = ({ navigation }) => {
                         </Text>
                       </View>
                     )}
-                    
+
                     <View style={styles.contactInfo}>
                       <Text style={styles.contactName}>
                         {user.nombre} {user.apellido || ''}
@@ -210,7 +224,7 @@ const Transferir = ({ navigation }) => {
                         {user.alias || `ID: ${user.id}`}
                       </Text>
                     </View>
-                    
+
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="#642684" />
                   </TouchableOpacity>
                 ))}
