@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
+  Dimensions
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '../hooks/useApi';
@@ -26,7 +27,6 @@ export default function EventoElegido() {
   const CIRCLE_SIZE = width * 0.84;
   const MAP_SIZE = width * 0.36;
 
-  export default function EventoElegido() {
     // Navigation and route hooks
     const route = useRoute();
     const navigation = useNavigation();
@@ -338,4 +338,3 @@ export default function EventoElegido() {
       lineHeight: 22,
     },
   });
-}
