@@ -5,8 +5,8 @@ import React, { useState, useCallback } from 'react';
 import ApiService from '../services/api';
 import { LoadingSpinner } from '../components/common';
 import { ScreenHeader, TicketDisplay, TransferList, MonthlyTicketsChart } from '../components';
-import MovCard from '../components/MovCard.js';
-import PieChartCard from '../components/PieChartCard.js';
+import MovCard from '../components/cards/MovCard.js';
+import PieChartCard from '../components/cards/PieChartCard.js';
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };

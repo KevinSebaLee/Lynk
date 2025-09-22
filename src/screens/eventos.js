@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import Header from '../components/header.js';
+import Header from '../components/layout/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';

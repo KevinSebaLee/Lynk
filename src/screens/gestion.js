@@ -1,8 +1,8 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image, Dimensions } from 'react-native';
-import Header from '../components/header.js';
-import Container from '../components/container.js';
+import Header from '../components/layout/header.js';
+import Container from '../components/layout/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TicketDisplay } from '../components';
 

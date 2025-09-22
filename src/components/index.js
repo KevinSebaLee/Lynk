@@ -4,6 +4,23 @@ export { default as ScreenHeader } from './ui/ScreenHeader';
 export { default as CategoryFilter } from './ui/CategoryFilter';
 export { default as TicketDisplay } from './ui/TicketDisplay';
 
+// Layout Components
+export { default as Header } from './layout/header';
+export { default as Container } from './layout/container';
+export { default as OverlayMenu } from './layout/overlayMenu';
+
+// Card Components
+export { default as EventCard } from './cards/EventCard';
+export { default as TicketCard } from './cards/TicketCard';
+export { default as MovCard } from './cards/MovCard';
+export { default as PieChartCard } from './cards/PieChartCard';
+
+// Feature Components
+export { default as Agenda } from './features/agenda';
+export { default as EventCreate } from './features/eventCreate';
+export { default as PremiumBanner } from './features/premiumBanner';
+export { default as RecentEvents } from './features/RecentEvents';
+
 // Auth Components
 export { default as UserTypeSelector } from './auth/UserTypeSelector';
 export { default as FormField } from './auth/FormField';
@@ -38,3 +55,4 @@ export { default as TransferList } from './transfers/TransferList';
 
 // Chart Components
 export { default as MonthlyTicketsChart } from './charts/MonthlyTicketsChart';
+export { default as GradientBarChart } from './charts/GradientBarChart';

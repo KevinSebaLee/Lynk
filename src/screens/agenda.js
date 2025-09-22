@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Header from '../components/header.js';
-import CalendarAgenda from '../components/agenda.js';
+import Header from '../components/layout/header.js';
+import CalendarAgenda from '../components/features/agenda.js';
 import { StatusBar } from 'expo-status-bar';
 import { ScreenHeader } from '../components';
 
