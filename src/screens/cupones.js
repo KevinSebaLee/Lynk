@@ -80,13 +80,11 @@ export default function Cupones() {
       <View style={{ flex: 1 }}>
         <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
           <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-              <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} color="white" />
-              </TouchableOpacity>
-              <Text style={styles.headerText}>Cupones</Text>
-              <View style={{ width: 24 }} />
-            </View>
+            <ScreenHeader 
+              title="Cupones"
+              onBackPress={() => navigation.goBack()}
+              titleColor="#fff"
+            />
             <LoadingSpinner />
           </SafeAreaView>
         </LinearGradient>
@@ -98,17 +96,16 @@ export default function Cupones() {
     <View style={{ flex: 1 }}>
       <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
         <SafeAreaView style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color="white" />
-            </TouchableOpacity>
-            <Text style={styles.headerText}>Cupones</Text>
-            {esEmpresa && (
+          <ScreenHeader 
+            title="Cupones"
+            onBackPress={() => navigation.goBack()}
+            titleColor="#fff"
+            rightElement={esEmpresa ? (
               <TouchableOpacity onPress={() => navigation.navigate('CouponCreate')}>
                 <Ionicons name="add" size={24} color="white" />
               </TouchableOpacity>
-            )}
-          </View>
+            ) : null}
+          />
 
           <ScrollView 
             style={styles.scrollView}
@@ -167,19 +164,6 @@ export default function Cupones() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
-  },
-  headerText: {
-    fontSize: 21,
-    fontWeight: 'bold',
-    color: 'white',
   },
   scrollView: {
     flex: 1,

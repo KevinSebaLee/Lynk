@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert } from 'react-native';
+import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import ApiService from '../services/api';
@@ -95,14 +95,11 @@ const styles = StyleSheet.create({
   logPic: { resizeMode: 'contain', flex: 7, justifyContent: 'center', marginRight: 10 },
   picView: { flex: 3, justifyContent: 'center', alignItems: 'center', marginBottom: 20, marginTop: 40 },
   headerText: { fontSize: 22, marginTop: 5 },
-  btnView: { display: 'flex', justifyContent: 'center', alignContent: 'center', width: 300, borderRadius: 5, marginBottom: 45, backgroundColor: '#642684', height: 45 },
   container: { flex: 2, backgroundColor: 'transparent', alignItems: 'center' },
-  input: { height: 45, width: 300, margin: 12, borderWidth: 1, borderRadius: 5, padding: 10, borderColor: '#642684', backgroundColor: 'white' },
   bottomSectionRow: {
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 10,
     paddingBottom: 0,
-    // Optional: flexDirection: 'column' if you want "O continua con" below the row
   },
 });
