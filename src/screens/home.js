@@ -11,20 +11,24 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native';
-import Header from '../components/layout/header.js';
-import TicketCard from '../components/cards/TicketCard.js';
-import PremiumBanner from '../components/features/premiumBanner';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
-import AgendaIcon from '../components/features/agenda.js';
-import EventCard from '../components/cards/EventCard.js';
-import RecentEvents from '../components/features/RecentEvents';
-import ApiService from '../services/api';
-import { useApi } from '../hooks/useApi';
-import { LoadingSpinner, Button } from '../components/common';
 import { LinearGradient } from 'expo-linear-gradient';
-import OverlayMenu from '../components/layout/overlayMenu';
-import { AgendaSection, SectionHeader } from '../components';
+import { useAuth } from '@/context/AuthContext';
+import { useApi } from '@/hooks/useApi';
+import ApiService from '@/services/api';
+import {
+  Header,
+  TicketCard,
+  PremiumBanner,
+  EventCard,
+  RecentEvents,
+  LoadingSpinner,
+  Button,
+  OverlayMenu,
+  AgendaSection,
+  SectionHeader
+} from '@/components';
+import AgendaIcon from '@/components/features/agenda';
 
 const { width } = Dimensions.get('window');
 

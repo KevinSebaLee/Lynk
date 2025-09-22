@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { API_CONFIG, ENDPOINTS } from '../constants/config';
-import { getToken } from '../utils/Token';
-import { handleApiError } from '../utils/errorHandler';
+import { API_CONFIG, ENDPOINTS } from '@/constants';
+import { getToken, handleApiError } from '@/utils';
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
