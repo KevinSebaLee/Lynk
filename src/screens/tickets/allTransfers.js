@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { ScreenHeader } from '../../components';
-import TransferList from '../components/TransferList';
+import { ScreenHeader } from '@/components';
+import TransferList from '@/components/transfers/TransferList';
 
 export default function AllTransfers({ route, navigation }) {
   const { movimientos } = route.params;

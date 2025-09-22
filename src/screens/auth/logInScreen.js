@@ -2,10 +2,10 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../../context/AuthContext';
-import ApiService from '../../../services/api';
-import { useApi } from '../../../hooks/useApi';
-import { FormField, AuthButton } from '../../../components';
+import { useAuth } from '@/context/AuthContext';
+import ApiService from '@/services/api';
+import { useApi } from '@/hooks/useApi';
+import { FormField, AuthButton } from '@/components';
 
 export default function LogInScreen() {
   const [mail, setMail] = useState('');

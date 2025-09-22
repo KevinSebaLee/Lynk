@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { AuthButton } from '../../components';
+import { AuthButton } from '@/components';
 
 export default function InicioScreen() {
   const navigation = useNavigation();

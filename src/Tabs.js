@@ -4,10 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { View, StyleSheet } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
-import { StackInicioNavigator, StackHomeNavigator, StackEventosNavigator } from '@/navigation';
-import StackCreateNavigator from '@/screens/create';
-import StackGestionNavigator from '@/screens/gestion';
-import StackAgendaNavigator from '@/screens/agenda';
+import { StackInicioNavigator, StackHomeNavigator, StackEventosNavigator, StackCreateNavigator, StackGestionNavigator, StackAgendaNavigator } from '@/navigation';
 import { EventCreate, LoadingSpinner } from '@/components';
 
 function ocultarTab(route) {

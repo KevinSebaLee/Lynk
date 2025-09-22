@@ -4,7 +4,7 @@ import {
   TextInput, 
   StyleSheet 
 } from 'react-native';
-import { DatePicker } from 'expo-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const FormField = ({ 
   placeholder, 
@@ -31,11 +31,15 @@ const FormField = ({
 };
 
 const DatePickerField = ({ value, onChange, placeholder = 'Seleccionar fecha' }) => (
-  <DatePicker
-    date={value ? new Date(value) : new Date()}
-    onDateChange={onChange}
+  <DateTimePicker
+    value={value ? new Date(value) : new Date()}
     mode="date"
-    locale="es"
+    display="default"
+    onChange={(event, selectedDate) => {
+      if (selectedDate) {
+        onChange(selectedDate);
+      }
+    }}
     style={{ width: '100%' }}
   />
 );
