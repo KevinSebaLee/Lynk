@@ -7,12 +7,11 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
-  TextInput,
   Image
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GradientBackground } from '../components/common';
+import { GradientBackground, SearchBar } from '../components';
 import ApiService from '../services/api';
 import { getToken } from '../utils/Token';
 import { jwtDecode } from 'jwt-decode';
@@ -151,21 +150,11 @@ const Transferir = ({ navigation }) => {
 
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color="#642684" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar contacto..."
-              placeholderTextColor="#9385B1"
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => handleSearch('')}>
-                <Ionicons name="close-circle" size={20} color="#642684" />
-              </TouchableOpacity>
-            )}
-          </View>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={handleSearch}
+            placeholder="Buscar contacto..."
+          />
         </View>
 
         {/* Favorites section */}
@@ -273,28 +262,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 16,
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 48,
-    shadowColor: '#642684',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: 48,
-    fontSize: 16,
-    color: '#333',
   },
   favoritesSection: {
     paddingHorizontal: 16,

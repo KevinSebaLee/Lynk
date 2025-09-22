@@ -3,10 +3,7 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  Modal,
   TouchableOpacity,
-  TextInput,
   Switch,
   Alert,
   BackHandler,
@@ -17,9 +14,15 @@ import {
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import ApiService from '../services/api';
 import { useNavigation } from '@react-navigation/native';
+import { 
+  FormField, 
+  DatePickerField, 
+  FormRow, 
+  FormModal,
+  ScreenHeader 
+} from '../components';
 
 const { width, height } = Dimensions.get('window');
 
@@ -238,151 +241,106 @@ const CouponCreateModal = ({ visible, onClose }) => {
   };
 
   return (
-    <Modal
-      transparent={true}
+    <FormModal
       visible={localVisible}
-      onRequestClose={handleCloseModal}
-      animationType="none"
-      statusBarTranslucent={true}
+      onClose={handleCloseModal}
+      title="Crear Cupón"
+      translateY={translateY}
+      onSubmit={handleCreateCoupon}
+      submitText="Crear cupón"
+      isLoading={isLoading}
     >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.animatedCard,
-            { transform: [{ translateY: translateY }] }
-          ]}
-        >
-          <TouchableOpacity style={styles.closeBtn} onPress={handleCloseModal}>
-            <Ionicons name="close" size={24} color="#222" />
-          </TouchableOpacity>
-          <View style={styles.card}>
-            <Text style={styles.header}>Crear Cupón</Text>
-            <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
-              
-              {/* Form Fields */}
-              <TextInput
-                style={styles.input}
-                placeholder="Nombre del cupón"
-                value={nombre}
-                onChangeText={setNombre}
-                maxLength={50}
-              />
-              
-              <TextInput
-                style={[styles.input, { height: 80 }]}
-                placeholder="Descripción"
-                value={descripcion}
-                onChangeText={setDescripcion}
-                multiline
-                maxLength={200}
-              />
+      {/* Form Fields */}
+      <FormField
+        placeholder="Nombre del cupón"
+        value={nombre}
+        onChangeText={setNombre}
+        maxLength={50}
+      />
+      
+      <FormField
+        placeholder="Descripción"
+        value={descripcion}
+        onChangeText={setDescripcion}
+        multiline={true}
+        maxLength={200}
+      />
 
-              <View style={styles.row}>
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="Descuento (%)"
-                  value={descuento}
-                  onChangeText={handleNumericChange(setDescuento)}
-                  keyboardType="numeric"
-                  maxLength={3}
-                />
-                
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="Código"
-                  value={codigo}
-                  onChangeText={(value) => setCodigo(value.toUpperCase())}
-                  maxLength={20}
-                />
-              </View>
+      <FormRow>
+        <FormField
+          placeholder="Descuento (%)"
+          value={descuento}
+          onChangeText={handleNumericChange(setDescuento)}
+          keyboardType="numeric"
+          maxLength={3}
+          style={styles.halfInput}
+        />
+        
+        <FormField
+          placeholder="Código"
+          value={codigo}
+          onChangeText={(value) => setCodigo(value.toUpperCase())}
+          maxLength={20}
+          style={styles.halfInput}
+        />
+      </FormRow>
 
-              {/* Date Picker */}
-              <View style={styles.row}>
-                <TouchableOpacity
-                  style={[styles.input, styles.dateInput]}
-                  onPress={() => {
-                    if (!fechaExpiracionDate) {
-                      const nextMonth = new Date();
-                      nextMonth.setMonth(nextMonth.getMonth() + 1);
-                      setFechaExpiracionDate(nextMonth);
-                    }
-                    setShowFechaPicker(true);
-                  }}
-                >
-                  <Text style={{ color: fechaExpiracion ? '#000' : '#999' }}>
-                    {fechaExpiracion ? fechaExpiracion : 'Fecha de expiración'}
-                  </Text>
-                  <Ionicons 
-                    name="calendar-outline" 
-                    size={16} 
-                    color="#642684" 
-                    style={styles.dateIcon} 
-                  />
-                </TouchableOpacity>
-                {showFechaPicker && (
-                  <DateTimePicker
-                    value={fechaExpiracionDate || new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={handleFechaChange}
-                    minimumDate={new Date()}
-                  />
-                )}
-              </View>
+      {/* Date Picker */}
+      <DatePickerField
+        value={fechaExpiracion}
+        onPress={() => {
+          if (!fechaExpiracionDate) {
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            setFechaExpiracionDate(nextMonth);
+          }
+          setShowFechaPicker(true);
+        }}
+        placeholder="Fecha de expiración"
+        showPicker={showFechaPicker}
+        onDateChange={handleFechaChange}
+        dateValue={fechaExpiracionDate}
+      />
 
-              <View style={styles.row}>
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="Compra mínima ($)"
-                  value={minCompra}
-                  onChangeText={handleNumericChange(setMinCompra)}
-                  keyboardType="numeric"
-                />
-                
-                <TextInput
-                  style={[styles.input, styles.halfInput]}
-                  placeholder="Usos máximos"
-                  value={maxUsos}
-                  onChangeText={handleNumericChange(setMaxUsos)}
-                  keyboardType="numeric"
-                />
-              </View>
+      <FormRow>
+        <FormField
+          placeholder="Compra mínima ($)"
+          value={minCompra}
+          onChangeText={handleNumericChange(setMinCompra)}
+          keyboardType="numeric"
+          style={styles.halfInput}
+        />
+        
+        <FormField
+          placeholder="Usos máximos"
+          value={maxUsos}
+          onChangeText={handleNumericChange(setMaxUsos)}
+          keyboardType="numeric"
+          style={styles.halfInput}
+        />
+      </FormRow>
 
-              <TextInput
-                style={styles.input}
-                placeholder="Categoría (ej: Eventos, Restaurantes)"
-                value={categoria}
-                onChangeText={setCategoria}
-                maxLength={30}
-              />
+      <FormField
+        placeholder="Categoría (ej: Eventos, Restaurantes)"
+        value={categoria}
+        onChangeText={setCategoria}
+        maxLength={30}
+      />
 
-              {/* Active Switch */}
-              <View style={styles.switchRow}>
-                <Text style={styles.switchLabel}>Cupón activo</Text>
-                <Switch
-                  value={esActivo}
-                  onValueChange={setEsActivo}
-                  thumbColor={esActivo ? '#642684' : '#f4f3f4'}
-                  trackColor={{ false: '#e6e1f7', true: '#c9b3f5' }}
-                />
-              </View>
-
-              {/* Error display */}
-              {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
-
-              {/* Create Button */}
-              {isLoading ? (
-                <ActivityIndicator size="large" color="#642684" style={{ marginTop: 20 }} />
-              ) : (
-                <TouchableOpacity style={styles.createBtn} onPress={handleCreateCoupon}>
-                  <Text style={styles.createBtnText}>Crear cupón</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-          </View>
-        </Animated.View>
+      {/* Active Switch */}
+      <View style={styles.switchRow}>
+        <Text style={styles.switchLabel}>Cupón activo</Text>
+        <Switch
+          value={esActivo}
+          onValueChange={setEsActivo}
+          thumbColor={esActivo ? '#642684' : '#f4f3f4'}
+          trackColor={{ false: '#e6e1f7', true: '#c9b3f5' }}
+        />
       </View>
-    </Modal>
+
+      {/* Error display */}
+      {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
+    </FormModal>
   );
 };
 
@@ -392,13 +350,11 @@ const CouponCreate = () => {
 
   return (
     <SafeAreaView style={styles.screenContainer}>
-      <View style={styles.screenHeader}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#151C2A" />
-        </TouchableOpacity>
-        <Text style={styles.screenHeaderText}>Crear Cupón</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader 
+        title="Crear Cupón"
+        showBackButton={true}
+        onBackPress={() => navigation.goBack()}
+      />
       
       <View style={styles.screenContent}>
         <TouchableOpacity 
@@ -424,25 +380,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  screenHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    paddingBottom: 20,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  screenHeaderText: {
-    fontSize: 21,
-    fontWeight: 'bold',
-    color: '#151C2A',
-  },
   screenContent: {
     flex: 1,
     padding: 20,
@@ -464,73 +401,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
-  // Modal styles (following eventCreate pattern)
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(80, 60, 110, 0.18)',
-    justifyContent: 'flex-end',
-  },
-  animatedCard: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    width: width,
-    maxHeight: height * 0.87,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-  },
-  card: {
-    padding: 22,
-    alignItems: 'center',
-  },
-  closeBtn: {
-    position: 'absolute',
-    right: 14,
-    top: 14,
-    zIndex: 10,
-    padding: 4,
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 13,
-    color: '#18193f',
-  },
-  scrollContainer: {
-    width: '100%',
-  },
-  scrollContent: {
-    paddingBottom: 30,
-  },
-  input: {
-    backgroundColor: '#f5f5f8',
-    borderRadius: 7,
-    padding: 10,
-    width: '100%',
-    fontSize: 15,
-    marginBottom: 10,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    marginBottom: 9,
-    width: '100%',
-  },
+  // Form styles
   halfInput: {
     flex: 1,
-  },
-  dateInput: {
-    flex: 1,
-    position: 'relative',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  dateIcon: {
-    position: 'absolute',
-    right: 10,
   },
   switchRow: {
     flexDirection: 'row',
@@ -550,19 +423,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     marginTop: 4,
     alignSelf: 'flex-start',
-  },
-  createBtn: {
-    backgroundColor: '#642684',
-    borderRadius: 8,
-    paddingVertical: 14,
-    width: '100%',
-    marginTop: 12,
-  },
-  createBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textAlign: 'center',
   },
 });
 

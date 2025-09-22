@@ -10,7 +10,7 @@ import StackEventosNavigator from './navigation/StackEventosNavigator';
 import StackCreateNavigator from './screens/create';
 import StackGestionNavigator from './screens/gestion';
 import StackAgendaNavigator from './screens/agenda';
-import CreateEventModal from './components/eventCreate.js';
+import CreateEventModal from './components/features/eventCreate.js';
 import { LoadingSpinner } from './components/common';
 
 function ocultarTab(route) {
