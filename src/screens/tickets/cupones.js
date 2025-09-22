@@ -14,10 +14,10 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import ApiService from '../services/api';
-import { LoadingSpinner } from '../components/common';
-import { useAuth } from '../context/AuthContext';
-import { ScreenHeader, CouponCard } from '../components';
+import ApiService from '../../services/api';
+import { LoadingSpinner } from '../../components/common';
+import { useAuth } from '../../context/AuthContext';
+import { ScreenHeader, CouponCard } from '../../components';
 
 const { width } = Dimensions.get('window');
 

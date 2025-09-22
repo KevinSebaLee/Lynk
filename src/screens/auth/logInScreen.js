@@ -2,16 +2,16 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
-import ApiService from '../services/api';
-import { useApi } from '../hooks/useApi';
-import { FormField, AuthButton } from '../components';
+import { useAuth } from '../../../context/AuthContext';
+import ApiService from '../../../services/api';
+import { useApi } from '../../../hooks/useApi';
+import { FormField, AuthButton } from '../../../components';
 
 export default function LogInScreen() {
   const [mail, setMail] = useState('');
   const [contraseña, setContraseña] = useState('');
-  const loginPic = require('../../assets/img/login.png');
-  const bgLogin = require('../../assets/img/bgLogin.png');
+  const loginPic = require('../../../assets/img/login.png');
+  const bgLogin = require('../../../assets/img/bgLogin.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();

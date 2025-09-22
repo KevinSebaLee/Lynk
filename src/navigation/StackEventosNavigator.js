@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Eventos from '../screens/eventos';
-import EventoElegido from '../screens/eventoElegido'; // This should be your detail screen
+import Eventos from '../screens/events/eventos';
+import EventoElegido from '../screens/events/eventoElegido'; // This should be your detail screen
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common';
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { API_CONFIG } from '../constants/config';
+import { API_CONFIG } from '../../constants/config.js';
 import {
   View,
   Text,
@@ -11,8 +11,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useApi } from '../hooks/useApi';
-import ApiService from '../services/api.js';
+import { useApi } from '../../hooks/useApi.js';
+import ApiService from '../../services/api.js';
 import {
   EventHeader,
   EventDetails,
@@ -20,7 +20,7 @@ import {
   EventDetailRow,
   EventHostCard,
   EventInviteCard
-} from '../components';
+} from '../../components/index.js';
 
 export default function EventoElegido() {
   const { width } = Dimensions.get('window');

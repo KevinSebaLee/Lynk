@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import Inicio from '../screens/inicioScreen';
-import LogIn from '../screens/logInScreen';
-import SignUp from '../screens/signUpScreen';
+import Inicio from '../screens/auth/inicioScreen';
+import LogIn from '../screens/auth/logInScreen';
+import SignUp from '../screens/auth/signUpScreen';
 
 const StackInicio = createNativeStackNavigator();
     

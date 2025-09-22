@@ -1,14 +1,10 @@
 import React from 'react';
 import { 
   View, 
-  Text, 
   TextInput, 
-  TouchableOpacity, 
-  Platform,
   StyleSheet 
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { DatePicker } from 'expo-date-picker';
 
 const FormField = ({ 
   placeholder, 
@@ -34,39 +30,15 @@ const FormField = ({
   );
 };
 
-const DatePickerField = ({ 
-  value, 
-  onPress, 
-  placeholder = 'Seleccionar fecha',
-  showPicker,
-  onDateChange,
-  dateValue 
-}) => {
-  return (
-    <View style={styles.dateFieldContainer}>
-      <TouchableOpacity style={[styles.input, styles.dateInput]} onPress={onPress}>
-        <Text style={{ color: value ? '#000' : '#999' }}>
-          {value || placeholder}
-        </Text>
-        <Ionicons 
-          name="calendar-outline" 
-          size={16} 
-          color="#642684" 
-          style={styles.dateIcon} 
-        />
-      </TouchableOpacity>
-      {showPicker && (
-        <DateTimePicker
-          value={dateValue || new Date()}
-          mode="date"
-          display="default"
-          onChange={onDateChange}
-          minimumDate={new Date()}
-        />
-      )}
-    </View>
-  );
-};
+const DatePickerField = ({ value, onChange, placeholder = 'Seleccionar fecha' }) => (
+  <DatePicker
+    date={value ? new Date(value) : new Date()}
+    onDateChange={onChange}
+    mode="date"
+    locale="es"
+    style={{ width: '100%' }}
+  />
+);
 
 const FormRow = ({ children, style }) => {
   return (

@@ -11,20 +11,20 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native';
-import Header from '../components/layout/header.js';
-import TicketCard from '../components/cards/TicketCard.js';
-import PremiumBanner from '../components/features/premiumBanner';
+import Header from '../../components/layout/header.js';
+import MovCard from '../../components/cards/MovCard.js';
+import PremiumBanner from '../../components/features/premiumBanner.js';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
-import AgendaIcon from '../components/features/agenda.js';
-import EventCard from '../components/cards/EventCard.js';
-import RecentEvents from '../components/features/RecentEvents';
-import ApiService from '../services/api';
-import { useApi } from '../hooks/useApi';
-import { LoadingSpinner, Button } from '../components/common';
+import { useAuth } from '../../context/AuthContext.js';
+import AgendaIcon from '../../components/features/agenda.js';
+import EventCard from '../../components/cards/EventCard.js';
+import RecentEvents from '../../components/features/RecentEvents.js';
+import ApiService from '../../services/api.js';
+import { useApi } from '../../hooks/useApi.js';
+import { LoadingSpinner, Button } from '../../components/common/index.js';
 import { LinearGradient } from 'expo-linear-gradient';
-import OverlayMenu from '../components/layout/overlayMenu';
-import { AgendaSection, SectionHeader } from '../components';
+import OverlayMenu from '../../components/layout/overlayMenu.js';
+import { AgendaSection, SectionHeader } from '../../components/index.js';
 
 const { width } = Dimensions.get('window');
 
@@ -171,7 +171,7 @@ export default function Home() {
           />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
-              <TicketCard
+              <MovCard
                 tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
               />

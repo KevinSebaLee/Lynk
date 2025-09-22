@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { API_CONFIG } from '../constants/config';
+import { API_CONFIG } from '../../constants/config.js';
 import {
   View,
   Text,
@@ -15,9 +15,9 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useApi } from '../hooks/useApi';
-import ApiService from '../services/api.js';
-import { EventActionButton, EventDetailRow } from '../components';
+import { useApi } from '../../hooks/useApi.js';
+import ApiService from '../../services/api.js';
+import { EventActionButton, EventDetailRow } from '../../components/index.js';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.84;

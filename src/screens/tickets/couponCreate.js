@@ -14,7 +14,7 @@ import {
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ApiService from '../services/api';
+import ApiService from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
 import { 
   FormField, 
@@ -22,7 +22,7 @@ import {
   FormRow, 
   FormModal,
   ScreenHeader 
-} from '../components';
+} from '../../components';
 
 const { width, height } = Dimensions.get('window');
 

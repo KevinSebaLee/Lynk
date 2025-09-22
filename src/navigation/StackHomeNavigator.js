@@ -1,16 +1,16 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../screens/home';
-import Tickets from '../screens/tickets';
+import Home from '../screens/home/home';
+import Tickets from '../screens/tickets/tickets';
 import PremiumGeneral from '../screens/premiumGeneral';
-import Transferir from '../screens/Transferir'; 
-import TransferirMonto from '../screens/TransferirMonto'; 
-import HomeEmpresa from '../screens/homeEmpresa';
-import Cupones from '../screens/cupones';
-import CouponSelected from '../screens/couponSelected';
-import CouponCreate from '../screens/couponCreate';
-import AllTransfers from '../screens/allTransfers';
+import Transferir from '../screens/tickets/Transferir'; 
+import TransferirMonto from '../screens/tickets/TransferirMonto'; 
+import HomeEmpresa from '../screens/home/homeEmpresa';
+import Cupones from '../screens/tickets/cupones';
+import CouponSelected from '../screens/tickets/couponSelected';
+import CouponCreate from '../screens/tickets/couponCreate';
+import AllTransfers from '../screens/tickets/allTransfers';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common';
 

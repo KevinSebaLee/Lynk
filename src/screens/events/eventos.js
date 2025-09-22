@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import Header from '../components/layout/header.js';
+import Header from '../../components/layout/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useApi } from '../hooks/useApi';
-import ApiService from '../services/api.js';
+import { useApi } from '../../hooks/useApi.js';
+import ApiService from '../../services/api.js';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
-import { SearchBar, CategoryFilter, EventGrid } from '../components';
+import { SearchBar, CategoryFilter, EventGrid } from '../../components/index.js';
 
 const CATEGORIES = ['Musica', 'Exposiciones', 'Stand Up Show', 'Theater', 'Más'];
 

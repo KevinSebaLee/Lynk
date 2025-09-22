@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { ScreenHeader } from '../components';
+import { ScreenHeader } from '../../components';
 import TransferList from '../components/TransferList';
 
 export default function AllTransfers({ route, navigation }) {

@@ -19,8 +19,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import ApiService from '../services/api';
-import { Button } from './common';
+import ApiService from '../../services/api';
+import { Button } from '../../components/common/Button';
 
 const { width, height } = Dimensions.get('window');
 
