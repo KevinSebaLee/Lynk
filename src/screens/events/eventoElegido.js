@@ -131,7 +131,7 @@ export default function EventoElegido() {
       return { uri: imagen };
     }
     // Fallback image when no valid image is provided
-    return require('../../assets/img/fallback_image.jpg');
+    return require('../../../assets/img/fallback_image.jpg');
   }, []);
 
   // Handle joining/leaving events

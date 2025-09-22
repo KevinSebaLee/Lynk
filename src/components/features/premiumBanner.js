@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 // Import image statically for better performance and caching
-const illustration = require('../../assets/img/banner.png');
+const illustration = require('../../../assets/img/banner.png');
 
 // Pre-calculate dimensions for responsive layout
 const { width } = Dimensions.get('window');
