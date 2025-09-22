@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import ApiService from '@/services/api';
-import Header from './header';
+import Header from '../layout/header';
 
 // Pre-calculate dimensions for better performance
 const { width } = Dimensions.get('window');

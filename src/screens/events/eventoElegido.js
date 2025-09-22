@@ -20,7 +20,7 @@ import {
   EventDetailRow,
   EventHostCard,
   EventInviteCard
-} from '../components';
+} from '../../components/index.js';
 
 export default function EventoElegido() {
   const { width } = Dimensions.get('window');
@@ -131,7 +131,7 @@ export default function EventoElegido() {
       return { uri: imagen };
     }
     // Fallback image when no valid image is provided
-    return require('../../assets/img/fallback_image.jpg');
+    return require('../../../assets/img/fallback_image.jpg');
   }, []);
 
   // Handle joining/leaving events

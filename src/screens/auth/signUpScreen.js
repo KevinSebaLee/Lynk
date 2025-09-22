@@ -16,12 +16,12 @@ import {
   ImageBackground,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
-import ApiService from '../services/api';
-import { APP_CONSTANTS } from '../constants/config';
-import { useApi } from '../hooks/useApi';
-import { Button } from '../components/common';
-import { UserTypeSelector, FormField, AuthButton } from '../components';
+import { useAuth } from '@/context/AuthContext';
+import ApiService from '@/services/api';
+import { APP_CONSTANTS } from '@/constants/config';
+import { useApi } from '@/hooks/useApi';
+import { Button } from '@/components/common';
+import { UserTypeSelector, FormField, AuthButton } from '@/components';
 
 export default function SignUpScreen() {
   const [userType, setUserType] = useState('personal');
@@ -33,7 +33,7 @@ export default function SignUpScreen() {
   const [domicilio, setDomicilio] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [confirmarContraseña, setConfirmarContraseña] = useState('');
-  const signUpPic = require('../../assets/img/signPic.png');
+  const signUpPic = require('../../../assets/img/signPic.png');
   const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
   const navigation = useNavigation();
   const { login } = useAuth();

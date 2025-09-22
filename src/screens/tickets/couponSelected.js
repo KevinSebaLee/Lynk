@@ -20,7 +20,7 @@ import {
   CouponTermsSection, 
   TermsModal,
   ScreenHeader 
-} from '../components';
+} from '../../components';
 
 const { width, height } = Dimensions.get('window');
 

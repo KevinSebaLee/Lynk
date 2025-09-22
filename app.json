@@ -4,11 +4,11 @@
     "slug": "Lynk",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon":  "./assets/img/logoFinal.png",
+    "icon": "./assets/img/logoFinal.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image":  "./assets/img/logoFinal.png",
+      "image": "./assets/img/logoFinal.png",
       "resizeMode": "contain"
     },
     "ios": {
@@ -23,6 +23,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
   }
 }

@@ -175,7 +175,7 @@ export default function Home() {
           />
           <Pressable onPress={handleTicketsPress}>
             <View style={styles.ticketWrapper}>
-              <TicketCard
+              <MovCard
                 tickets={userData?.tickets || 0}
                 onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
               />

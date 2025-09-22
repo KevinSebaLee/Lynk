@@ -3,8 +3,8 @@ import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Container from './container';
 
 // Pre-require assets for better performance
-const hamburgerIcon = require('../../assets/img/icons/hamburger.png');
-const notifIcon = require('../../assets/img/icons/notif.png');
+const hamburgerIcon = require('../../../assets/img/icons/hamburger.png');
+const notifIcon = require('../../../assets/img/icons/notif.png');
 
 /**
  * Header component displays the app header with menu button and notification icon
