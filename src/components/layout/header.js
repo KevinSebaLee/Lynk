@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Container from './container.js';
+import Container from './container';
 
 // Pre-require assets for better performance
 const hamburgerIcon = require('../../../assets/img/icons/hamburger.png');

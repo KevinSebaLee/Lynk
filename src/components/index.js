@@ -47,7 +47,7 @@ export { default as CouponTermsSection } from './coupons/CouponTermsSection';
 export { default as TermsModal } from './coupons/TermsModal';
 
 // Form Components
-export { DatePickerField, FormRow } from './forms/FormFields';
+export { FormField, DatePickerField, FormRow } from './forms/FormFields';
 export { default as FormModal } from './forms/FormModal';
 
 // Transfer Components

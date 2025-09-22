@@ -2,11 +2,16 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Dimensions, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useCallback } from 'react';
-import ApiService from '../../services/api.js';
-import { LoadingSpinner } from '../../components/common/index.js';
-import { ScreenHeader, TicketDisplay, TransferList, MonthlyTicketsChart } from '../../components/index.js';
-import MovCard from '../../components/cards/MovCard.js';
-import PieChartCard from '../../components/cards/PieChartCard.js';
+import ApiService from '@/services/api';
+import { 
+  LoadingSpinner, 
+  ScreenHeader, 
+  TicketDisplay, 
+  TransferList, 
+  MonthlyTicketsChart,
+  MovCard,
+  PieChartCard 
+} from '@/components';
 
 const width = Dimensions.get('window').width;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };

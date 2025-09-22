@@ -3,15 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { View, StyleSheet } from 'react-native';
-import { useAuth } from './context/AuthContext';
-import StackInicioNavigator from './navigation/StackInicioNavigator.js';
-import StackHomeNavigator from './navigation/StackHomeNavigator.js';
-import StackEventosNavigator from './navigation/StackEventosNavigator';
-import StackCreateNavigator from './screens/create';
-import StackGestionNavigator from './screens/gestion';
-import StackAgendaNavigator from './screens/agenda';
-import CreateEventModal from './components/features/eventCreate.js';
-import { LoadingSpinner } from './components/common';
+import { useAuth } from '@/context/AuthContext';
+import { StackInicioNavigator, StackHomeNavigator, StackEventosNavigator } from '@/navigation';
+import StackCreateNavigator from '@/screens/create';
+import StackGestionNavigator from '@/screens/gestion';
+import StackAgendaNavigator from '@/screens/agenda';
+import { EventCreate, LoadingSpinner } from '@/components';
 
 function ocultarTab(route) {
   const screen = getFocusedRouteNameFromRoute(route) ?? 'inicioScreen';
@@ -125,7 +122,7 @@ export default function MyTabs() {
       </Tab.Navigator>
 
       {/* Always render the modal but control visibility with props */}
-      <CreateEventModal
+      <EventCreate
         visible={isAuthenticated && showCreateModal}
         onClose={handleCloseModal}
         tickets={tickets || 0}
