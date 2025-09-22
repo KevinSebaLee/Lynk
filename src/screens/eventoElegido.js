@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { API_CONFIG } from '../constants/config';
 import {
   View,
   Text,
@@ -11,8 +10,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useApi } from '../hooks/useApi';
-import ApiService from '../services/api.js';
+import { API_CONFIG } from '@/constants';
+import { useApi } from '@/hooks/useApi';
+import ApiService from '@/services/api';
 import {
   EventHeader,
   EventDetails,
