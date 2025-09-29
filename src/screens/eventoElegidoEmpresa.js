@@ -10,8 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
-  Alert,
-  Dimensions
+  Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -19,6 +18,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '../hooks/useApi';
 import ApiService from '../services/api.js';
 import { EventActionButton, EventDetailRow } from '../components';
+import MonthlyInscriptionsChart from '../components/MonthlyInscriptionsChart';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = width * 0.84;
@@ -29,6 +29,8 @@ export default function EventoElegidoEmpresa() {
   const navigation = useNavigation();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [monthlyInscriptions, setMonthlyInscriptions] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
   const { execute: borrarEvento, loading: loadingBorrar } = useApi(ApiService.borrarEvento);
@@ -52,6 +54,19 @@ export default function EventoElegidoEmpresa() {
               }
 
               setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
+              
+              // Sample monthly inscriptions data
+              // In a real app, you would fetch this from an API
+              setMonthlyInscriptions([
+                { month: 1, inscriptions: 15 },
+                { month: 2, inscriptions: 23 },
+                { month: 3, inscriptions: 18 },
+                { month: 4, inscriptions: 32 },
+                { month: 5, inscriptions: 45 },
+                { month: 6, inscriptions: 28 }
+              ]);
+              setSelectedMonth(5); // Set current month as selected
+              
             } catch (error) {
               setEvent(eventFromParams);
             }
@@ -225,9 +240,15 @@ export default function EventoElegidoEmpresa() {
         <Text style={styles.eventDescription}>{getEventDescription()}</Text>
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          
             <TouchableOpacity style={styles.inviteBtn}>
               <Text style={styles.inviteBtnText}>Participantes</Text>
+              
+              {/* Monthly Inscriptions Chart */}
+              <MonthlyInscriptionsChart
+                data={monthlyInscriptions}
+                selectedMonth={selectedMonth}
+                onMonthSelect={(month) => setSelectedMonth(month)}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -237,6 +258,7 @@ export default function EventoElegidoEmpresa() {
 }
 
 const styles = StyleSheet.create({
+  // All the styles remain the same...
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -385,33 +407,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 2,
   },
-  joinBtn: {
-    backgroundColor: '#642684',
-    borderRadius: 9,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 26,
-    paddingVertical: 11,
-    marginVertical: 8,
-    marginBottom: 13,
-    minWidth: 130,
-    alignItems: 'center',
-  },
-  joinBtnUnido: {
-    backgroundColor: '#38C172',
-  },
-  joinBtnDisabled: {
-    backgroundColor: '#ccc',
-  },
-  joinBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-  joinBtnTextUnido: {
-    color: '#fff',
-  },
   price: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -449,32 +444,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 18,
-    gap: 12,
-  },
-  detailIconBox: {
-    backgroundColor: '#f4e9fa',
-    borderRadius: 13,
-    padding: 11,
-    marginRight: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  detailTitle: {
-    fontWeight: 'bold',
-    color: '#18193f',
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  detailDescription: {
-    color: '#888',
-    fontSize: 13,
-    marginBottom: 1,
-  },
   sectionTitle: {
     fontWeight: 'bold',
     fontSize: 18,
@@ -500,24 +469,6 @@ const styles = StyleSheet.create({
     shadowRadius: 9,
     elevation: 2,
   },
-  inviteImage: {
-    width: 55,
-    height: 55,
-    borderRadius: 13,
-    backgroundColor: '#fff',
-    marginRight: 8,
-  },
-  inviteTitle: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 17,
-    marginBottom: 3,
-  },
-  inviteSubtitle: {
-    color: '#fff',
-    fontSize: 15,
-    marginBottom: 2,
-  },
   inviteBtn: {
     backgroundColor: '#fff',
     borderRadius: 8,
@@ -526,10 +477,13 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginLeft: 10,
     marginTop: 4,
+    width: '100%',
   },
   inviteBtnText: {
     color: '#9F4B97',
     fontSize: 15,
     fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });

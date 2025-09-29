@@ -6,8 +6,6 @@ import Container from '../components/container.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TicketDisplay } from '../components';
 
-const width = Dimensions.get('window').width;
-
 /**
  * Create Screen - Displays ticket creation interface
  * Uses memoization to prevent unnecessary re-renders
