@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Image, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Image, Text, StyleSheet } from 'react-native';
 import { API_CONFIG } from '../../constants/config';
+import { DIMENSIONS } from '@/constants';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 const EventGrid = ({ events, onEventPress }) => {
   // Responsive card sizes (Pinterest-style)

@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { DIMENSIONS } from '@/constants';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 const CouponCard = ({ coupon, onPress }) => {
   const getStatusColor = (status) => {

@@ -1,12 +1,13 @@
 import React, { memo } from 'react';
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DIMENSIONS } from '@/constants';
 
 // Import image statically for better performance and caching
-const illustration = require('../../assets/img/banner.png');
+const illustration = require('../../../assets/img/banner.png');
 
 // Pre-calculate dimensions for responsive layout
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 const BANNER_PADDING = width * 0.05;
 const BANNER_MARGIN = width * 0.028;
 const TITLE_FONT_SIZE = Math.max(13, width * 0.033);

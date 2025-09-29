@@ -12,17 +12,17 @@ import {
   BackHandler,
   Platform,
   Animated,
-  Dimensions,
   ActivityIndicator,
   Image
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import ApiService from '../services/api';
-import { Button } from './common';
+import ApiService from '../../services/api';
+import { Button } from '../../components/common/Button';
+import { DIMENSIONS } from '@/constants';
 
-const { width, height } = Dimensions.get('window');
+const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 
 const EventCreateModal = ({ visible, onClose }) => {
   // Use state variable for visibility to avoid animation issues

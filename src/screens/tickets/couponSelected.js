@@ -13,6 +13,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { DIMENSIONS } from '@/constants';
 import { 
   CouponDetailCard, 
   CouponDetailsSection, 
@@ -20,9 +21,9 @@ import {
   CouponTermsSection, 
   TermsModal,
   ScreenHeader 
-} from '../components';
+} from '../../components';
 
-const { width, height } = Dimensions.get('window');
+const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 
 export default function CouponSelected() {
   const navigation = useNavigation();

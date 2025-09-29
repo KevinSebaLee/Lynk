@@ -15,11 +15,11 @@ import {
 } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GradientBackground, Button } from '../components/common';
-import ApiService from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { GradientBackground, Button } from '../../components/common';
+import ApiService from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
-import { getToken } from '../utils/Token';
+import { getToken } from '../../utils/Token';
 
 const TransferirMonto = ({ route, navigation }) => {
   const { usuario } = route.params;

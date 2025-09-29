@@ -7,19 +7,18 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
-  Dimensions,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_CONFIG } from '@/constants';
+import { API_CONFIG, DIMENSIONS } from '@/constants';
 import ApiService from '@/services/api';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
 const MAP_SIZE = width * 0.36;
 

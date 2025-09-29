@@ -9,22 +9,22 @@ import {
   BackHandler,
   Platform,
   Animated,
-  Dimensions,
   ActivityIndicator,
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ApiService from '../services/api';
+import ApiService from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
+import { DIMENSIONS } from '@/constants';
 import { 
   FormField, 
   DatePickerField, 
   FormRow, 
   FormModal,
   ScreenHeader 
-} from '../components';
+} from '../../components';
 
-const { width, height } = Dimensions.get('window');
+const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 
 const CouponCreateModal = ({ visible, onClose }) => {
   const navigation = useNavigation();

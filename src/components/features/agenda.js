@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import ApiService from '@/services/api';
-import Header from './header';
+import Header from '../layout/header';
+import { DIMENSIONS } from '@/constants';
 
 // Pre-calculate dimensions for better performance
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 // Constants for localization
 const MONTHS_ES = [

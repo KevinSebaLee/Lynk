@@ -1,21 +1,13 @@
 import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { DIMENSIONS } from '@/constants';
 
-// Calculate card dimensions based on screen width with maximum size limit
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
-/**
- * MovCard - Ticket management card component
- * 
- * @param {number} tickets - Number of available tickets to display
- * @param {function} onGetMore - Handler for "Buy" action
- * @param {function} onTransfer - Handler for "Transfer" action
- * @param {function} onRedeem - Handler for "Redeem" action
- * @param {object} style - Additional styles to apply to the card
- */
+/* MovCard - Ticket management card component */
 const MovCard = memo(({ tickets, onGetMore, onTransfer, onRedeem, style }) => (
   <LinearGradient
     colors={['#735BF2', '#642684']}
@@ -62,13 +54,7 @@ const MovCard = memo(({ tickets, onGetMore, onTransfer, onRedeem, style }) => (
   </LinearGradient>
 ));
 
-/**
- * ActionButton - Action button for the MovCard component
- * 
- * @param {element} icon - Icon element to display
- * @param {string} label - Button label text
- * @param {function} onPress - Handler function when button is pressed
- */
+/* ActionButton - Action button for the MovCard component */
 const ActionButton = memo(({ icon, label, onPress }) => (
   <TouchableOpacity 
     style={styles.actionContainer} 

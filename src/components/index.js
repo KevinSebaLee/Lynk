@@ -23,7 +23,7 @@ export { default as RecentEvents } from './features/RecentEvents';
 
 // Auth Components
 export { default as UserTypeSelector } from './auth/UserTypeSelector';
-export { default as FormField } from './auth/FormField';
+export { default as AuthFormField } from './auth/FormField';
 export { default as AuthButton } from './auth/AuthButton';
 
 // Event Components
@@ -47,7 +47,7 @@ export { default as CouponTermsSection } from './coupons/CouponTermsSection';
 export { default as TermsModal } from './coupons/TermsModal';
 
 // Form Components
-export { FormField, DatePickerField, FormRow } from './forms/FormFields';
+export { FormField as FormFieldComponent, DatePickerField, FormRow } from './forms/FormFields';
 export { default as FormModal } from './forms/FormModal';
 
 // Transfer Components
@@ -56,3 +56,7 @@ export { default as TransferList } from './transfers/TransferList';
 // Chart Components
 export { default as MonthlyTicketsChart } from './charts/MonthlyTicketsChart';
 export { default as GradientBarChart } from './charts/GradientBarChart';
+
+// Common Components
+export { default as LoadingSpinner } from './common/LoadingSpinner';
+export { default as Button } from './common/Button';
