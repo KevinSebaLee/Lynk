@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { DIMENSIONS } from '@/constants';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
   if (!data.length) {

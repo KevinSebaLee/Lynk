@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Circle, G, Path } from 'react-native-svg';
+import { DIMENSIONS } from '@/constants';
 
 // Define a set of predefined colors for categories
 const CATEGORY_COLORS = {
@@ -54,7 +55,7 @@ const PieChartCard = ({ categories = [], title = 'Distribución de Tickets', sub
         );
     }
 
-    const screenWidth = Dimensions.get('window').width;
+    const screenWidth = DIMENSIONS.screenWidth;
 
     // Render the donut chart
     const renderDonutChart = () => {
