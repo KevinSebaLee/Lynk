@@ -1,9 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text } from 'react-native';
-import Header from '../components/header.js';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-import { AuthButton } from '../components';
+import { Header, AuthButton } from '@/components';
 
 export default function PremiumGeneral() {
   const navigation = useNavigation();

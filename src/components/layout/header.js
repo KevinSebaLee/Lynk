@@ -1,0 +1,74 @@
+import React, { memo } from 'react';
+import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Container from './container';
+
+// Pre-require assets for better performance
+const hamburgerIcon = require('../../../assets/img/icons/hamburger.png');
+const notifIcon = require('../../../assets/img/icons/notif.png');
+
+/**
+ * Header component displays the app header with menu button and notification icon
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.nombre - Title to display in the header
+ * @param {Function} props.onHamburgerPress - Callback when hamburger menu is pressed
+ * @returns {React.ReactElement} Rendered component
+ */
+const Header = memo(({ nombre, onHamburgerPress }) => {
+  return (
+    <Container style={styles.container}>
+      <View style={styles.leftSection}>
+        <TouchableOpacity 
+          onPress={onHamburgerPress}
+          accessibilityRole="button"
+          accessibilityLabel="Open menu"
+        >
+          <Image 
+            source={hamburgerIcon}
+            style={styles.hamburgerIcon}
+            fadeDuration={0}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{nombre}</Text>
+      </View>
+
+      <View>
+        <Image
+          source={notifIcon}
+          style={styles.notificationIcon}
+          fadeDuration={0}
+        />
+      </View>
+    </Container>
+  );
+});
+
+// Extracted styles for better performance and maintainability
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 40,
+  },
+  leftSection: {
+    flexDirection: 'row', 
+    alignItems: 'center'
+  },
+  hamburgerIcon: {
+    width: 40, 
+    height: 40, 
+    marginRight: 10
+  },
+  headerTitle: {
+    color: 'white', 
+    fontSize: 18
+  },
+  notificationIcon: {
+    width: 30, 
+    height: 30
+  }
+});
+
+export default Header;

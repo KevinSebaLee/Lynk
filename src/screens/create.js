@@ -1,10 +1,8 @@
 import React, { memo } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
-import Header from '../components/header.js';
-import Container from '../components/container.js';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { TicketDisplay } from '../components';
+import { Header, Container, TicketDisplay } from '@/components';
 
 /**
  * Create Screen - Displays ticket creation interface
