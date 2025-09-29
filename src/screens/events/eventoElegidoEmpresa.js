@@ -102,7 +102,7 @@ export default function EventoElegidoEmpresa() {
     if (typeof imagen === 'string' && imagen.trim() !== '') {
       return { uri: imagen };
     }
-    return require('../../assets/img/fallback_image.jpg');
+    return require('../../../assets/img/fallback_image.jpg');
   };
 
   if (loading) {

@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
+import { useAuth } from '../../context/AuthContext';
 import ApiService from '@/services/api';
 import { Header, SearchBar, CategoryFilter, EventGrid } from '@/components';
 
@@ -13,7 +14,7 @@ export default function Eventos() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [events, setEvents] = useState([]);
   const navigation = useNavigation();
-
+  const { esEmpresa, authInitialized } = useAuth();
   const { execute: loadEvents } = useApi(ApiService.getEventos);
 
   useFocusEffect(
@@ -41,7 +42,7 @@ export default function Eventos() {
 
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
-    navigation.navigate('eventoElegido', { event });
+    esEmpresa? navigation.navigate('eventoElegido', { event }): navigation.navigate('eventoElegidoEmpresa', { event })
   };
 
   const handleCategorySelect = (category) => {

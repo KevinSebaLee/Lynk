@@ -5,25 +5,27 @@ import Eventos from '@/screens/events';
 import EventoElegido from '@/screens/events/eventoElegido';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components';
+import EventoElegidoEmpresa from '../screens/events/eventoElegidoEmpresa';
 
 const Stack = createNativeStackNavigator();
 
 export default function StackEventosNavigator() {
   const { esEmpresa, authInitialized } = useAuth();
 
+  if (!authInitialized) {
+    return <LoadingSpinner />;
+  }
+
+  console.log('StackEventosNavigator - esEmpresa:', esEmpresa); // Debug log
+
+
   return (
-    <View style={styles.container}>
-      <Stack.Navigator initialRouteName='eventos' screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='eventos' component={Eventos} />
-        <Stack.Screen name='eventoElegido' component={EventoElegido} />
-      </Stack.Navigator>
-      
-      {!authInitialized && (
-        <View style={styles.loadingOverlay}>
-          <LoadingSpinner />
-        </View>
-      )}
-    </View>
+    <Stack.Navigator initialRouteName="eventos" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="eventos" component={Eventos} />
+      <Stack.Screen name="eventoElegido" component={EventoElegido} />
+      <Stack.Screen name="eventoElegidoEmpresa" component={EventoElegidoEmpresa} />
+
+    </Stack.Navigator>
   );
 }
 
