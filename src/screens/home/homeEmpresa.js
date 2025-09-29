@@ -5,7 +5,6 @@ import {
   View,
   SafeAreaView,
   ScrollView,
-  Dimensions,
   Pressable,
   Text,
   TouchableOpacity 
@@ -15,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import ApiService from '@/services/api';
+import { DIMENSIONS } from '@/constants';
 import {
   Header,
   PremiumBanner,
@@ -26,7 +26,7 @@ import {
   SectionHeader,
   Agenda as AgendaIcon
 } from '@/components';
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 export default function Home() {
   const navigation = useNavigation();

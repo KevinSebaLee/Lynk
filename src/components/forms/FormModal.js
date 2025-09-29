@@ -6,12 +6,12 @@ import {
   ScrollView, 
   TouchableOpacity, 
   Animated,
-  Dimensions,
   StyleSheet 
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { DIMENSIONS } from '@/constants';
 
-const { width, height } = Dimensions.get('window');
+const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 
 const FormModal = ({ 
   visible, 

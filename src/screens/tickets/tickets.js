@@ -1,19 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Dimensions, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useCallback } from 'react';
 import ApiService from '@/services/api';
-import { 
-  LoadingSpinner, 
-  ScreenHeader, 
-  TicketDisplay, 
-  TransferList, 
+import { DIMENSIONS } from '@/constants';
+import {
+  LoadingSpinner,
+  ScreenHeader,
+  TicketDisplay,
+  TransferList,
   MonthlyTicketsChart,
   MovCard,
-  PieChartCard 
+  PieChartCard
 } from '@/components';
 
-const width = Dimensions.get('window').width;
+const width = DIMENSIONS.screenWidth;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
 
 // Define colors globally for the component
@@ -234,8 +235,9 @@ export default function Tickets() {
           {/* Monthly Tickets Chart */}
           <View style={styles.chartSection}>
             <MonthlyTicketsChart
-              monthlyData={monthlyTickets}
-              onMonthPress={(month) => setSelectedMonth(month)}
+              data={monthlyTickets} 
+              selectedMonth={selectedMonth}
+              onMonthSelect={setSelectedMonth} 
             />
           </View>
 

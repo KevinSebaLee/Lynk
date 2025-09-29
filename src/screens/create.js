@@ -1,8 +1,11 @@
 import React, { memo } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Dimensions } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Header, Container, TicketDisplay } from '@/components';
+import { DIMENSIONS } from '@/constants';
+
+const width = DIMENSIONS.screenWidth;
 
 /**
  * Create Screen - Displays ticket creation interface

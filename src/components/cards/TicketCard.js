@@ -1,10 +1,11 @@
 import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { DIMENSIONS } from '@/constants';
 
 // Pre-calculate dimensions for better performance
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 const CARD_WIDTH = Math.min(width * 0.92, 420);
 
 /**

@@ -5,10 +5,10 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
-  Dimensions
 } from 'react-native';
+import { DIMENSIONS } from '@/constants';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 /**
  * EventCard - Displays an event with image, date, and details

@@ -1,10 +1,11 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Header, Container, TicketDisplay } from '@/components';
+import { DIMENSIONS } from '@/constants';
 
-const width = Dimensions.get('window').width;
+const width = DIMENSIONS.screenWidth;
 
 export default function Gestion() {
   return (

@@ -1,10 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-<<<<<<< HEAD:src/screens/logInScreen.js
-import { ImageBackground, TouchableOpacity, Platform, Pressable, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert } from 'react-native';
-=======
 import { ImageBackground, TouchableOpacity, Platform, StyleSheet, Text, View, Image, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
->>>>>>> origin/Kevin:src/screens/auth/logInScreen.js
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
 import ApiService from '@/services/api';

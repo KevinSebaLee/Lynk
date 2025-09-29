@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, ImageBackground, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ImageBackground, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { DIMENSIONS } from '@/constants';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
 const MAP_SIZE = width * 0.36;
 

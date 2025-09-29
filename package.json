@@ -20,16 +20,10 @@
     "axios": "^1.10.0",
     "dotenv": "^16.6.0",
     "expo": "^54.0.0",
-<<<<<<< HEAD
-    "expo-image-picker": "^16.1.4",
-    "expo-linear-gradient": "~14.1.4",
-    "expo-status-bar": "~2.2.3",
-=======
     "expo-image-picker": "~17.0.8",
     "expo-linear-gradient": "~15.0.7",
     "expo-secure-store": "~15.0.7",
     "expo-status-bar": "~3.0.8",
->>>>>>> origin/Kevin
     "jwt-decode": "^4.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
