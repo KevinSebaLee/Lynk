@@ -25,8 +25,6 @@ import {
   LoadingSpinner,
   Button,
   OverlayMenu,
-  AgendaSection,
-  SectionHeader
 } from '@/components';
 import AgendaIcon from '@/components/features/agenda';
 
@@ -64,14 +62,14 @@ export default function Home() {
             loadTickets(),
             loadHomeData()
           ]);
-          
+
           // Update user data by combining tickets and user info
           setUserData(prevData => ({
             ...prevData,
             ...(homeData?.user || {}),
             tickets: ticketsData?.tickets || 0
           }));
-          
+
           // Update events lists with fallbacks to empty arrays
           if (homeData) {
             setEventosRecientes(homeData.eventosRecientes || []);
@@ -81,12 +79,12 @@ export default function Home() {
           // Error already handled by useApi hook
         }
       };
-      
+
       // Start data loading
       refreshData();
-      
+
       // Cleanup function (no cleanup needed in this case)
-      return () => {};
+      return () => { };
     }, [loadTickets, loadHomeData])
   );
 
@@ -141,13 +139,13 @@ export default function Home() {
   }, []);
 
   // Safely access arrays with memoization to prevent recreating on each render
-  const safeEventosRecientes = useMemo(() => 
+  const safeEventosRecientes = useMemo(() =>
     Array.isArray(eventosRecientes) ? eventosRecientes : []
-  , [eventosRecientes]);
-  
-  const safeEventosUser = useMemo(() => 
+    , [eventosRecientes]);
+
+  const safeEventosUser = useMemo(() =>
     Array.isArray(eventosUser) ? eventosUser : []
-  , [eventosUser]);
+    , [eventosUser]);
 
   return (
     <View style={styles.container}>
@@ -162,84 +160,79 @@ export default function Home() {
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
           >
-          <LinearGradient
-            colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-          />
-          <Header nombre={userData?.user_nombre || 'Usuario'} onHamburgerPress={() => setMenuVisible(true)} />
-          <OverlayMenu
-            visible={menuVisible}
-            onClose={() => setMenuVisible(false)}
-            onNavigate={(screen) => navigation.navigate(screen)}
-          />
-          <Pressable onPress={handleTicketsPress}>
-            <View style={styles.ticketWrapper}>
-              <MovCard
-                tickets={userData?.tickets || 0}
-                onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
-              />
+            <LinearGradient
+              colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+            <Header nombre={userData?.user_nombre || 'Usuario'} onHamburgerPress={() => setMenuVisible(true)} />
+            <OverlayMenu
+              visible={menuVisible}
+              onClose={() => setMenuVisible(false)}
+              onNavigate={(screen) => navigation.navigate(screen)}
+            />
+            <Pressable onPress={handleTicketsPress}>
+              <View style={styles.ticketWrapper}>
+                <TicketCard
+                  tickets={userData?.tickets || 0}
+                  onGetMore={() => Alert.alert('¡Función para conseguir más tickets!')}
+                />
+              </View>
+            </Pressable>
+            <View style={styles.bannerWrapper}>
+              <PremiumBanner plan={userData?.plan_titulo} />
             </View>
-          </Pressable>
-          <View style={styles.bannerWrapper}>
-            <PremiumBanner plan={userData?.plan_titulo} />
-          </View>
-          <View style={styles.agendaWrapper}>
-            <AgendaIcon />
-            <View style={{ paddingRight: 250 }}>
-              <View style={styles.headerRow}>
-                <Text style={styles.header}>Mis eventos</Text>
+            <View style={styles.agendaWrapper}>
+              <AgendaIcon />
+              <View style={{ paddingRight: 250 }}>
+                <View style={styles.headerRow}>
+                  <Text style={styles.header}>Mis eventos</Text>
+                </View>
+              </View>
+              {safeEventosUser.length > 0 ? (
+                <ScrollView horizontal>
+                  {safeEventosUser.map((evento, idx) => (
+                    <View key={evento?.id || idx} style={{ marginRight: 12 }}>
+                      <EventCard
+                        imageUri={validateImageUri(evento?.imagen)}
+                        eventName={evento?.nombre}
+                        eventFullDate={evento?.fecha}
+                        venue={evento?.ubicacion}
+                        priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
+                        onPress={() => navigation.navigate('eventoElegido', { evento })}
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              ) : (
+                <Text style={{ color: '#642684', marginTop: 10 }}>No tienes eventos propios aún.</Text>
+              )}
+
+              <View style={{ marginTop: 20 }}>
+                <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
               </View>
             </View>
-            {safeEventosUser.length > 0 ? (
+            <View style={styles.headerRow}>
+              <Text style={styles.header}>Eventos más recientes</Text>
+              <TouchableOpacity>
+                <Text style={{ color: '#642684' }}>Ver más</Text>
+              </TouchableOpacity>
+            </View>
+            {safeEventosRecientes.length > 0 && (
               <ScrollView horizontal>
-                {safeEventosUser.map((evento, idx) => (
+                {safeEventosRecientes.map((evento, idx) => (
                   <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                    <EventCard
+                    <RecentEvents
                       imageUri={validateImageUri(evento?.imagen)}
                       eventName={evento?.nombre}
-                      eventFullDate={evento?.fecha}
                       venue={evento?.ubicacion}
-                      priceRange={evento?.precio ? evento.precio : "$12.000 - $15.000"}
-                      onPress={() => navigation.navigate('eventoElegido', { evento })}
                     />
                   </View>
                 ))}
               </ScrollView>
-            ) : (
-              <Text style={{ color: '#642684', marginTop: 10 }}>No tienes eventos propios aún.</Text>
             )}
-
-            <View style={{ marginTop: 20 }}>
-              <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
-            </View>
-            <View style={{ marginTop: 10 }}>
-              <TouchableOpacity style={styles.homeEmpresaBtn} onPress={handleHomeEmpresa}>
-                <Text style={styles.homeEmpresaBtnText}>Ir a Home Empresa</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.headerRow}>
-            <Text style={styles.header}>Eventos más recientes</Text>
-            <TouchableOpacity>
-              <Text style={{ color: '#642684' }}>Ver más</Text>
-            </TouchableOpacity>
-          </View>
-          {safeEventosRecientes.length > 0 && (
-            <ScrollView horizontal>
-              {safeEventosRecientes.map((evento, idx) => (
-                <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                  <RecentEvents
-                    imageUri={validateImageUri(evento?.imagen)}
-                    eventName={evento?.nombre}
-                    venue={evento?.ubicacion}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-          )}
-        </ScrollView>
-      </SafeAreaView>
+          </ScrollView>
+        </SafeAreaView>
       )}
     </View>
   );

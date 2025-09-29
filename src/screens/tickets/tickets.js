@@ -4,14 +4,14 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useCallback } from 'react';
 import ApiService from '@/services/api';
 import { DIMENSIONS } from '@/constants';
-import { 
-  LoadingSpinner, 
-  ScreenHeader, 
-  TicketDisplay, 
-  TransferList, 
+import {
+  LoadingSpinner,
+  ScreenHeader,
+  TicketDisplay,
+  TransferList,
   MonthlyTicketsChart,
   MovCard,
-  PieChartCard 
+  PieChartCard
 } from '@/components';
 
 const width = DIMENSIONS.screenWidth;
@@ -235,8 +235,9 @@ export default function Tickets() {
           {/* Monthly Tickets Chart */}
           <View style={styles.chartSection}>
             <MonthlyTicketsChart
-              monthlyData={monthlyTickets}
-              onMonthPress={(month) => setSelectedMonth(month)}
+              data={monthlyTickets} 
+              selectedMonth={selectedMonth}
+              onMonthSelect={setSelectedMonth} 
             />
           </View>
 
