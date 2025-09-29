@@ -5,7 +5,6 @@ import {
   View,
   SafeAreaView,
   ScrollView,
-  Dimensions,
   Pressable,
   Alert,
   Text,
@@ -16,6 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import ApiService from '@/services/api';
+import { DIMENSIONS } from '@/constants';
 import {
   Header,
   TicketCard,
@@ -30,7 +30,7 @@ import {
 } from '@/components';
 import AgendaIcon from '@/components/features/agenda';
 
-const { width } = Dimensions.get('window');
+const { screenWidth: width } = DIMENSIONS;
 
 /**
  * Home Screen - Main dashboard displaying user tickets and events

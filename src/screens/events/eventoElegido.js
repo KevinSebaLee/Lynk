@@ -7,10 +7,9 @@ import {
   ActivityIndicator,
   Alert,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { API_CONFIG } from '@/constants';
+import { API_CONFIG, DIMENSIONS } from '@/constants';
 import { useApi } from '@/hooks/useApi';
 import ApiService from '@/services/api';
 import {
@@ -23,7 +22,7 @@ import {
 } from '../../components/index.js';
 
 export default function EventoElegido() {
-  const { width } = Dimensions.get('window');
+  const { screenWidth: width } = DIMENSIONS;
   const CIRCLE_SIZE = width * 0.84;
   const MAP_SIZE = width * 0.36;
 
