@@ -140,6 +140,7 @@ export default function EventoElegidoEmpresa() {
   const getEventCapacity = () => event.max_assistance || event.capacidad || null;
   const getEventDuration = () => event.duration_in_minutes || null;
   const getEventLocation = () => event.event_location || null;
+  console.log(event)
   const getEventCreator = () => event.creator_user || null;
   const getEventTags = () => event.tags || [];
   const isEnrollmentEnabled = () => event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true;
@@ -195,7 +196,6 @@ export default function EventoElegidoEmpresa() {
         {getEventDuration() && (
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
-        {console.log("get", getEventCreator(), "event", event.creator_user, "id", id)}
         {getEventCreator() === id ? <EventActionButton
           agendado={false}
           loadingAgendar={loadingBorrar}
