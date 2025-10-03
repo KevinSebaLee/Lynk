@@ -5,7 +5,7 @@ import Eventos from '@/screens/events';
 import EventoElegido from '@/screens/events/eventoElegido';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components';
-import EventoElegidoEmpresa from '../screens/events/eventoElegidoEmpresa';
+import EventoElegidoEmpresa from '@/screens/events/eventoElegidoEmpresa';
 
 const Stack = createNativeStackNavigator();
 

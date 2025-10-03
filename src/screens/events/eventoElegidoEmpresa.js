@@ -17,7 +17,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
-
+import {MonthlyInscriptionsChart} from '@/components'
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
 const MAP_SIZE = width * 0.36;
@@ -31,7 +31,7 @@ export default function EventoElegidoEmpresa() {
   const [selectedMonth, setSelectedMonth] = useState(null);
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
-  const { execute: borrarEvento, loading: loadingBorrar } = useApi(ApiService.borrarEvento);
+  const { execute: deleteEventoPropio, loading: loadingBorrar } = useApi(ApiService.deleteEventoPropio);
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -84,13 +84,13 @@ export default function EventoElegidoEmpresa() {
   const handleBorrarEvento = useCallback(async () => {
     if (!event?.id) return;
       try {
-        await borrarEvento(event.id);
-        Alert.alert('Te has unido al evento con éxito.');
+        await deleteEventoPropio(event.id);
+        Alert.alert('Evento eliminado con éxito.');
       } catch (error) {
         // Error already handled
       }
     
-  }, [event,borrarEvento]);
+  }, [event,deleteEventoPropio]);
 
   const getImageSource = (imagen) => {
     if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {

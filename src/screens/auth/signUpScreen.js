@@ -20,8 +20,9 @@ import { useAuth } from '@/context/AuthContext';
 import ApiService from '@/services/api';
 import { APP_CONSTANTS } from '@/constants/config';
 import { useApi } from '@/hooks/useApi';
-import { Button } from '@/components/common';
-import { UserTypeSelector, AuthFormField as FormField, AuthButton } from '@/components';
+import { UserTypeSelector}  from '@/components/auth/UserTypeSelector'
+import { AuthFormField as FormField}  from '@/components/auth/FormField'
+import { AuthButton } from '@/components/auth/AuthButton';
 
 export default function SignUpScreen() {
   const [userType, setUserType] = useState('personal');
