@@ -42,7 +42,7 @@ export default function Eventos() {
 
   // Navigate to the correct screen name!
   const handleEventPress = (event) => {
-    esEmpresa? navigation.navigate('eventoElegido', { event }): navigation.navigate('eventoElegidoEmpresa', { event })
+    esEmpresa? navigation.navigate('eventoElegidoEmpresa', { event }) : navigation.navigate('eventoElegido', { event })
   };
 
   const handleCategorySelect = (category) => {

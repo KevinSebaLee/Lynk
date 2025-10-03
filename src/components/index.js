@@ -55,6 +55,7 @@ export { default as TransferList } from './transfers/TransferList';
 
 // Chart Components
 export { default as MonthlyTicketsChart } from './charts/MonthlyTicketsChart';
+export { default as MonthlyInscriptionsChart } from './charts/MonthlyInscriptionsChart';
 export { default as GradientBarChart } from './charts/GradientBarChart';
 export { default as MonthlyInscriptionsChart} from './charts/MonthlyInscriptionsChart'
 

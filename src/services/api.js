@@ -311,6 +311,20 @@ export class ApiService {
     }
   }
 
+   static async deleteEventoPropio(id) {
+    if (!id) {
+      throw new Error('Event ID is required to remove the scheduled event');
+    }
+
+    try {
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}`);
+      return response.data;
+    } catch (err) {
+      handleApiError(err, 'Failed to delete scheduled event');
+      throw err;
+    }
+  }
+
   static async getEventoScheduledUsers(id) {
     if (!id) {
       throw new Error('Event ID is required to fetch scheduled users');
