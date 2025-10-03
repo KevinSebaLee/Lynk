@@ -17,6 +17,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
+import {MonthlyInscriptionsChart} from '@/components'
 
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
