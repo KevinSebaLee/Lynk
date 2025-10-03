@@ -18,6 +18,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
 import {MonthlyInscriptionsChart} from '@/components'
+import {useAuth} from '../../context/AuthContext'
 
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
@@ -33,6 +34,7 @@ export default function EventoElegidoEmpresa() {
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
   const { execute: deleteEventoPropio, loading: loadingBorrar } = useApi(ApiService.deleteEventoPropio);
+  const {id} = useAuth
 
   useEffect(() => {
     const loadEvent = async () => {
@@ -193,14 +195,14 @@ export default function EventoElegidoEmpresa() {
         {getEventDuration() && (
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
-        
-        <EventActionButton
+        {console.log("get", getEventCreator(), "event", event.creator_user, "id", id)}
+        {getEventCreator() === id ? <EventActionButton
           agendado={false}
           loadingAgendar={loadingBorrar}
           enrollmentEnabled={isEnrollmentEnabled()}
           onPress={handleBorrarEvento}
           variant="delete"
-        />
+        />: null}
         
         <EventDetailRow
           icon="calendar-outline"
