@@ -21,7 +21,7 @@ import ApiService from '@/services/api';
 import { APP_CONSTANTS } from '@/constants/config';
 import { useApi } from '@/hooks/useApi';
 import { Button } from '@/components/common';
-import { UserTypeSelector, FormField, AuthButton } from '@/components';
+import { UserTypeSelector, AuthFormField as FormField, AuthButton } from '@/components';
 
 export default function SignUpScreen() {
   const [userType, setUserType] = useState('personal');

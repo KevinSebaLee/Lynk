@@ -8,7 +8,7 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
+  Alert
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_CONFIG, DIMENSIONS } from '@/constants';
@@ -33,10 +33,15 @@ export default function EventoElegidoEmpresa() {
   const isMountedRef = useRef(true);
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+<<<<<<< HEAD
   const [scheduledUsersCount, setScheduledUsersCount] = useState(null);
   const [participantsError, setParticipantsError] = useState(null);
   const [participantsFetchSucceeded, setParticipantsFetchSucceeded] = useState(false);
   const [currentUserIds, setCurrentUserIds] = useState([]);
+=======
+  const [monthlyInscriptions, setMonthlyInscriptions] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
   const { execute: fetchScheduledUsers, loading: loadingParticipants } = useApi(ApiService.getEventoScheduledUsers);
@@ -188,10 +193,40 @@ export default function EventoElegidoEmpresa() {
         let candidateIds = resolveEventIdentifiers(resolvedEvent, routeParams);
         let candidateId = candidateIds.length > 0 ? candidateIds[0] : null;
 
+<<<<<<< HEAD
         if (!resolvedEvent && !candidateId) {
           if (isMountedRef.current) {
             setEvent(null);
             setScheduledUsersCount(null);
+=======
+              let found = false;
+              for (let i = 0; i < scheduled.length; i++) {
+                if (String(scheduled[i].id) === String(eventFromParams.id)) {
+                  found = true;
+                  break;
+                }
+              }
+
+              setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
+              
+              // Sample monthly inscriptions data
+              // In a real app, you would fetch this from an API
+              setMonthlyInscriptions([
+                { month: 1, inscriptions: 15 },
+                { month: 2, inscriptions: 23 },
+                { month: 3, inscriptions: 18 },
+                { month: 4, inscriptions: 32 },
+                { month: 5, inscriptions: 45 },
+                { month: 6, inscriptions: 28 }
+              ]);
+              setSelectedMonth(5); // Set current month as selected
+              
+            } catch (error) {
+              setEvent(eventFromParams);
+            }
+          } else {
+            setEvent(eventFromParams);
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
           }
           return;
         }
@@ -581,6 +616,7 @@ export default function EventoElegidoEmpresa() {
         <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
         <Text style={styles.eventDescription}>{getEventDescription()}</Text>
         <View style={styles.inviteCard}>
+<<<<<<< HEAD
           <View style={styles.participantsHeader}>
             <Text style={styles.sectionTitle}>Participantes</Text>
             <TouchableOpacity
@@ -589,6 +625,18 @@ export default function EventoElegidoEmpresa() {
               style={[styles.refreshButton, (loadingParticipants || !primaryEventId) && styles.refreshButtonDisabled]}
             >
               <Ionicons name="refresh" size={18} color="#fff" />
+=======
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity style={styles.inviteBtn}>
+              <Text style={styles.inviteBtnText}>Participantes</Text>
+              
+              {/* Monthly Inscriptions Chart */}
+              <MonthlyInscriptionsChart
+                data={monthlyInscriptions}
+                selectedMonth={selectedMonth}
+                onMonthSelect={(month) => setSelectedMonth(month)}
+              />
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
             </TouchableOpacity>
           </View>
           <View style={styles.participantsRow}>
@@ -614,6 +662,7 @@ export default function EventoElegidoEmpresa() {
 }
 
 const styles = StyleSheet.create({
+  // All the styles remain the same...
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -762,33 +811,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 2,
   },
-  joinBtn: {
-    backgroundColor: '#642684',
-    borderRadius: 9,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 26,
-    paddingVertical: 11,
-    marginVertical: 8,
-    marginBottom: 13,
-    minWidth: 130,
-    alignItems: 'center',
-  },
-  joinBtnUnido: {
-    backgroundColor: '#38C172',
-  },
-  joinBtnDisabled: {
-    backgroundColor: '#ccc',
-  },
-  joinBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 1,
-    textAlign: 'center',
-  },
-  joinBtnTextUnido: {
-    color: '#fff',
-  },
   price: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -826,32 +848,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 18,
-    gap: 12,
-  },
-  detailIconBox: {
-    backgroundColor: '#f4e9fa',
-    borderRadius: 13,
-    padding: 11,
-    marginRight: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  detailTitle: {
-    fontWeight: 'bold',
-    color: '#18193f',
-    fontSize: 16,
-    marginBottom: 2,
-  },
-  detailDescription: {
-    color: '#888',
-    fontSize: 13,
-    marginBottom: 1,
-  },
   sectionTitle: {
     fontWeight: 'bold',
     fontSize: 18,
@@ -876,6 +872,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 2,
   },
+<<<<<<< HEAD
   ownerNotice: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -905,6 +902,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+=======
+  inviteBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 19,
+    paddingVertical: 6,
+    alignSelf: 'flex-end',
+    marginLeft: 10,
+    marginTop: 4,
+    width: '100%',
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
   },
   refreshButtonDisabled: {
     opacity: 0.5,
@@ -922,6 +930,7 @@ const styles = StyleSheet.create({
   participantsValue: {
     fontSize: 22,
     fontWeight: 'bold',
+<<<<<<< HEAD
     color: '#642684',
   },
   participantsErrorText: {
@@ -933,5 +942,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 13,
     color: '#777',
+=======
+    marginBottom: 10,
+    textAlign: 'center',
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
   },
 });

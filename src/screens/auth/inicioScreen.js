@@ -1,7 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
+<<<<<<< HEAD
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+=======
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Pressable, Image } from 'react-native';
+>>>>>>> f03d6097bc7a96eb4703e20b9c8251b3c54f293c
 import { useNavigation } from '@react-navigation/native';
 import { AuthButton } from '@/components';
 
