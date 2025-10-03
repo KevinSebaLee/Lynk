@@ -4,8 +4,59 @@ import { DIMENSIONS } from '@/constants';
 
 const { screenWidth: width } = DIMENSIONS;
 
+// Convert any "month" value (number or ISO string) into 1..12
+const getMonthNumber = (value) => {
+  if (value == null) return null;
+
+  if (typeof value === 'number') {
+    if (Number.isNaN(value)) return null;
+    return Math.min(12, Math.max(1, value));
+  }
+
+  if (typeof value === 'string') {
+    const isoLike = /^\d{4}-\d{2}(-\d{2})?/;
+    let d;
+    if (isoLike.test(value) && value.length <= 7) {
+      // YYYY-MM -> make it a safe date
+      d = new Date(`${value}-01`);
+    } else {
+      d = new Date(value);
+    }
+    if (!Number.isNaN(d.getTime())) {
+      return d.getMonth() + 1;
+    }
+  }
+
+  return null;
+};
+
+const getMonthName = (monthNum) => {
+  const months = [
+    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+  ];
+  if (typeof monthNum === 'number' && monthNum >= 1 && monthNum <= 12) {
+    return months[monthNum - 1];
+  }
+  return String(monthNum ?? '');
+};
+
 const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
-  if (!data.length) {
+  // Normalize incoming data to a stable shape for rendering
+  const normalizedData = (Array.isArray(data) ? data : [])
+    .map((item) => {
+      // Use total_tickets from backend, fallback to tickets if provided
+      const tickets = Number(item?.tickets ?? item?.total_tickets ?? 0) || 0;
+
+      // Normalize month into 1..12 number
+      const monthRaw = item?.month ?? item?.date ?? item?.Month ?? item?.MonthNumber;
+      const month = getMonthNumber(monthRaw);
+
+      return { month, tickets };
+    })
+    .filter((item) => item.month !== null);
+
+  if (!normalizedData.length) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>No hay datos de tickets mensuales</Text>
@@ -13,37 +64,35 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
     );
   }
 
-  const maxTickets = Math.max(...data.map(item => item.tickets || 0));
+  const maxTickets = Math.max(...normalizedData.map(item => item.tickets || 0)) || 1;
   const chartWidth = width - 40;
-  const barWidth = (chartWidth - (data.length - 1) * 8) / data.length;
+  const barWidth = (chartWidth - (normalizedData.length - 1) * 8) / normalizedData.length;
 
-  const getMonthName = (monthNum) => {
-    const months = [
-      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
-    ];
-    return months[monthNum - 1] || monthNum;
-  };
+  // Normalize the selected month
+  const selectedNum = getMonthNumber(selectedMonth);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tickets por Mes</Text>
-      
+
       <View style={styles.chartContainer}>
         <View style={styles.barsContainer}>
-          {data.map((item, index) => {
-            const barHeight = maxTickets > 0 ? (item.tickets / maxTickets) * 120 : 0;
-            const isSelected = selectedMonth === item.month;
-            const hasTickets = item.tickets > 0;
-            
-            // Determine bar color: purple if selected, light blue if has tickets, light gray otherwise
-            let barColor = '#E3E3E3'; // default gray for no data
+          {normalizedData.map((item, index) => {
+            const barHeight = (item.tickets / maxTickets) * 120;
+            const isSelected = selectedNum != null ? (selectedNum === item.month) : false;
+            const hasTickets = (item.tickets || 0) > 0;
+
+            // Color rules:
+            // - Selected -> purple
+            // - Has tickets but not selected -> black
+            // - No tickets -> light gray
+            let barColor = '#E3E3E3';
             if (isSelected) {
-              barColor = '#642684'; // purple for selected
+              barColor = '#642684';
             } else if (hasTickets) {
-              barColor = '#E3F2FD'; // light blue for has data but not selected
+              barColor = '#000000';
             }
-            
+
             return (
               <TouchableOpacity
                 key={index}
@@ -56,16 +105,18 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
                     style={[
                       styles.bar,
                       {
-                        height: Math.max(barHeight, 4), // Minimum height to make it visible
+                        height: Math.max(barHeight, 4),
                         backgroundColor: barColor,
                       }
                     ]}
                   />
                 </View>
-                <Text style={[
-                  styles.monthLabel,
-                  { color: isSelected ? '#642684' : '#666' }
-                ]}>
+                <Text
+                  style={[
+                    styles.monthLabel,
+                    { color: isSelected ? '#642684' : '#666' }
+                  ]}
+                >
                   {getMonthName(item.month)}
                 </Text>
               </TouchableOpacity>

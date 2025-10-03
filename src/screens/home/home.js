@@ -107,14 +107,7 @@ export default function Home() {
     setMenuVisible(false);
     navigation.navigate(screen);
   }, [navigation]);
-
-  /**
-   * Navigate to company home screen
-   */
-  const handleHomeEmpresa = useCallback(() => {
-    navigation.navigate('homeEmpresa');
-  }, [navigation]);
-
+  
   /**
    * Handle user logout
    */

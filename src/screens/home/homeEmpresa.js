@@ -1,20 +1,20 @@
-import React, { useState, useCallback } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import React, { useState, useCallback } from "react";
+import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   View,
   ScrollView,
   Pressable,
   Text,
-  TouchableOpacity 
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useAuth } from '@/context/AuthContext';
-import { useApi } from '@/hooks/useApi';
-import ApiService from '@/services/api';
-import { DIMENSIONS } from '@/constants';
+  TouchableOpacity,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useAuth } from "@/context/AuthContext";
+import { useApi } from "@/hooks/useApi";
+import ApiService from "@/services/api";
+import { DIMENSIONS } from "@/constants";
 import {
   Header,
   PremiumBanner,
@@ -24,8 +24,8 @@ import {
   Button,
   AgendaSection,
   SectionHeader,
-  Agenda as AgendaIcon
-} from '@/components';
+  Agenda as AgendaIcon,
+} from "@/components";
 const { screenWidth: width } = DIMENSIONS;
 
 export default function Home() {
@@ -71,10 +71,10 @@ export default function Home() {
           // Error is already handled by the ApiService
         }
       };
-      
+
       // Start data loading
       refreshData();
-      
+
       // Cleanup function (no cleanup needed in this case)
       return () => {};
     }, [userDataCache, clearUserDataCache, loadHomeData])
@@ -84,7 +84,7 @@ export default function Home() {
   const handleTicketsPress = useCallback(async () => {
     try {
       const data = await loadTickets();
-      navigation.navigate('tickets', data);
+      navigation.navigate("tickets", data);
     } catch {
       // Error is already handled by the ApiService
     }
@@ -94,18 +94,23 @@ export default function Home() {
     await logout();
   }, [logout]);
 
-  // Function to validate image URIs
   const validateImageUri = useCallback((uri) => {
-    if (typeof uri === 'string' && uri.trim() !== '') {
+    if (typeof uri === "string" && uri.trim() !== "") {
       return uri;
-    } else if (uri && typeof uri === 'object' && uri.uri && typeof uri.uri === 'string') {
+    } else if (
+      uri &&
+      typeof uri === "object" &&
+      uri.uri &&
+      typeof uri.uri === "string"
+    ) {
       return uri.uri;
     }
-    return null; // Let the component handle the fallback
+    return null; 
   }, []);
 
-  // Safely access array
-  const safeEventosRecientes = Array.isArray(eventosRecientes) ? eventosRecientes : [];
+  const safeEventosRecientes = Array.isArray(eventosRecientes)
+    ? eventosRecientes
+    : [];
 
   const isLoading = loading && !userData;
 
@@ -122,47 +127,54 @@ export default function Home() {
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
           >
-                <LinearGradient
-        colors={['#642684', '#ffffff', '#ffffff', '#ffffff', '#ffffff']}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"/>
-          <Header nombre={userData?.user_nombre || 'Usuario'} />
-          <Pressable onPress={handleTicketsPress}>
-            <View style={styles.ticketWrapper}>
-            </View>
-          </Pressable>
-       
+            <LinearGradient
+              colors={["#642684", "#ffffff", "#ffffff", "#ffffff", "#ffffff"]}
+              style={StyleSheet.absoluteFill}
+              pointerEvents="none"
+            />
+            <Header nombre={userData?.user_nombre || "Usuario"} />
+            <Pressable onPress={handleTicketsPress}>
+              <View style={styles.ticketWrapper}></View>
+            </Pressable>
 
-          <View style={styles.bannerWrapper}>
-            <PremiumBanner plan={userData?.plan_titulo} />
-          </View>
-          
-          <AgendaSection 
-            eventosRecientes={safeEventosRecientes}
-            validateImageUri={validateImageUri}
-            onLogout={handleLogout}
-          />
-          
-          <SectionHeader 
-            title="Eventos mas recientes"
-            showSeeMore={true}
-            onSeeMore={() => navigation.navigate('Eventos')}
-          />
-          {safeEventosRecientes.length > 0 && (
-            <ScrollView horizontal>
-              {safeEventosRecientes.map((evento, idx) => (
-                <View key={evento?.id || idx} style={{ marginRight: 12 }}>
-                  <RecentEvents
-                    imageUri={validateImageUri(evento?.imagen)}
-                    eventName={evento?.nombre}
-                    venue={evento?.ubicacion}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-          )}
-        </ScrollView>
-      </SafeAreaView>
+            <View style={styles.bannerWrapper}>
+              <PremiumBanner plan={userData?.plan_titulo} />
+            </View>
+
+            <AgendaSection
+              eventosRecientes={safeEventosRecientes}
+              validateImageUri={validateImageUri}
+              onLogout={handleLogout}
+            />
+
+            <View style={{ marginTop: 20 }}>
+              <Button
+                title="Cerrar Sesión"
+                style={styles.logOut}
+                onPress={handleLogout}
+              />
+            </View>
+
+            <SectionHeader
+              title="Eventos mas recientes"
+              showSeeMore={true}
+              onSeeMore={() => navigation.navigate("Eventos")}
+            />
+            {safeEventosRecientes.length > 0 && (
+              <ScrollView horizontal>
+                {safeEventosRecientes.map((evento, idx) => (
+                  <View key={evento?.id || idx} style={{ marginRight: 12 }}>
+                    <RecentEvents
+                      imageUri={validateImageUri(evento?.imagen)}
+                      eventName={evento?.nombre}
+                      venue={evento?.ubicacion}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </ScrollView>
+        </SafeAreaView>
       )}
     </View>
   );
@@ -171,7 +183,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
+    position: "relative",
   },
   safeArea: {
     flex: 1,
@@ -188,7 +200,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
