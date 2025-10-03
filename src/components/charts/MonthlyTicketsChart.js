@@ -36,12 +36,10 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
             const isSelected = selectedMonth === item.month;
             const hasTickets = item.tickets > 0;
             
-            // Determine bar color: purple if selected, light blue if has tickets, light gray otherwise
+            // Determine bar color: purple if has tickets, light gray otherwise
             let barColor = '#E3E3E3'; // default gray for no data
-            if (isSelected) {
-              barColor = '#642684'; // purple for selected
-            } else if (hasTickets) {
-              barColor = '#E3F2FD'; // light blue for has data but not selected
+            if (hasTickets) {
+              barColor = '#642684'; // purple for has tickets
             }
             
             return (
