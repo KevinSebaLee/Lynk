@@ -53,7 +53,7 @@ const TransferItem = ({ item }) => {
             styles.transferAmount,
             { color: item.tipo === 'ingreso' ? '#4CAF50' : '#FF5722' }
           ]}>
-            {item.tipo === 'ingreso' ? '+' : '-'}{formatAmount(item.monto)}
+            {item.tipo === 'ingreso' ? '+' : '-'}{formatAmount(Math.abs(item.monto))}
           </Text>
           <Text style={styles.transferType}>
             {item.tipo || 'Movimiento'}
@@ -86,6 +86,8 @@ const TransferList = ({ movimientos = [], showAll = false }) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => `${item.id || index}`}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
+        nestedScrollEnabled={true}
         contentContainerStyle={styles.listContent}
       />
     </View>

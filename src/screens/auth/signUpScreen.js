@@ -12,9 +12,9 @@ import {
   Pressable,
   Alert,
   ScrollView,
-  SafeAreaView,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
 import ApiService from '@/services/api';

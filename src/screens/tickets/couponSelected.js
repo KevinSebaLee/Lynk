@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   Alert,
-  Clipboard,
   Share,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Clipboard from 'expo-clipboard';
 import { DIMENSIONS } from '@/constants';
 import { 
   CouponDetailCard, 
@@ -22,17 +22,24 @@ import {
   TermsModal,
   ScreenHeader 
 } from '../../components';
+import ApiService from '../../services/api';
 
 const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 
 export default function CouponSelected() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { coupon } = route.params || {};
+  const { coupon, onRedeem } = route.params || {};
   const [isCopied, setIsCopied] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [couponData, setCouponData] = useState(coupon);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  if (!coupon) {
+  useEffect(() => {
+    setCouponData(coupon);
+  }, [coupon]);
+
+  if (!couponData) {
     return (
       <View style={{ flex: 1 }}>
         <LinearGradient colors={['#642684', '#ffffff', '#ffffff']} style={{ flex: 1 }}>
@@ -92,7 +99,7 @@ export default function CouponSelected() {
     }
   };
 
-  const statusInfo = getStatusInfo(coupon.estado || coupon.status);
+  const statusInfo = getStatusInfo(couponData?.estado || couponData?.status);
 
   const formatDiscount = (discount) => {
     if (!discount) return '10%';
@@ -101,7 +108,7 @@ export default function CouponSelected() {
 
   const copyToClipboard = async () => {
     try {
-      await Clipboard.setStringAsync(coupon.codigo || coupon.code || 'COUPON123');
+      await Clipboard.setStringAsync(couponData.codigo || couponData.code || 'COUPON123');
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
       Alert.alert('¡Copiado!', 'Código del cupón copiado al portapapeles');
@@ -112,7 +119,7 @@ export default function CouponSelected() {
 
   const shareCoupon = async () => {
     try {
-      const message = `¡Mira este cupón! ${coupon.nombre || 'Cupón de descuento'}\n\nDescuento: ${formatDiscount(coupon.descuento)}\nCódigo: ${coupon.codigo || 'COUPON123'}\n\n¡Descarga Lynk para más cupones!`;
+      const message = `¡Mira este cupón! ${couponData.nombre || 'Cupón de descuento'}\n\nDescuento: ${formatDiscount(couponData.descuento)}\nCódigo: ${couponData.codigo || 'COUPON123'}\n\n¡Descarga Lynk para más cupones!`;
       
       await Share.share({
         message,
@@ -124,12 +131,12 @@ export default function CouponSelected() {
   };
 
   const useCoupon = () => {
-    if (coupon.estado === 'usado') {
+    if (couponData.estado === 'usado') {
       Alert.alert('Cupón usado', 'Este cupón ya ha sido utilizado');
       return;
     }
     
-    if (coupon.estado === 'expirado') {
+    if (couponData.estado === 'expirado') {
       Alert.alert('Cupón expirado', 'Este cupón ha expirado y ya no es válido');
       return;
     }
@@ -145,10 +152,20 @@ export default function CouponSelected() {
         {
           text: 'Usar Cupón',
           style: 'default',
-          onPress: () => {
-            // Here you would call the API to use the coupon
-            Alert.alert('¡Cupón usado!', 'El cupón ha sido aplicado exitosamente');
-            navigation.goBack();
+          onPress: async () => {
+            try {
+              setIsProcessing(true);
+              await ApiService.redeemCoupon(couponData.id || couponData._id);
+              setCouponData((prev) => prev ? { ...prev, estado: 'usado' } : prev);
+              onRedeem?.({ ...(couponData || {}), estado: 'usado' });
+              Alert.alert('¡Cupón usado!', 'El cupón ha sido aplicado exitosamente');
+              navigation.goBack();
+            } catch (error) {
+              const errorMessage = error?.response?.data?.error || error?.message || 'No se pudo usar el cupón.';
+              Alert.alert('Error', errorMessage);
+            } finally {
+              setIsProcessing(false);
+            }
           }
         }
       ]
@@ -156,12 +173,12 @@ export default function CouponSelected() {
   };
 
   const isExpired = () => {
-    if (!coupon.fecha_expiracion) return false;
-    return new Date(coupon.fecha_expiracion) < new Date();
+    if (!couponData?.fecha_expiracion) return false;
+    return new Date(couponData.fecha_expiracion) < new Date();
   };
 
   const canUseCoupon = () => {
-    return coupon.estado !== 'usado' && coupon.estado !== 'expirado' && !isExpired();
+    return couponData?.estado !== 'usado' && couponData?.estado !== 'expirado' && !isExpired();
   };
 
   return (
@@ -180,7 +197,7 @@ export default function CouponSelected() {
             <View style={styles.content}>
               {/* Coupon Card */}
               <CouponDetailCard 
-                coupon={coupon}
+                coupon={couponData}
                 statusInfo={statusInfo}
                 isCopied={isCopied}
                 onCopyCode={copyToClipboard}
@@ -189,7 +206,7 @@ export default function CouponSelected() {
 
               {/* Details Section */}
               <CouponDetailsSection 
-                coupon={coupon}
+                coupon={couponData}
                 isExpired={isExpired}
               />
 
@@ -204,14 +221,15 @@ export default function CouponSelected() {
             onUseCoupon={useCoupon}
             onShowTerms={() => setShowTerms(true)}
             canUseCoupon={canUseCoupon()}
-            couponStatus={coupon.estado}
+            couponStatus={couponData?.estado}
+            isProcessing={isProcessing}
           />
 
           {/* Terms Modal */}
           <TermsModal 
             visible={showTerms}
             onClose={() => setShowTerms(false)}
-            coupon={coupon}
+            coupon={couponData}
           />
         </SafeAreaView>
       </LinearGradient>
@@ -228,6 +246,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   errorContainer: {
     flex: 1,

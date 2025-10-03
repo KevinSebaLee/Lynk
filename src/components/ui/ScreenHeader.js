@@ -9,7 +9,8 @@ const ScreenHeader = ({
   rightIcon, 
   rightIconColor = "white",
   titleColor = "white",
-  backgroundColor = "transparent" 
+  backgroundColor = "transparent",
+  rightElement // Add support for custom right element
 }) => {
   return (
     <View style={[styles.header, { backgroundColor }]}>
@@ -17,7 +18,9 @@ const ScreenHeader = ({
         <Ionicons name="arrow-back" size={24} color={titleColor} />
       </TouchableOpacity>
       <Text style={[styles.headerText, { color: titleColor }]}>{title}</Text>
-      {rightIcon && onRightPress ? (
+      {rightElement ? (
+        rightElement
+      ) : rightIcon && onRightPress ? (
         <TouchableOpacity onPress={onRightPress}>
           <Ionicons name={rightIcon} size={24} color={rightIconColor} />
         </TouchableOpacity>

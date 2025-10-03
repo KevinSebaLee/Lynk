@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import React, { useState, useCallback } from 'react';
 import ApiService from '@/services/api';
@@ -31,7 +32,7 @@ export default function Tickets() {
   const [ticketCategories, setTicketCategories] = useState([]);
   const [movements, setMovements] = useState([]);
   const [monthlyTickets, setMonthlyTickets] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month (1-12)
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -84,9 +85,15 @@ export default function Tickets() {
             // Set monthly tickets data
             if (monthlyResponse && Array.isArray(monthlyResponse)) {
               setMonthlyTickets(monthlyResponse);
-              // Default select the most recent month
-              if (monthlyResponse.length > 0) {
-                setSelectedMonth(monthlyResponse[monthlyResponse.length - 1]);
+              // Default select the current month if it exists in the data, otherwise the most recent
+              const currentMonth = new Date().getMonth() + 1; // 1-12
+              const hasCurrentMonth = monthlyResponse.some(item => item.month === currentMonth);
+              
+              if (hasCurrentMonth) {
+                setSelectedMonth(currentMonth);
+              } else if (monthlyResponse.length > 0) {
+                // If current month not in data, select the most recent month
+                setSelectedMonth(monthlyResponse[monthlyResponse.length - 1].month);
               }
             }
 
@@ -213,11 +220,11 @@ export default function Tickets() {
           showsVerticalScrollIndicator={true}
         >
           <View style={styles.ticketWrapper}>
-            <TicketDisplay
-              ticketAmount={Number(ticketsData) || 0}
-              title="Tickets Disponibles"
-              subtitle="Movimientos"
-              showPurchaseIcon={true}
+            <MovCard
+              tickets={Number(ticketsData) || 0}
+              onGetMore={() => Alert.alert('Comprar Tickets', '¡Función para conseguir más tickets!')}
+              onTransfer={() => navigation.navigate('Transferir')}
+              onRedeem={() => navigation.navigate('Cupones', { screen: 'CuponesList' })}
             />
           </View>
 

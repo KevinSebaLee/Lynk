@@ -3,15 +3,15 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
   ActivityIndicator,
   StyleSheet,
   Image
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { GradientBackground, SearchBar } from '../../components';
+import { SearchBar, GradientBackground } from '@/components';
 import ApiService from '../../services/api';
 import { getToken } from '../../utils/Token';
 import { jwtDecode } from 'jwt-decode';

@@ -40,8 +40,6 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-      console.log('Authentication error:', error.response.status);
-
       if (globalAuthErrorHandler) {
         globalAuthErrorHandler();
       }
@@ -90,17 +88,24 @@ const processTransactionsToMonthlyData = (transactions) => {
     
     if (monthlyMap.has(monthKey)) {
       const monthData = monthlyMap.get(monthKey);
-      const ticketAmount = Math.abs(transaction.monto || 0); // Division by 2 removed
+      const ticketAmount = Math.abs(transaction.monto || 0); 
       monthData.total_tickets += ticketAmount;
     }
   });
   
   return Array.from(monthlyMap.values())
-    .map(item => ({
-      ...item,
-      total_tickets: Math.round(item.total_tickets)
-    }))
-    .sort((a, b) => new Date(a.month) - new Date(b.month));
+    .map(item => {
+      const date = new Date(item.month);
+      return {
+        month: date.getMonth() + 1, // Convert to 1-12 format
+        tickets: Math.round(item.total_tickets),
+        year: date.getFullYear()
+      };
+    })
+    .sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.month - b.month;
+    });
 };
 
 /**
@@ -122,8 +127,9 @@ const generateMockMonthlyData = () => {
     month.setMonth(baseDate.getMonth() + i);
     
     data.push({
-      month: month.toISOString(),
-      total_tickets: Math.floor(Math.random() * 180) + 20
+      month: month.getMonth() + 1, // Convert to 1-12 format
+      tickets: Math.floor(Math.random() * 180) + 20,
+      year: month.getFullYear()
     });
   }
   
@@ -263,7 +269,11 @@ export class ApiService {
     }
   }
 
-  static async agendarEventos(id) {
+  static async agendarEvento(id) {
+    if (!id) {
+      throw new Error('Event ID is required to schedule the event');
+    }
+
     try {
       const response = await apiClient.post(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
       return response.data;
@@ -271,6 +281,10 @@ export class ApiService {
       handleApiError(error, 'Failed to schedule event');
       throw error;
     }
+  }
+
+  static async agendarEventos(id) {
+    return this.agendarEvento(id);
   }
 
   static async getEventosAgendados() {
@@ -284,13 +298,92 @@ export class ApiService {
   }
 
   static async deleteEventoAgendado(id) {
+    if (!id) {
+      throw new Error('Event ID is required to remove the scheduled event');
+    }
+
     try {
-      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`, { id });
+      const response = await apiClient.delete(`${ENDPOINTS.EVENTOS}/${id}/agendar`);
       return response.data;
     } catch (err) {
       handleApiError(err, 'Failed to delete scheduled event');
       throw err;
     }
+  }
+
+  static async getEventoScheduledUsers(id) {
+    if (!id) {
+      throw new Error('Event ID is required to fetch scheduled users');
+    }
+
+    const paths = [
+      `${ENDPOINTS.EVENTOS}/${id}/agendados`,
+      `${ENDPOINTS.EVENTOS}/${id}/agendar`,
+      `${ENDPOINTS.EVENTOS}/${id}/inscripciones`,
+    ];
+
+    let lastError = null;
+
+    for (const path of paths) {
+      try {
+        const response = await apiClient.get(path);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const status = error?.response?.status;
+        if (status && [404, 405].includes(status)) {
+          continue;
+        }
+        handleApiError(error, 'Failed to load scheduled users');
+        throw error;
+      }
+    }
+
+    if (lastError) {
+      handleApiError(lastError, 'Failed to load scheduled users');
+      throw lastError;
+    }
+
+    throw new Error('No se pudieron obtener los usuarios agendados');
+  }
+
+  static async deleteEvento(id) {
+    if (!id) {
+      throw new Error('Event ID is required to delete the event');
+    }
+
+    const paths = [
+      `${ENDPOINTS.EVENTOS}/${id}`,
+      `${ENDPOINTS.EVENTOS}/${id}/delete`,
+    ];
+
+    let lastError = null;
+
+    for (const path of paths) {
+      try {
+        const response = await apiClient.delete(path);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+        const status = error?.response?.status;
+        if (status && [404, 405].includes(status)) {
+          continue;
+        }
+        handleApiError(error, 'Failed to delete event');
+        throw error;
+      }
+    }
+
+    if (lastError) {
+      handleApiError(lastError, 'Failed to delete event');
+      throw lastError;
+    }
+
+    throw new Error('No se pudo eliminar el evento');
+  }
+
+  static borrarEvento(id) {
+    return this.deleteEvento(id);
   }
 
   static async createEvent(formData) {
@@ -344,6 +437,45 @@ export class ApiService {
       handleApiError(error, 'Failed to create coupon');
       throw error;
     }
+  }
+
+  static async redeemCoupon(couponId) {
+    if (!couponId) {
+      throw new Error('Coupon ID is required to redeem the coupon');
+    }
+
+    const redemptionPaths = [
+      `${ENDPOINTS.CUPONES}/${couponId}/redeem`,
+      `${ENDPOINTS.CUPONES}/${couponId}/usar`,
+      `${ENDPOINTS.CUPONES}/${couponId}/claim`,
+    ];
+
+    let lastError = null;
+
+    for (const path of redemptionPaths) {
+      try {
+        const response = await apiClient.post(path);
+        return response.data;
+      } catch (error) {
+        lastError = error;
+
+        const status = error?.response?.status;
+        if (status && [404, 405].includes(status)) {
+          // Try the next fallback endpoint if the current one doesn't exist
+          continue;
+        }
+
+        handleApiError(error, 'No se pudo canjear el cupón');
+        throw error;
+      }
+    }
+
+    if (lastError) {
+      handleApiError(lastError, 'No se pudo canjear el cupón');
+      throw lastError;
+    }
+
+    throw new Error('No se pudo canjear el cupón. Intenta nuevamente más tarde.');
   }
 }
 

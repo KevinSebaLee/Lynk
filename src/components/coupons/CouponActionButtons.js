@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const CouponActionButtons = ({ 
@@ -7,13 +7,15 @@ const CouponActionButtons = ({
   onUseCoupon, 
   onShowTerms, 
   canUseCoupon, 
-  couponStatus 
+  couponStatus,
+  isProcessing = false,
 }) => {
   return (
     <View style={styles.actionButtons}>
       <TouchableOpacity
         style={[styles.actionButton, styles.secondaryButton]}
         onPress={onCopyCode}
+        disabled={isProcessing}
       >
         <Ionicons name="copy-outline" size={20} color="#642684" />
         <Text style={styles.secondaryButtonText}>Copiar Código</Text>
@@ -23,25 +25,30 @@ const CouponActionButtons = ({
         style={[
           styles.actionButton, 
           styles.primaryButton,
-          !canUseCoupon && styles.disabledButton
+          (!canUseCoupon || isProcessing) && styles.disabledButton
         ]}
         onPress={onUseCoupon}
-        disabled={!canUseCoupon}
+        disabled={!canUseCoupon || isProcessing}
       >
-        <Ionicons 
-          name={canUseCoupon ? "ticket" : "close-circle"} 
-          size={20} 
-          color="#fff" 
-        />
+        {isProcessing ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Ionicons 
+            name={canUseCoupon ? "ticket" : "close-circle"} 
+            size={20} 
+            color="#fff" 
+          />
+        )}
         <Text style={styles.primaryButtonText}>
           {couponStatus === 'usado' ? 'Cupón Usado' : 
-           canUseCoupon ? 'Usar Cupón' : 'No Disponible'}
+           canUseCoupon ? (isProcessing ? 'Aplicando...' : 'Usar Cupón') : 'No Disponible'}
         </Text>
       </TouchableOpacity>
       
       <TouchableOpacity
         style={[styles.actionButton, styles.secondaryButton]}
         onPress={onShowTerms}
+        disabled={isProcessing}
       >
         <Ionicons name="document-text-outline" size={20} color="#642684" />
         <Text style={styles.secondaryButtonText}>Ver términos y condiciones</Text>
