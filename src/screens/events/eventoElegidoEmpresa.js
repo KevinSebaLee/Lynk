@@ -18,10 +18,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
 import {MonthlyInscriptionsChart} from '@/components'
-<<<<<<< HEAD
 
-=======
->>>>>>> 313e09f02cecc23b43bce3004819fb5a06e3c613
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
 const MAP_SIZE = width * 0.36;
