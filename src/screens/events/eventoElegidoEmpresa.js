@@ -21,6 +21,8 @@ import { EventActionButton, EventDetailRow } from '@/components';
 import { MonthlyInscriptionsChart } from '@/components';
 import { useAuth } from '../../context/AuthContext';
 import * as MailComposer from 'expo-mail-composer';
+import couponCreate from '../tickets/couponCreate'
+
 
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
@@ -224,6 +226,10 @@ export default function EventoElegidoEmpresa() {
         {getEventDuration() && (
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
+        <Button
+          onPress={navigation.navigate('couponCreate')}
+          title='Agregar cupones'
+        ></Button>
         <EventActionButton
           agendado={false}
           loadingAgendar={loadingBorrar}

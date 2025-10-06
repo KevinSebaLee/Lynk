@@ -15,6 +15,7 @@ import ApiService from '../../services/api';
 import { LoadingSpinner } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { ScreenHeader, CouponCard } from '../../components';
+import { Button } from 'react-native-web';
 
 const STATUS_OPTIONS = [
   { key: 'all', label: 'Todos' },
@@ -38,6 +39,8 @@ const STATUS_KEY_MAP = {
   inactivo: 'inactive',
   disabled: 'inactive',
 };
+
+const { esEmpresa, authInitialized } = useAuth();
 
 const getStatusKey = (status) => {
   if (typeof status !== 'string') {
@@ -219,7 +222,7 @@ export default function Cupones() {
           </TouchableOpacity>
         )}
       </View>
-
+      {esEmpresa?? <Button>Create</Button>}
       <View style={styles.filterContainer}>
         {availableStatusOptions.map((option) => {
           const count = option.key === 'all'
