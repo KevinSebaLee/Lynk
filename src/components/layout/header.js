@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Container from './container';
-
+import { useNavigation } from '@react-navigation/native';
 // Pre-require assets for better performance
 const hamburgerIcon = require('../../../assets/img/icons/hamburger.png');
 const notifIcon = require('../../../assets/img/icons/notif.png');
@@ -15,6 +15,8 @@ const notifIcon = require('../../../assets/img/icons/notif.png');
  * @returns {React.ReactElement} Rendered component
  */
 const Header = memo(({ nombre, onHamburgerPress }) => {
+  const navigation = useNavigation();
+
   return (
     <Container style={styles.container}>
       <View style={styles.leftSection}>
@@ -32,12 +34,18 @@ const Header = memo(({ nombre, onHamburgerPress }) => {
         <Text style={styles.headerTitle}>{nombre}</Text>
       </View>
 
-      <View>
-        <Image
-          source={notifIcon}
-          style={styles.notificationIcon}
-          fadeDuration={0}
-        />
+       <View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Notifications')}
+          accessibilityRole="button"
+          accessibilityLabel="Ver notificaciones"
+        >
+          <Image
+            source={notifIcon}
+            style={styles.notificationIcon}
+            fadeDuration={0}
+          />
+        </TouchableOpacity>
       </View>
     </Container>
   );

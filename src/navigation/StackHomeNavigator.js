@@ -11,6 +11,8 @@ import AllTransfers from '@/screens/tickets/allTransfers';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components';
 import StackCuponesNavigator from './StackCuponesNavigator';
+import NotificationsScreen from '../screens/NotificationsScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +39,7 @@ export default function StackHomeNavigator() {
           component={TransferirMonto}
           options={{ title: 'Transferir Monto' }}
         />
+        <Stack.Screen name='Notifications' component={NotificationsScreen} />
         <Stack.Screen name='homeEmpresa' component={HomeEmpresa} />
         <Stack.Screen 
           name='Cupones' 
