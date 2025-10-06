@@ -143,6 +143,10 @@ export default function Home() {
             onLogout={handleLogout}
           />
           
+          <View style={{ marginTop: 20 }}>
+                  <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
+          </View>
+
           <SectionHeader 
             title="Eventos mas recientes"
             showSeeMore={true}

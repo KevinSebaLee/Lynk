@@ -36,12 +36,12 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
             const isSelected = selectedMonth === item.month;
             const hasTickets = item.tickets > 0;
             
-            // Determine bar color: purple if selected, light blue if has tickets, light gray otherwise
-            let barColor = '#E3E3E3'; // default gray for no data
+            // Colores más visibles para las barras
+            let barColor = '#E3E3E3'; // gris claro para sin datos
             if (isSelected) {
-              barColor = '#642684'; // purple for selected
+              barColor = '#642684'; // morado para seleccionado
             } else if (hasTickets) {
-              barColor = '#E3F2FD'; // light blue for has data but not selected
+              barColor = '#95C3F9'; // azul más visible para datos no seleccionados
             }
             
             return (
@@ -56,7 +56,7 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
                     style={[
                       styles.bar,
                       {
-                        height: Math.max(barHeight, 4), // Minimum height to make it visible
+                        height: Math.max(barHeight, 4), // Altura mínima para hacerlo visible
                         backgroundColor: barColor,
                       }
                     ]}

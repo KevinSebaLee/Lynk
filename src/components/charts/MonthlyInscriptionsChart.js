@@ -4,6 +4,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-nati
 const { width } = Dimensions.get('window');
 
 const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
+  console.log('MonthlyInscriptionsChart data:', data);
   if (!data.length) {
     return (
       <View style={styles.emptyContainer}>
