@@ -9,10 +9,11 @@ import {
   BackHandler,
   Platform,
   Animated,
-  ActivityIndicator,
-  SafeAreaView
+  ActivityIndicator
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import ApiService from '../../services/api';
 import { useNavigation } from '@react-navigation/native';
 import { DIMENSIONS } from '@/constants';
@@ -29,13 +30,11 @@ const { screenWidth: width, screenHeight: height } = DIMENSIONS;
 const CouponCreateModal = ({ visible, onClose }) => {
   const navigation = useNavigation();
   
-  // Animation and visibility state
   const [localVisible, setLocalVisible] = useState(visible);
   const [isAnimating, setIsAnimating] = useState(false);
   const isClosing = useRef(false);
   const translateY = useRef(new Animated.Value(height)).current;
 
-  // Form state
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [descuento, setDescuento] = useState('');
@@ -49,15 +48,16 @@ const CouponCreateModal = ({ visible, onClose }) => {
   const [esActivo, setEsActivo] = useState(true);
   const [formError, setFormError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [eventos, setEventos] = useState([]);
+  const [selectedEvento, setSelectedEvento] = useState('');
 
-  // Update local visibility when prop changes
   React.useEffect(() => {
     if (visible !== localVisible) {
       setLocalVisible(visible);
     }
   }, [visible]);
 
-  // Handle back button press
   React.useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
@@ -73,28 +73,30 @@ const CouponCreateModal = ({ visible, onClose }) => {
     return () => backHandler.remove();
   }, [localVisible]);
 
-  // Initialize form when modal opens
   React.useEffect(() => {
     if (localVisible) {
-      // Only initialize default values if they're empty
-      if (!fechaExpiracion) {
-        const nextMonth = new Date();
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        setFechaExpiracion(nextMonth.toISOString().split('T')[0]);
-        setFechaExpiracionDate(nextMonth);
-      }
-      
       if (!codigo) {
-        // Generate a default coupon code
         const randomCode = 'COUPON' + Math.random().toString(36).substr(2, 6).toUpperCase();
         setCodigo(randomCode);
       }
+      
+      fetchCompanyEvents();
       
       setFormError('');
     }
   }, [localVisible]);
 
-  // Animation logic
+  const fetchCompanyEvents = async () => {
+    try {
+      const response = await ApiService.getEventos();
+      const eventsData = Array.isArray(response) ? response : response.events || [];
+      setEventos(eventsData);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setEventos([]);
+    }
+  };
+
   React.useEffect(() => {
     translateY.setValue(height);
   }, []);
@@ -138,25 +140,21 @@ const CouponCreateModal = ({ visible, onClose }) => {
     };
   }, [localVisible, isAnimating, onClose]);
 
-  // Reset form completely
   const resetForm = () => {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    
     setNombre('');
     setDescripcion('');
     setDescuento('');
     setCodigo('COUPON' + Math.random().toString(36).substr(2, 6).toUpperCase());
-    setFechaExpiracion(nextMonth.toISOString().split('T')[0]);
-    setFechaExpiracionDate(nextMonth);
+    setFechaExpiracion('');
+    setFechaExpiracionDate(null);
     setMinCompra('');
     setCategoria('');
     setMaxUsos('');
     setEsActivo(true);
+    setSelectedEvento('');
     setFormError('');
   };
 
-  // Close modal with animation
   const handleCloseModal = () => {
     if (isClosing.current || isAnimating) return;
     
@@ -176,11 +174,9 @@ const CouponCreateModal = ({ visible, onClose }) => {
   };
 
   const handleFechaChange = (event, selectedDate) => {
-    if (Platform.OS === 'android') {
-      setShowFechaPicker(false);
-    }
+    setShowFechaPicker(false);
     
-    if (selectedDate) {
+    if (event.type === 'set' && selectedDate) {
       const newDate = new Date(selectedDate);
       setFechaExpiracionDate(newDate);
       const dateString = newDate.toISOString().split('T')[0];
@@ -194,9 +190,13 @@ const CouponCreateModal = ({ visible, onClose }) => {
   };
 
   const handleCreateCoupon = async () => {
-    // Form validation
-    if (!nombre || !descripcion || !descuento || !codigo || !fechaExpiracion) {
+    if (!nombre || !descripcion || !descuento || !codigo) {
       setFormError('Por favor completa todos los campos requeridos.');
+      return;
+    }
+
+    if (!selectedEvento) {
+      setFormError('Por favor selecciona un evento para este cupón.');
       return;
     }
 
@@ -213,7 +213,8 @@ const CouponCreateModal = ({ visible, onClose }) => {
         descripcion: descripcion.trim(),
         descuento: parseInt(descuento),
         codigo: codigo.toUpperCase().trim(),
-        fecha_expiracion: fechaExpiracionDate.toISOString(),
+        evento_id: selectedEvento,
+        fecha_expiracion: fechaExpiracionDate ? fechaExpiracionDate.toISOString() : null,
         min_compra: minCompra ? parseInt(minCompra) : 0,
         categoria: categoria.trim() || 'General',
         max_usos: maxUsos ? parseInt(maxUsos) : null,
@@ -250,16 +251,35 @@ const CouponCreateModal = ({ visible, onClose }) => {
       submitText="Crear cupón"
       isLoading={isLoading}
     >
-      {/* Form Fields */}
+      <View style={styles.pickerContainer}>
+        <Text style={styles.pickerLabel}>Evento *</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={selectedEvento}
+            onValueChange={(value) => setSelectedEvento(value)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Selecciona un evento..." value="" />
+            {eventos.map((evento) => (
+              <Picker.Item 
+                key={evento.id} 
+                label={evento.nombre || evento.name || `Evento ${evento.id}`} 
+                value={evento.id} 
+              />
+            ))}
+          </Picker>
+        </View>
+      </View>
+
       <FormField
-        placeholder="Nombre del cupón"
+        placeholder="Nombre del cupón *"
         value={nombre}
         onChangeText={setNombre}
         maxLength={50}
       />
       
       <FormField
-        placeholder="Descripción"
+        placeholder="Descripción *"
         value={descripcion}
         onChangeText={setDescripcion}
         multiline={true}
@@ -268,7 +288,7 @@ const CouponCreateModal = ({ visible, onClose }) => {
 
       <FormRow>
         <FormField
-          placeholder="Descuento (%)"
+          placeholder="Descuento (%) *"
           value={descuento}
           onChangeText={handleNumericChange(setDescuento)}
           keyboardType="numeric"
@@ -277,7 +297,7 @@ const CouponCreateModal = ({ visible, onClose }) => {
         />
         
         <FormField
-          placeholder="Código"
+          placeholder="Código *"
           value={codigo}
           onChangeText={(value) => setCodigo(value.toUpperCase())}
           maxLength={20}
@@ -285,9 +305,8 @@ const CouponCreateModal = ({ visible, onClose }) => {
         />
       </FormRow>
 
-      {/* Date Picker */}
-      <DatePickerField
-        value={fechaExpiracion}
+      <TouchableOpacity 
+        style={styles.dateButton}
         onPress={() => {
           if (!fechaExpiracionDate) {
             const nextMonth = new Date();
@@ -296,11 +315,19 @@ const CouponCreateModal = ({ visible, onClose }) => {
           }
           setShowFechaPicker(true);
         }}
-        placeholder="Fecha de expiración"
-        showPicker={showFechaPicker}
-        onDateChange={handleFechaChange}
-        dateValue={fechaExpiracionDate}
-      />
+      >
+        <Text style={styles.dateButtonText}>
+          {fechaExpiracion || 'Fecha de expiración (Opcional)'}
+        </Text>
+        <Ionicons name="calendar-outline" size={20} color="#666" />
+      </TouchableOpacity>
+
+      {showFechaPicker && (
+        <DatePickerField
+          value={fechaExpiracionDate || new Date()}
+          onChange={handleFechaChange}
+        />
+      )}
 
       <FormRow>
         <FormField
@@ -327,7 +354,6 @@ const CouponCreateModal = ({ visible, onClose }) => {
         maxLength={30}
       />
 
-      {/* Active Switch */}
       <View style={styles.switchRow}>
         <Text style={styles.switchLabel}>Cupón activo</Text>
         <Switch
@@ -338,7 +364,6 @@ const CouponCreateModal = ({ visible, onClose }) => {
         />
       </View>
 
-      {/* Error display */}
       {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
     </FormModal>
   );
@@ -375,7 +400,6 @@ const CouponCreate = () => {
 };
 
 const styles = StyleSheet.create({
-  // Screen styles
   screenContainer: {
     flex: 1,
     backgroundColor: '#f8f9fa',
@@ -400,10 +424,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  
-  // Form styles
   halfInput: {
     flex: 1,
+  },
+  pickerContainer: {
+    marginBottom: 12,
+    width: '100%',
+  },
+  pickerLabel: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 6,
+  },
+  pickerWrapper: {
+    backgroundColor: '#f5f5f8',
+    borderRadius: 7,
+    overflow: 'hidden',
+  },
+  picker: {
+    width: '100%',
+    height: 50,
+  },
+  dateButton: {
+    backgroundColor: '#f5f5f8',
+    borderRadius: 7,
+    padding: 12,
+    width: '100%',
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dateButtonText: {
+    color: '#666',
+    fontSize: 15,
   },
   switchRow: {
     flexDirection: 'row',

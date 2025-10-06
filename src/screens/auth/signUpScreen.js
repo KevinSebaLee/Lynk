@@ -12,16 +12,17 @@ import {
   Pressable,
   Alert,
   ScrollView,
-  SafeAreaView,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
 import ApiService from '@/services/api';
 import { APP_CONSTANTS } from '@/constants/config';
 import { useApi } from '@/hooks/useApi';
-import { Button } from '@/components/common';
-import { UserTypeSelector, FormField, AuthButton } from '@/components';
+import UserTypeSelector from '@/components/auth/UserTypeSelector'
+import FormField from '@/components/auth/FormField'
+import AuthButton from '@/components/auth/AuthButton'
 
 export default function SignUpScreen() {
   const [userType, setUserType] = useState('personal');

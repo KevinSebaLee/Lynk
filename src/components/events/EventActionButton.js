@@ -10,7 +10,7 @@ const EventActionButton = ({
 }) => {
   const getButtonText = () => {
     if (variant === 'delete') {
-      return loadingAgendar ? 'Borrando...' : 'Borrar';
+      return loadingAgendar ? 'Eliminando...' : 'Eliminar evento';
     }
     
     if (!enrollmentEnabled) {

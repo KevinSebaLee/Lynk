@@ -3,13 +3,13 @@ import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   View,
-  SafeAreaView,
   ScrollView,
   Pressable,
   Alert,
   Text,
   TouchableOpacity
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
@@ -166,6 +166,7 @@ export default function Home() {
               pointerEvents="none"
             />
             <Header nombre={userData?.user_nombre || 'Usuario'} onHamburgerPress={() => setMenuVisible(true)} />
+              
             <OverlayMenu
               visible={menuVisible}
               onClose={() => setMenuVisible(false)}

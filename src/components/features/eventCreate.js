@@ -341,11 +341,6 @@ const EventCreateModal = ({ visible, onClose }) => {
       return;
     }
     
-    if (!imageFile) {
-      setFormError('Por favor selecciona una imagen para el evento.');
-      return;
-    }
-    
     try {
       setIsLoading(true);
   
@@ -380,8 +375,7 @@ const EventCreateModal = ({ visible, onClose }) => {
         });
       }
       
-      console.log('Submitting form data...');
-      const response = await ApiService.createEvento(formData);
+      const response = await ApiService.createEvent(formData);
       
       // Check for special server interception response
       if (response && response.interceptedResponse) {

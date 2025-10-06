@@ -5,7 +5,6 @@ import {
   StyleSheet, 
   TextInput, 
   TouchableOpacity, 
-  SafeAreaView, 
   KeyboardAvoidingView, 
   Platform,
   Alert,
@@ -13,6 +12,7 @@ import {
   ScrollView,
   Image
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { GradientBackground, Button } from '../../components/common';

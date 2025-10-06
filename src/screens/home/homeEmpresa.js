@@ -3,12 +3,12 @@ import { StatusBar } from 'expo-status-bar';
 import {
   StyleSheet,
   View,
-  SafeAreaView,
   ScrollView,
   Pressable,
   Text,
   TouchableOpacity 
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/context/AuthContext';
@@ -143,6 +143,10 @@ export default function Home() {
             onLogout={handleLogout}
           />
           
+          <View style={{ marginTop: 20 }}>
+                  <Button title="Cerrar Sesión" style={styles.logOut} onPress={handleLogout} />
+          </View>
+
           <SectionHeader 
             title="Eventos mas recientes"
             showSeeMore={true}

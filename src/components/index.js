@@ -23,7 +23,7 @@ export { default as RecentEvents } from './features/RecentEvents';
 
 // Auth Components
 export { default as UserTypeSelector } from './auth/UserTypeSelector';
-export { default as AuthFormField } from './auth/FormField';
+export { default as FormField } from './auth/FormField';
 export { default as AuthButton } from './auth/AuthButton';
 
 // Event Components
@@ -55,8 +55,10 @@ export { default as TransferList } from './transfers/TransferList';
 
 // Chart Components
 export { default as MonthlyTicketsChart } from './charts/MonthlyTicketsChart';
+export { default as MonthlyInscriptionsChart } from './charts/MonthlyInscriptionsChart';
 export { default as GradientBarChart } from './charts/GradientBarChart';
 
 // Common Components
 export { default as LoadingSpinner } from './common/LoadingSpinner';
 export { default as Button } from './common/Button';
+export { default as GradientBackground } from './common/GradientBackground';

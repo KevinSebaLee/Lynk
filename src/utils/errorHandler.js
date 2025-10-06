@@ -6,7 +6,6 @@ export const handleApiError = (error, defaultMessage = 'An unexpected error occu
   const isAuthError = error.response && (error.response.status === 401 || error.response.status === 403);
   
   if (isAuthError) {
-    console.log('Auth error - token likely expired');
     return 'Authentication error';
   }
   
@@ -20,7 +19,6 @@ export const handleApiError = (error, defaultMessage = 'An unexpected error occu
   } else {
     // Other error
     errorMessage = `Unexpected error: ${error.message}`;
-    console.log('Unexpected error:', error.message);
   }
   
   Alert.alert('Error', errorMessage);

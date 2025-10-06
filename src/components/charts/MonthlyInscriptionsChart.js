@@ -1,21 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { DIMENSIONS } from '@/constants';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 
-const { screenWidth: width } = DIMENSIONS;
+const { width } = Dimensions.get('window');
 
-const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
-  
+const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) => {  
   if (!data.length) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No hay datos de tickets mensuales</Text>
+        <Text style={styles.emptyText}>No hay datos de inscripciones mensuales</Text>
       </View>
     );
   }
 
-  const maxTickets = Math.max(...data.map(item => item.tickets || 0));
-
+  const maxInscriptions = Math.max(...data.map(item => item.inscriptions || 0));
+  
   const getMonthName = (monthNum) => {
     const months = [
       'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
@@ -26,17 +24,17 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tickets por Mes</Text>
+      <Text style={styles.title}>Inscripciones por Mes</Text>
       
       <View style={styles.chartContainer}>
         <View style={styles.barsContainer}>
           {data.map((item, index) => {
-            const hasTickets = item.tickets > 0;
+            const hasInscriptions = item.inscriptions > 0;
             const isSelected = selectedMonth === item.month;
             
             // Calculate bar height with minimum 25px for visibility
-            const barHeight = hasTickets 
-              ? Math.max((item.tickets / maxTickets) * 120, 25)
+            const barHeight = hasInscriptions 
+              ? Math.max((item.inscriptions / maxInscriptions) * 120, 25)
               : 0;
             
             // Purple color scheme
@@ -44,15 +42,15 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
             
             return (
               <TouchableOpacity
-                key={`ticket-${item.month}-${index}`}
+                key={`inscription-${item.month}-${index}`}
                 style={styles.barContainer}
-                onPress={() => hasTickets && onMonthSelect && onMonthSelect(item.month)}
-                activeOpacity={hasTickets ? 0.7 : 1}
+                onPress={() => hasInscriptions && onMonthSelect && onMonthSelect(item.month)}
+                activeOpacity={hasInscriptions ? 0.7 : 1}
               >
                 <View style={styles.barWrapper}>
-                  {hasTickets && (
+                  {hasInscriptions && (
                     <>
-                      <Text style={styles.ticketCount}>{item.tickets}</Text>
+                      <Text style={styles.inscriptionCount}>{item.inscriptions}</Text>
                       <View
                         style={[
                           styles.bar,
@@ -68,7 +66,7 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
                 <Text style={[
                   styles.monthLabel,
                   isSelected && styles.monthLabelSelected,
-                  !hasTickets && styles.monthLabelEmpty,
+                  !hasInscriptions && styles.monthLabelEmpty,
                 ]}>
                   {getMonthName(item.month)}
                 </Text>
@@ -128,7 +126,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     minHeight: 25,
   },
-  ticketCount: {
+  inscriptionCount: {
     fontSize: 12,
     fontWeight: '600',
     color: '#333',
@@ -163,4 +161,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MonthlyTicketsChart;
+export default MonthlyInscriptionsChart;

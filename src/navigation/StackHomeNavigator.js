@@ -7,12 +7,10 @@ import PremiumGeneral from '@/screens/premiumGeneral';
 import Transferir from '@/screens/tickets/Transferir'; 
 import TransferirMonto from '@/screens/tickets/TransferirMonto'; 
 import HomeEmpresa from '@/screens/home/homeEmpresa';
-import Cupones from '@/screens/tickets/cupones';
-import CouponSelected from '@/screens/tickets/couponSelected';
-import CouponCreate from '@/screens/tickets/couponCreate';
 import AllTransfers from '@/screens/tickets/allTransfers';
 import { useAuth } from '@/context/AuthContext';
 import { LoadingSpinner } from '@/components';
+import StackCuponesNavigator from './StackCuponesNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,9 +38,11 @@ export default function StackHomeNavigator() {
           options={{ title: 'Transferir Monto' }}
         />
         <Stack.Screen name='homeEmpresa' component={HomeEmpresa} />
-        <Stack.Screen name='Cupones' component={Cupones} />
-        <Stack.Screen name='CouponSelected' component={CouponSelected} />
-        <Stack.Screen name='CouponCreate' component={CouponCreate} />
+        <Stack.Screen 
+          name='Cupones' 
+          component={StackCuponesNavigator}
+          options={{ title: 'Cupones' }}
+        />
         <Stack.Screen name='AllTransfers' component={AllTransfers} />
       </Stack.Navigator>
 

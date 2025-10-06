@@ -30,12 +30,12 @@ const TicketCard = memo(({ tickets, onGetMore, style }) => (
     </View>
     {/* Subtitle */}
     <Text style={styles.subtitle}>Tickets disponibles</Text>
-    {/* Main number with icon */}
+
     <View style={styles.ticketsRow}>
       <FontAwesome5 name="ticket-alt" size={28} color="#fff" style={{marginRight: 8}} />
       <Text style={styles.ticketsNumber}>{tickets}</Text>
     </View>
-    {/* Gradient button with new style */}
+
     <TouchableOpacity 
       style={styles.buttonWrapper} 
       activeOpacity={0.90} 
