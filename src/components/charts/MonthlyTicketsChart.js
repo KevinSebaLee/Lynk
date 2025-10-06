@@ -5,6 +5,7 @@ import { DIMENSIONS } from '@/constants';
 const { screenWidth: width } = DIMENSIONS;
 
 const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
+  
   if (!data.length) {
     return (
       <View style={styles.emptyContainer}>
@@ -14,8 +15,6 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
   }
 
   const maxTickets = Math.max(...data.map(item => item.tickets || 0));
-  const chartWidth = width - 40;
-  const barWidth = (chartWidth - (data.length - 1) * 8) / data.length;
 
   const getMonthName = (monthNum) => {
     const months = [
@@ -32,39 +31,44 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
       <View style={styles.chartContainer}>
         <View style={styles.barsContainer}>
           {data.map((item, index) => {
-            const barHeight = maxTickets > 0 ? (item.tickets / maxTickets) * 120 : 0;
-            const isSelected = selectedMonth === item.month;
             const hasTickets = item.tickets > 0;
+            const isSelected = selectedMonth === item.month;
             
-            // Colores más visibles para las barras
-            let barColor = '#E3E3E3'; // gris claro para sin datos
-            if (isSelected) {
-              barColor = '#642684'; // morado para seleccionado
-            } else if (hasTickets) {
-              barColor = '#95C3F9'; // azul más visible para datos no seleccionados
-            }
+            // Calculate bar height with minimum 25px for visibility
+            const barHeight = hasTickets 
+              ? Math.max((item.tickets / maxTickets) * 120, 25)
+              : 0;
+            
+            // Purple color scheme
+            const barColor = isSelected ? '#8B3A9E' : '#9F4B97';
             
             return (
               <TouchableOpacity
-                key={index}
-                style={[styles.barContainer, { width: barWidth }]}
-                onPress={() => onMonthSelect && onMonthSelect(item.month)}
+                key={`ticket-${item.month}-${index}`}
+                style={styles.barContainer}
+                onPress={() => hasTickets && onMonthSelect && onMonthSelect(item.month)}
+                activeOpacity={hasTickets ? 0.7 : 1}
               >
                 <View style={styles.barWrapper}>
-                  <Text style={styles.ticketCount}>{item.tickets || 0}</Text>
-                  <View
-                    style={[
-                      styles.bar,
-                      {
-                        height: Math.max(barHeight, 4), // Altura mínima para hacerlo visible
-                        backgroundColor: barColor,
-                      }
-                    ]}
-                  />
+                  {hasTickets && (
+                    <>
+                      <Text style={styles.ticketCount}>{item.tickets}</Text>
+                      <View
+                        style={[
+                          styles.bar,
+                          {
+                            height: barHeight,
+                            backgroundColor: barColor,
+                          }
+                        ]}
+                      />
+                    </>
+                  )}
                 </View>
                 <Text style={[
                   styles.monthLabel,
-                  { color: isSelected ? '#642684' : '#666' }
+                  isSelected && styles.monthLabelSelected,
+                  !hasTickets && styles.monthLabelEmpty,
                 ]}>
                   {getMonthName(item.month)}
                 </Text>
@@ -98,27 +102,31 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   barsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    width: '100%',
     height: 160,
-    paddingHorizontal: 8,
   },
   barContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
+    marginHorizontal: 2,
   },
   barWrapper: {
     alignItems: 'center',
     justifyContent: 'flex-end',
     height: 140,
+    width: '100%',
   },
   bar: {
-    width: '80%',
-    borderRadius: 4,
-    minHeight: 4,
+    width: '85%',
+    borderRadius: 8,
+    minHeight: 25,
   },
   ticketCount: {
     fontSize: 12,
@@ -131,6 +139,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 8,
     textAlign: 'center',
+    color: '#666',
+  },
+  monthLabelSelected: {
+    color: '#8B3A9E',
+    fontWeight: '600',
+  },
+  monthLabelEmpty: {
+    color: '#ccc',
   },
   emptyContainer: {
     backgroundColor: '#fff',

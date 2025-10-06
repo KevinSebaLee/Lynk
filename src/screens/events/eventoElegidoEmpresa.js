@@ -102,10 +102,11 @@ export default function EventoElegidoEmpresa() {
       sendCancellation();
       await deleteEventoPropio(event.id);
       Alert.alert('Evento eliminado con éxito.');
+      navigation.navigate('Eventos');
     } catch (error) {
       console.error('Error eliminando evento:', error);
     }
-  }, [event, deleteEventoPropio]);
+  }, [event, deleteEventoPropio, navigation]);
 
   const getImageSource = (imagen) => {
     if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
