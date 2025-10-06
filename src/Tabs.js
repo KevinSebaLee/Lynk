@@ -106,6 +106,7 @@ export default function MyTabs() {
                 ),
               }}
             />
+            
           </>
         ) : (
           <Tab.Screen

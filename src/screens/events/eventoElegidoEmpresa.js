@@ -227,9 +227,12 @@ export default function EventoElegidoEmpresa() {
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
         <Button
-          onPress={navigation.navigate('couponCreate')}
-          title='Agregar cupones'
-        ></Button>
+  title="Agregar cupones"
+  onPress={() => navigation.navigate('CouponCreate', {
+    eventId: event.id,
+    eventName: getEventName(),
+  })}
+/>
         <EventActionButton
           agendado={false}
           loadingAgendar={loadingBorrar}

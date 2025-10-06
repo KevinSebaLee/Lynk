@@ -15,17 +15,17 @@ export default function StackCuponesNavigator() {
       }}
     >
       <Stack.Screen 
-        name="CuponesList" 
+        name="cupones" 
         component={Cupones}
         options={{ title: 'Mis Cupones' }}
       />
       <Stack.Screen 
-        name="CouponSelected" 
+        name="couponSelected" 
         component={CouponSelected}
         options={{ title: 'Detalle del Cupón' }}
       />
       <Stack.Screen 
-        name="CouponCreate" 
+        name="couponCreate" 
         component={CouponCreate}
         options={{ title: 'Crear Cupón' }}
       />

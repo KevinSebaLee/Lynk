@@ -50,8 +50,6 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#642684',
   },
   disabledButton: {
     opacity: 0.6,
