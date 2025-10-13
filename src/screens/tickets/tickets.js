@@ -14,6 +14,7 @@ import {
   MovCard,
   PieChartCard
 } from '@/components';
+import { TouchableOpacity } from 'react-native';
 
 const width = DIMENSIONS.screenWidth;
 const arrow = { uri: 'https://cdn-icons-png.flaticon.com/512/154/154630.png' };
@@ -224,7 +225,7 @@ export default function Tickets() {
               tickets={Number(ticketsData) || 0}
               onGetMore={() => Alert.alert('Comprar Tickets', '¡Función para conseguir más tickets!')}
               onTransfer={() => navigation.navigate('Transferir')}
-              onRedeem={() => navigation.navigate('Cupones', { screen: 'CuponesList' })}
+              onRedeem={() => navigation.navigate('Cupones', { screen: 'eventCoupons' })}
             />
           </View>
 

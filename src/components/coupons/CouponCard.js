@@ -5,6 +5,7 @@ import { DIMENSIONS } from '@/constants';
 const { screenWidth: width } = DIMENSIONS;
 
 const CouponCard = ({ coupon, onPress }) => {
+  console.log("Mostrando card")
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'active':
@@ -41,6 +42,7 @@ const CouponCard = ({ coupon, onPress }) => {
   };
 
   return (
+    
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.cardHeader}>
         <Text style={styles.couponName} numberOfLines={2}>
