@@ -186,6 +186,17 @@ export class ApiService {
     }
   }
 
+  static async getNotifications(userId) {
+    if (!userId) throw new Error('No userId provided');
+    try {
+      const response = await apiClient.get(`/notifications/${userId}`);
+      return response.data; 
+    } catch (error) {
+      handleApiError(error, 'Error al obtener las notificaciones');
+      throw error;
+    }
+  }
+
   static async getMonthlyTickets() {
     try {
       const response = await apiClient.get(ENDPOINTS.TICKETS);
