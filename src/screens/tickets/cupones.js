@@ -199,6 +199,7 @@ export default function Cupones({route}) {
             }
             refreshing={refreshing}
             onRefresh={handleRefresh}
+            onPress={() => navigation.navigate('couponSelected', { idCoupon: item.id })}
           />
         )}
       </LinearGradient>
