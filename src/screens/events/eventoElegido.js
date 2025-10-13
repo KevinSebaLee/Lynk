@@ -102,7 +102,6 @@ export default function EventoElegido() {
 
         // Check if enrollment is enabled
         enrollmentEnabled: eventData.enabled_for_enrollment === '1' || eventData.enabled_for_enrollment === true,
-
         // Generate map URL from event location
         mapUrl: (() => {
           const location = eventData.event_location;
@@ -243,12 +242,12 @@ export default function EventoElegido() {
             fullDate={fullDate}
             eventData={eventData}
           />
-
+          {      console.log('Event Details:', eventDetails.enrollmentEnabled)}
           {/* Join/Leave event button */}
           <EventActionButton
             agendado={agendado}
             loadingAgendar={loadingAgendar}
-            enrollmentEnabled={eventDetails.enrollmentEnabled}
+            enrollmentEnabled={true}
             onPress={handleAgendarEvento}
             variant="join"
           />

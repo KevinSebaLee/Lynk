@@ -8,7 +8,8 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  Alert
+  Alert,
+  Button,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_CONFIG, DIMENSIONS } from '@/constants';
@@ -17,8 +18,11 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useApi } from '@/hooks/useApi';
 import { EventActionButton, EventDetailRow } from '@/components';
-import {MonthlyInscriptionsChart} from '@/components'
-import {useAuth} from '../../context/AuthContext'
+import { MonthlyInscriptionsChart } from '@/components';
+import { useAuth } from '../../context/AuthContext';
+import * as MailComposer from 'expo-mail-composer';
+import couponCreate from '../tickets/couponCreate'
+
 
 const { screenWidth: width } = DIMENSIONS;
 const CIRCLE_SIZE = width * 0.84;
@@ -34,8 +38,11 @@ export default function EventoElegidoEmpresa() {
 
   const { execute: loadEventDetails } = useApi(ApiService.getEventoById);
   const { execute: deleteEventoPropio, loading: loadingBorrar } = useApi(ApiService.deleteEventoPropio);
-  const {id} = useAuth
+  const { id } = useAuth();
+  const [participantes, setParticipantes] = useState([]);
+  const [isAvailable, setIsAvailable] = useState(false);
 
+  // Cargar evento
   useEffect(() => {
     const loadEvent = async () => {
       try {
@@ -44,30 +51,7 @@ export default function EventoElegidoEmpresa() {
           if (eventFromParams.id) {
             try {
               const eventData = await loadEventDetails(eventFromParams.id);
-              const scheduled = await loadScheduledEvents();
-
-              let found = false;
-              for (let i = 0; i < scheduled.length; i++) {
-                if (String(scheduled[i].id) === String(eventFromParams.id)) {
-                  found = true;
-                  break;
-                }
-              }
-
               setEvent(Array.isArray(eventData) ? eventData[0] : eventData);
-              
-              // Sample monthly inscriptions data
-              // In a real app, you would fetch this from an API
-              setMonthlyInscriptions([
-                { month: 1, inscriptions: 15 },
-                { month: 2, inscriptions: 23 },
-                { month: 3, inscriptions: 18 },
-                { month: 4, inscriptions: 32 },
-                { month: 5, inscriptions: 45 },
-                { month: 6, inscriptions: 28 }
-              ]);
-              setSelectedMonth(5); // Set current month as selected
-              
             } catch (error) {
               setEvent(eventFromParams);
             }
@@ -82,18 +66,49 @@ export default function EventoElegidoEmpresa() {
       }
     };
     loadEvent();
-  }, [route?.params?.event]);
+  }, [route?.params?.event, loadEventDetails]);
+
+  // Cargar inscripciones mensuales desde la API
+  useEffect(() => {
+    async function cargarInscriptions() {
+      if (event?.id) {
+        try {
+          const data = await ApiService.getMonthlyInscriptionsByEventId(event.id);
+          setMonthlyInscriptions(data);
+          // Seleccionar el mes actual si está en la data, sino el último mes disponible
+          const now = new Date();
+          const currentMonth = now.getMonth() + 1;
+          if (data.some(d => d.month === currentMonth)) {
+            setSelectedMonth(currentMonth);
+          } else if (data.length > 0) {
+            setSelectedMonth(data[data.length - 1].month);
+          }
+        } catch (error) {
+          setMonthlyInscriptions([]);
+        }
+      }
+    }
+    cargarInscriptions();
+  }, [event]);
+
+  useEffect(() => {
+    async function checkAvailability() {
+      const isMailAvailable = await MailComposer.isAvailableAsync();
+      setIsAvailable(isMailAvailable);
+    }
+    checkAvailability();
+  }, []);
 
   const handleBorrarEvento = useCallback(async () => {
-    if (!event?.id) return;
-      try {
-        await deleteEventoPropio(event.id);
-        Alert.alert('Evento eliminado con éxito.');
-      } catch (error) {
-        // Error already handled
-      }
-    
-  }, [event,deleteEventoPropio]);
+    try {
+      sendCancellation();
+      await deleteEventoPropio(event.id);
+      Alert.alert('Evento eliminado con éxito.');
+      navigation.navigate('Eventos');
+    } catch (error) {
+      console.error('Error eliminando evento:', error);
+    }
+  }, [event, deleteEventoPropio, navigation]);
 
   const getImageSource = (imagen) => {
     if (typeof imagen === 'string' && imagen.startsWith('/uploads/')) {
@@ -145,13 +160,30 @@ export default function EventoElegidoEmpresa() {
   const getEventTags = () => event.tags || [];
   const isEnrollmentEnabled = () => event.enabled_for_enrollment === '1' || event.enabled_for_enrollment === true;
 
-  // Generate map URL from event location if available
   const getMapUrl = () => {
     const location = getEventLocation();
     if (location && location.latitude && location.longitude) {
       return `https://maps.googleapis.com/maps/api/staticmap?center=${location.latitude},${location.longitude}&zoom=15&size=220x120&markers=color:0x6a2a8c|${location.latitude},${location.longitude}&key=YOUR_API_KEY`;
     }
     return 'https://maps.googleapis.com/maps/api/staticmap?center=-34.5889,-58.4173&zoom=15&size=220x120&markers=color:0x6a2a8c|-34.5889,-58.4173&key=YOUR_API_KEY';
+  };
+
+  const sendCancellation = async () => {
+    try {
+      const response = await fetch('https://subtle-bull-trusting.ngrok-free.app/eventos/send-cancellation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipients: ['arijusid1@gmail.com'],
+          eventName: getEventName(),
+        })
+      });
+      const result = await response.text();
+      Alert.alert('Resultado', result);
+      console.log('Resultado:', result);
+    } catch (error) {
+      Alert.alert('Errorsito', error.message);
+    }
   };
 
   return (
@@ -186,7 +218,6 @@ export default function EventoElegidoEmpresa() {
       <View style={styles.detailsCard}>
         <Text style={styles.title}>{getEventName()} <Ionicons name="heart-outline" size={16} color="#9F4B97" /></Text>
         <Text style={styles.subtitle}>{event.categoria_nombre || 'Evento'}</Text>
-        
         {getEventPrice() && (
           <Text style={styles.price}>Precio: ${getEventPrice()}</Text>
         )}
@@ -196,26 +227,30 @@ export default function EventoElegidoEmpresa() {
         {getEventDuration() && (
           <Text style={styles.duration}>Duración: {getEventDuration()} minutos</Text>
         )}
-        {getEventCreator() === id ? <EventActionButton
+        <Button
+          title="Agregar cupones"
+          onPress={() => navigation.navigate('CouponCreate', {
+            eventId: event.id,
+            eventName: getEventName(),
+          })}
+        />
+        <EventActionButton
           agendado={false}
           loadingAgendar={loadingBorrar}
           enrollmentEnabled={isEnrollmentEnabled()}
           onPress={handleBorrarEvento}
           variant="delete"
-        />: null}
-        
+        />
         <EventDetailRow
           icon="calendar-outline"
           title={fullDate}
           description={event.hora || (event.start_date ? new Date(event.start_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }) : '')}
         />
-        
         <EventDetailRow
           icon="location-outline"
           title={getEventLocation()?.name || event.ubicacion || 'Ubicación'}
           description={`${getEventLocation()?.full_address || event.direccion || ''}${getEventLocation()?.location?.name ? `, ${getEventLocation().location.name}` : ''}${getEventLocation()?.location?.province?.name ? `, ${getEventLocation().location.province.name}` : ''}`}
         />
-
         {getEventCreator() && (
           <EventDetailRow
             icon="person-outline"
@@ -223,7 +258,6 @@ export default function EventoElegidoEmpresa() {
             description={`${getEventCreator().first_name} ${getEventCreator().last_name}`}
           />
         )}
-
         {getEventTags().length > 0 && (
           <View style={styles.tagsContainer}>
             <Text style={styles.sectionTitle}>Tags</Text>
@@ -236,15 +270,13 @@ export default function EventoElegidoEmpresa() {
             </View>
           </View>
         )}
-        
         <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Sobre el evento</Text>
         <Text style={styles.eventDescription}>{getEventDescription()}</Text>
         <View style={styles.inviteCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity style={styles.inviteBtn}>
               <Text style={styles.inviteBtnText}>Participantes</Text>
-              
-              {/* Monthly Inscriptions Chart */}
+
               <MonthlyInscriptionsChart
                 data={monthlyInscriptions}
                 selectedMonth={selectedMonth}
@@ -258,8 +290,8 @@ export default function EventoElegidoEmpresa() {
   );
 }
 
+// ...styles igual que antes
 const styles = StyleSheet.create({
-  // All the styles remain the same...
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

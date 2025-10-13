@@ -95,28 +95,32 @@ const MonthlyTicketsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
 
             return (
               <TouchableOpacity
-                key={index}
-                style={[styles.barContainer, { width: barWidth }]}
-                onPress={() => onMonthSelect && onMonthSelect(item.month)}
+                key={`ticket-${item.month}-${index}`}
+                style={styles.barContainer}
+                onPress={() => hasTickets && onMonthSelect && onMonthSelect(item.month)}
+                activeOpacity={hasTickets ? 0.7 : 1}
               >
                 <View style={styles.barWrapper}>
-                  <Text style={styles.ticketCount}>{item.tickets || 0}</Text>
-                  <View
-                    style={[
-                      styles.bar,
-                      {
-                        height: Math.max(barHeight, 4),
-                        backgroundColor: barColor,
-                      }
-                    ]}
-                  />
+                  {hasTickets && (
+                    <>
+                      <Text style={styles.ticketCount}>{item.tickets}</Text>
+                      <View
+                        style={[
+                          styles.bar,
+                          {
+                            height: barHeight,
+                            backgroundColor: barColor,
+                          }
+                        ]}
+                      />
+                    </>
+                  )}
                 </View>
-                <Text
-                  style={[
-                    styles.monthLabel,
-                    { color: isSelected ? '#642684' : '#666' }
-                  ]}
-                >
+                <Text style={[
+                  styles.monthLabel,
+                  isSelected && styles.monthLabelSelected,
+                  !hasTickets && styles.monthLabelEmpty,
+                ]}>
                   {getMonthName(item.month)}
                 </Text>
               </TouchableOpacity>
@@ -149,27 +153,31 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   barsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    width: '100%',
     height: 160,
-    paddingHorizontal: 8,
   },
   barContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
+    marginHorizontal: 2,
   },
   barWrapper: {
     alignItems: 'center',
     justifyContent: 'flex-end',
     height: 140,
+    width: '100%',
   },
   bar: {
-    width: '80%',
-    borderRadius: 4,
-    minHeight: 4,
+    width: '85%',
+    borderRadius: 8,
+    minHeight: 25,
   },
   ticketCount: {
     fontSize: 12,
@@ -182,6 +190,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 8,
     textAlign: 'center',
+    color: '#666',
+  },
+  monthLabelSelected: {
+    color: '#8B3A9E',
+    fontWeight: '600',
+  },
+  monthLabelEmpty: {
+    color: '#ccc',
   },
   emptyContainer: {
     backgroundColor: '#fff',

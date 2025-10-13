@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_CONFIG, ENDPOINTS } from '@/constants';
 import { getToken, handleApiError } from '@/utils';
+import { Alert } from 'react-native';
 
 const apiClient = axios.create({
   baseURL: API_CONFIG.BASE_URL,
@@ -312,6 +313,19 @@ export class ApiService {
     }
   }
 
+  static async getMonthlyInscriptionsByEventId(eventId) {
+  if (!eventId) {
+    throw new Error('Event ID is required to fetch monthly inscriptions');
+  }
+  try {
+    const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${eventId}/inscripciones-mensuales`);
+    return response.data; // [{ month: X, inscriptions: Y }, ...]
+  } catch (error) {
+    handleApiError(error, 'Failed to load monthly inscriptions');
+    throw error;
+  }
+}
+
    static async deleteEventoPropio(id) {
     if (!id) {
       throw new Error('Event ID is required to remove the scheduled event');
@@ -362,44 +376,54 @@ export class ApiService {
     throw new Error('No se pudieron obtener los usuarios agendados');
   }
 
-  static async deleteEvento(id) {
-    if (!id) {
-      throw new Error('Event ID is required to delete the event');
-    }
-
-    const paths = [
-      `${ENDPOINTS.EVENTOS}/${id}`,
-      `${ENDPOINTS.EVENTOS}/${id}/delete`,
-    ];
-
-    let lastError = null;
-
-    for (const path of paths) {
-      try {
-        const response = await apiClient.delete(path);
-        return response.data;
-      } catch (error) {
-        lastError = error;
-        const status = error?.response?.status;
-        if (status && [404, 405].includes(status)) {
-          continue;
-        }
-        handleApiError(error, 'Failed to delete event');
-        throw error;
-      }
-    }
-
-    if (lastError) {
-      handleApiError(lastError, 'Failed to delete event');
-      throw lastError;
-    }
-
-    throw new Error('No se pudo eliminar el evento');
+  static async getParticipantesEvento(eventoId) {
+  try {
+    const response = await apiClient.get(`${ENDPOINTS.EVENTOS}/${eventoId}/participantes`);
+    return response.data; 
+  } catch (error) {
+    handleApiError(error, 'Failed to load event participants');
+    throw error;
   }
+}
 
-  static borrarEvento(id) {
-    return this.deleteEvento(id);
-  }
+  // static async deleteEvento(id) {
+  //   if (!id) {
+  //     throw new Error('Event ID is required to delete the event');
+  //   }
+
+  //   const paths = [
+  //     `${ENDPOINTS.EVENTOS}/${id}`,
+  //     `${ENDPOINTS.EVENTOS}/${id}/delete`,
+  //   ];
+
+  //   let lastError = null;
+
+  //   for (const path of paths) {
+  //     try {
+  //       const response = await apiClient.delete(path);
+  //       return response.data;
+  //     } catch (error) {
+  //       lastError = error;
+  //       const status = error?.response?.status;
+  //       if (status && [404, 405].includes(status)) {
+  //         continue;
+  //       }
+  //       handleApiError(error, 'Failed to delete event');
+  //       throw error;
+  //     }
+  //   }
+
+  //   if (lastError) {
+  //     handleApiError(lastError, 'Failed to delete event');
+  //     throw lastError;
+  //   }
+
+  //   throw new Error('No se pudo eliminar el evento');
+  // }
+
+  // static borrarEvento(id) {
+  //   return this.deleteEvento(id);
+  // }
 
   static async createEvent(formData) {
     try {

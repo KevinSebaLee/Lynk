@@ -3,7 +3,7 @@ import { isLoggedIn, removeToken, storeToken, getToken } from '../utils/Token';
 import { setAuthErrorHandler } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,7 +37,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     setAuthErrorHandler(logout);
-
     (async () => {
       const loggedIn = await isLoggedIn();
       if (loggedIn) {
@@ -50,8 +49,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (token, userData = null) => {
     await storeToken(token);
-
-    // Decode token to get esEmpresa value
     try {
       const decoded = jwtDecode(token);
       setEsEmpresa(!!decoded.esEmpresa);
@@ -59,11 +56,9 @@ export const AuthProvider = ({ children }) => {
       console.error('JWT decode error during login:', error);
       setEsEmpresa(false);
     }
-
     if (userData) {
       setUserDataCache(userData);
     }
-
     setIsAuthenticated(true);
   };
 
@@ -75,24 +70,33 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(loggedIn);
   };
 
-  const clearUserDataCache = () => {
-    setUserDataCache(null);
+  const clearUserDataCache = () => setUserDataCache(null);
+
+  const value = {
+    isAuthenticated,
+    login,
+    logout,
+    checkAuth,
+    userDataCache,
+    clearUserDataCache,
+    esEmpresa,
+    authInitialized
   };
 
   return (
-    <AuthContext.Provider value={{
-      isAuthenticated,
-      login,
-      logout,
-      checkAuth,
-      userDataCache,
-      clearUserDataCache,
-      esEmpresa,
-      authInitialized
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+// Safer hook
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return ctx;
+};
+
+export { AuthContext };

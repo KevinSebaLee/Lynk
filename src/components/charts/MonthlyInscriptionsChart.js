@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-nati
 
 const { width } = Dimensions.get('window');
 
-const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) => {
+const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) => {  
   if (!data.length) {
     return (
       <View style={styles.emptyContainer}>
@@ -13,9 +13,7 @@ const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) =
   }
 
   const maxInscriptions = Math.max(...data.map(item => item.inscriptions || 0));
-  const chartWidth = width - 40;
-  const barWidth = (chartWidth - (data.length - 1) * 8) / data.length;
-
+  
   const getMonthName = (monthNum) => {
     const months = [
       'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
@@ -31,30 +29,44 @@ const MonthlyInscriptionsChart = ({ data = [], selectedMonth, onMonthSelect }) =
       <View style={styles.chartContainer}>
         <View style={styles.barsContainer}>
           {data.map((item, index) => {
-            const barHeight = maxInscriptions > 0 ? (item.inscriptions / maxInscriptions) * 120 : 0;
+            const hasInscriptions = item.inscriptions > 0;
             const isSelected = selectedMonth === item.month;
+            
+            // Calculate bar height with minimum 25px for visibility
+            const barHeight = hasInscriptions 
+              ? Math.max((item.inscriptions / maxInscriptions) * 120, 25)
+              : 0;
+            
+            // Purple color scheme
+            const barColor = isSelected ? '#8B3A9E' : '#9F4B97';
             
             return (
               <TouchableOpacity
-                key={index}
-                style={[styles.barContainer, { width: barWidth }]}
-                onPress={() => onMonthSelect && onMonthSelect(item.month)}
+                key={`inscription-${item.month}-${index}`}
+                style={styles.barContainer}
+                onPress={() => hasInscriptions && onMonthSelect && onMonthSelect(item.month)}
+                activeOpacity={hasInscriptions ? 0.7 : 1}
               >
                 <View style={styles.barWrapper}>
-                  <Text style={styles.inscriptionCount}>{item.inscriptions || 0}</Text>
-                  <View
-                    style={[
-                      styles.bar,
-                      {
-                        height: barHeight,
-                        backgroundColor: isSelected ? '#642684' : '#E3F2FD',
-                      }
-                    ]}
-                  />
+                  {hasInscriptions && (
+                    <>
+                      <Text style={styles.inscriptionCount}>{item.inscriptions}</Text>
+                      <View
+                        style={[
+                          styles.bar,
+                          {
+                            height: barHeight,
+                            backgroundColor: barColor,
+                          }
+                        ]}
+                      />
+                    </>
+                  )}
                 </View>
                 <Text style={[
                   styles.monthLabel,
-                  { color: isSelected ? '#642684' : '#666' }
+                  isSelected && styles.monthLabelSelected,
+                  !hasInscriptions && styles.monthLabelEmpty,
                 ]}>
                   {getMonthName(item.month)}
                 </Text>
@@ -88,27 +100,31 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   barsContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
+    width: '100%',
     height: 160,
-    paddingHorizontal: 8,
   },
   barContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
+    marginHorizontal: 2,
   },
   barWrapper: {
     alignItems: 'center',
     justifyContent: 'flex-end',
     height: 140,
+    width: '100%',
   },
   bar: {
-    width: '80%',
-    borderRadius: 4,
-    minHeight: 4,
+    width: '85%',
+    borderRadius: 8,
+    minHeight: 25,
   },
   inscriptionCount: {
     fontSize: 12,
@@ -121,6 +137,14 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 8,
     textAlign: 'center',
+    color: '#666',
+  },
+  monthLabelSelected: {
+    color: '#8B3A9E',
+    fontWeight: '600',
+  },
+  monthLabelEmpty: {
+    color: '#ccc',
   },
   emptyContainer: {
     backgroundColor: '#fff',
