@@ -467,6 +467,27 @@ export class ApiService {
     }
   }
 
+  static async getCouponsByEvent(idEvent){
+    try {
+      const response = await apiClient.get(`${ENDPOINTS.CUPONES}/${idEvent}`);
+      console.log(response.data)
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load coupons');
+      throw error;
+    }
+  }
+  static async getEventsWithCoupons(){
+    try {
+      const response = await apiClient.get(`${ENDPOINTS.CUPONES}`);
+      console.log(response.data)
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to load coupons');
+      throw error;
+    }
+  }
+
   static async createCoupon(couponData) {
     try {
       const response = await apiClient.post(ENDPOINTS.CUPONES, couponData);

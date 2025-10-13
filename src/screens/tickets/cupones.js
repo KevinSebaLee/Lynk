@@ -94,7 +94,7 @@ export default function Cupones() {
         try {
           // Adjust to your actual API method name
             // Example: const data = await ApiService.getCupones();
-          const data = await ApiService.getCupones?.();
+          const data = await ApiService.getCoupons?.();
           if (isActive && Array.isArray(data)) {
             setCoupons(data);
           }
@@ -187,7 +187,8 @@ export default function Cupones() {
           <FlatList
             data={filteredCoupons}
             keyExtractor={(item, idx) => item.id?.toString() || String(idx)}
-            renderItem={({ item }) => <CouponCard coupon={item} />}
+            renderItem={({ item }) => 
+            <CouponCard coupon={item} />}
             contentContainerStyle={{ padding: 16, paddingBottom: 60 }}
             ListEmptyComponent={
               <Text style={{ textAlign: 'center', marginTop: 40 }}>

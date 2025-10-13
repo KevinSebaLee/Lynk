@@ -3,13 +3,14 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Cupones from '@/screens/tickets/cupones';
 import CouponSelected from '@/screens/tickets/couponSelected';
 import CouponCreate from '@/screens/tickets/couponCreate';
+import EventCoupons from '../screens/tickets/eventCoupons';
 
 const Stack = createNativeStackNavigator();
 
 export default function StackCuponesNavigator() {
   return (
     <Stack.Navigator
-      initialRouteName="CuponesList"
+      initialRouteName="cupones"
       screenOptions={{
         headerShown: false,
       }}
@@ -18,6 +19,11 @@ export default function StackCuponesNavigator() {
         name="cupones" 
         component={Cupones}
         options={{ title: 'Mis Cupones' }}
+      />
+      <Stack.Screen 
+        name="eventCoupons" 
+        component={EventCoupons}
+        options={{ title: 'Event Coupons' }}
       />
       <Stack.Screen 
         name="couponSelected" 
