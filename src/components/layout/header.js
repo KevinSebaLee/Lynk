@@ -12,9 +12,10 @@ const notifIcon = require('../../../assets/img/icons/notif.png');
  * @param {Object} props - Component props
  * @param {string} props.nombre - Title to display in the header
  * @param {Function} props.onHamburgerPress - Callback when hamburger menu is pressed
+ * @param {boolean} props.esEmpresa - Si el usuario es empresa o no
  * @returns {React.ReactElement} Rendered component
  */
-const Header = memo(({ nombre, onHamburgerPress }) => {
+const Header = memo(({ nombre, onHamburgerPress, esEmpresa }) => {
   const navigation = useNavigation();
 
   return (
@@ -34,24 +35,26 @@ const Header = memo(({ nombre, onHamburgerPress }) => {
         <Text style={styles.headerTitle}>{nombre}</Text>
       </View>
 
-       <View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Notifications')}
-          accessibilityRole="button"
-          accessibilityLabel="Ver notificaciones"
-        >
-          <Image
-            source={notifIcon}
-            style={styles.notificationIcon}
-            fadeDuration={0}
-          />
-        </TouchableOpacity>
-      </View>
+      {/* Solo muestra la campanita si NO es empresa */}
+      {!esEmpresa && (
+        <View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Notifications')}
+            accessibilityRole="button"
+            accessibilityLabel="Ver notificaciones"
+          >
+            <Image
+              source={notifIcon}
+              style={styles.notificationIcon}
+              fadeDuration={0}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </Container>
   );
 });
 
-// Extracted styles for better performance and maintainability
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
