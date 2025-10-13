@@ -60,7 +60,7 @@ export default function EventCoupons() {
       style={styles.eventCard}
       onPress={() => navigation.navigate('cupones', { id: item.id })}
     >
-      <Text style={styles.eventName}>{item.titulo}</Text>
+      <Text style={styles.eventName}>{item.nombre}</Text>
       <Text style={styles.eventDate}>{item.fecha}</Text>
       {/* Puedes agregar más info del evento aquí si quieres */}
     </TouchableOpacity>
