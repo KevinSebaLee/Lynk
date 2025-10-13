@@ -481,7 +481,6 @@ export class ApiService {
   static async getCouponsByEvent(idEvent){
     try {
       const response = await apiClient.get(`${ENDPOINTS.CUPONES}/${idEvent}`);
-      console.log(response.data)
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to load coupons');

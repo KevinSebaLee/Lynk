@@ -45,7 +45,9 @@ const getStatusKey = (status) => {
   return STATUS_KEY_MAP[normalized] || 'other';
 };
 
-export default function Cupones() {
+export default function Cupones({route}) {
+
+  const { idEvent } = route.params;
   const { esEmpresa, authInitialized } = useAuth();
   const navigation = useNavigation();
 
@@ -94,7 +96,7 @@ export default function Cupones() {
         try {
           // Adjust to your actual API method name
             // Example: const data = await ApiService.getCupones();
-          const data = await ApiService.getCoupons?.();
+          const data = await ApiService.getCouponsByEvent?.(idEvent);
           if (isActive && Array.isArray(data)) {
             setCoupons(data);
           }
@@ -112,7 +114,7 @@ export default function Cupones() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const data = await ApiService.getCupones?.();
+      const data = await ApiService.getCouponsByEvent?.(idEvent);
       if (Array.isArray(data)) setCoupons(data);
     } catch (e) {
       setError('Error al refrescar cupones');

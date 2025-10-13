@@ -55,14 +55,29 @@ export default function EventCoupons() {
     }
   }, []);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Sin fecha';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Fecha inválida';
+    }
+  };
+
   const renderItem = ({ item }) => (
+    
     <TouchableOpacity
       style={styles.eventCard}
-      onPress={() => navigation.navigate('cupones', { id: item.id })}
+      onPress={() => navigation.navigate('cupones', { idEvent: item.id })}
     >
       <Text style={styles.eventName}>{item.nombre}</Text>
-      <Text style={styles.eventDate}>{item.fecha}</Text>
-      {/* Puedes agregar más info del evento aquí si quieres */}
+      <Text style={styles.eventDate}>{formatDate(item.fecha)}</Text>
+
     </TouchableOpacity>
   );
 

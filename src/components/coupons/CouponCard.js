@@ -46,7 +46,7 @@ const CouponCard = ({ coupon, onPress }) => {
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.cardHeader}>
         <Text style={styles.couponName} numberOfLines={2}>
-          {coupon.nombre || 'Cupón sin nombre'}
+          {coupon.titulo || 'Cupón sin nombre'}
         </Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(coupon.estado) }]}>
           <Text style={styles.statusText}>
